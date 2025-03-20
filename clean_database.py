@@ -13,7 +13,7 @@ def clean_old_data(days=90):
     
     # 计算截止日期
     cutoff_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d %H:%M:%S")
-    
+
     conn = sqlite3.connect(DB_PATH)
     
     try:
@@ -47,6 +47,6 @@ def clean_old_data(days=90):
         conn.close()
 
 if __name__ == "__main__":
-    days = input("请输入要清理的天数(默认90天): ").strip()
+    days = input("请输入要清理的天数(默认90天，即删除超过90天及之前的数据): ").strip()
     days = int(days) if days.isdigit() else 90
     clean_old_data(days)

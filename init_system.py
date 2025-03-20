@@ -2,14 +2,12 @@
 import os
 import logging
 import json
-import sys
-from pathlib import Path
 
 # 导入数据库工具模块
 from db_utils import initialize_database, get_db_connection
 
 # 配置日志
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # 系统配置

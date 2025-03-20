@@ -1,7 +1,6 @@
 # backup_database.py
 import os
 import shutil
-import time
 import datetime
 
 DB_PATH = "./user_data/user_profiles.db"
