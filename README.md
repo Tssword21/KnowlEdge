@@ -54,15 +54,15 @@ KnowlEdge 是一款智能引擎，旨在为您提供高度个性化的行业知�
 
 ### **4.3. 配置 API 密钥**
 
-1.  在项目根目录创建一个名为 `.env` 的文件 (如果尚不存在)。
-2.  在 `.env` 文件中添加您的 API 密钥，格式如下：
-    ```env
-    DEEPSEEK_API_KEY="您的DeepSeek API密钥"
-    SERPER_API_KEY="您的Serper API密钥"
-    # BAIDU_API_KEY="您的百度翻译APP ID" (如果使用)
-    # BAIDU_SECRET_KEY="您的百度翻译密钥" (如果使用)
+1.  在 `KnowlEdge.py`文件中添加您的 API 密钥，格式如下：
+    ```python
+    "API_KEYS": {
+        "deepseek": os.environ.get("DEEPSEEK_API_KEY", "YOUR_DEEPSEEK_APIKEY"),
+        "qwen": os.environ.get("QWEN_API_KEY", "YOUR_QWEN_APIKEY"), # (可选)
+        "serper": os.environ.get("SERPER_API_KEY", "YOUR_SERPER_APIKEY"), # (可选)
+        "baidu_translate": os.environ.get("BAIDU_API_KEY", "YOUR_BAIDU_APIKEY"), # (可选)
+    },
     ```
-    系统会通过 `os.environ.get()` 读取这些环境变量。
 
 ### **4.4. 系统初始化**
 
