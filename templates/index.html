@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KnowlEdge</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 700px;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #1a2b4d;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+        label {
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #334155;
+        }
+        input[type="text"], input[type="number"], input[type="email"], select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus, select:focus, textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+            outline: none;
+        }
+        textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+        button[type="submit"] {
+            background-color: #3b82f6;
+            color: white;
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: 600;
+            width: 100%;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+            margin-top: 10px;
+        }
+        button[type="submit"]:hover {
+            background-color: #2563eb;
+            transform: translateY(-1px);
+        }
+        button[type="submit"]:active {
+            transform: translateY(0px);
+        }
+        .results-area {
+            margin-top: 35px;
+            width: 100%;
+        }
+        .report, .error-message {
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            white-space: pre-wrap;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 14px;
+            line-height: 1.7;
+            overflow-x: auto;
+            color: #334155;
+        }
+        .error-message {
+            background-color: #fff1f2;
+            border-color: #ffdfe1;
+            color: #c51046;
+        }
+        h2.results-title {
+            font-size: 1.6em;
+            color: #1a2b4d;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        /* Updated Loading Overlay and Progress Display */
+        .loading-overlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9); /* More opaque for better focus */
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column; /* Stack spinner and progress vertically */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .loading-content {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        .spinner {
+            border: 5px solid #e2e8f0;
+            border-top: 5px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 20px auto; /* Center spinner and add bottom margin */
+        }
+        #loadingStatus { /* For current status text */
+            font-size: 1.1em;
+            color: #334155;
+            font-weight: 500;
+            margin-bottom: 15px; /* 调整间距为进度条腾出空间 */
+            min-height: 1.2em; /* Prevent layout shift */
+        }
+        #progressSteps { /* Container for step list */
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+            max-height: 180px; /* 调整最大高度以适应进度条 */
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px;
+        }
+        #progressSteps li {
+            padding: 8px 12px;
+            font-size: 0.95em;
+            color: #475569; /* Slightly lighter text */
+            border-bottom: 1px dashed #e2e8f0;
+            opacity: 0.6; /* Default state: not yet active */
+            transition: opacity 0.3s ease, color 0.3s ease;
+        }
+        #progressSteps li:last-child {
+            border-bottom: none;
+        }
+        #progressSteps li.active { /* Current step */
+            font-weight: 600;
+            color: #1e293b;
+            opacity: 1;
+        }
+        #progressSteps li.completed { /* Completed step */
+            color: #3b82f6; /* Blue for completed */
+            opacity: 1;
+        }
+        #progressSteps li.completed::before {
+            content: "✓ "; /* Checkmark for completed */
+            color: #3b82f6;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        /* --- 新增：进度条样式 --- */
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e2e8f0; /* 进度条背景色 */
+            border-radius: 4px;
+            height: 10px; /* 进度条高度 */
+            margin-bottom: 20px; /* 与步骤列表的间距 */
+            overflow: hidden; /* 确保内部填充条不出界 */
+        }
+        .progress-bar-fill {
+            width: 0%; /* 初始宽度为0 */
+            height: 100%;
+            background-color: #3b82f6; /* 进度条填充色 (与按钮同色) */
+            border-radius: 4px;
+            transition: width 0.3s ease-in-out; /* 宽度变化动画 */
+        }
+        /* --- 结束：进度条样式 --- */
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 可选：为 markdown 内容添加样式 */
+        .report {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 15px;
+            line-height: 1.7;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+        }
+        .report h1, .report h2, .report h3 { color: #1a2b4d; }
+        .report code { background: #f3f4f6; padding: 2px 4px; border-radius: 4px; }
+        .report pre { background: #f3f4f6; padding: 10px; border-radius: 6px; }
+        .report a { color: #2563eb; text-decoration: underline; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>KnowlEdge 个性化知识更新</h1>
+        <form id="knowledgeForm">
+            <label for="user_name">用户名:</label>
+            <input type="text" id="user_name" name="user_name" value="Tssword3" required>
+
+            <label for="occupation">职业:</label>
+            <input type="text" id="occupation" name="occupation" value="算法工程师" required>
+
+            <label for="day">知识更新周期 (天数):</label>
+            <input type="number" id="day" name="day" value="7" min="1" required>
+
+            <label for="platform">消息来源平台:</label>
+            <select id="platform" name="platform" required>
+                <option value="学术期刊" selected>学术期刊</option>
+                <option value="新闻类">新闻类</option>
+                <option value="综合类">综合类</option>
+            </select>
+
+            <label for="content_type">关注领域 (用于报告/综述主题):</label>
+            <input type="text" id="content_type" name="content_type" value="自然语言处理" required>
+
+            <label for="email">邮箱:</label>
+            <input type="email" id="email" name="email" value="1145143@qq.com" required>
+
+            <label for="report_type">报告类型:</label>
+            <select id="report_type" name="report_type" required>
+                <option value="standard_report" selected>标准行业报告</option>
+                <option value="literature_review">文献综述报告</option>
+            </select>
+
+            <!-- 新增文献/报告数量选择 -->
+            <label for="num_papers">文献/报告数量 (5-20):</label>
+            <input type="number" id="num_papers" name="num_papers" value="10" min="5" max="20" required>
+
+            <label for="cv_text">简历文本 (可选):</label>
+            <textarea id="cv_text" name="cv_text" placeholder="在此处粘贴您的简历文本..."></textarea>
+
+            <button type="submit">生成报告</button>
+        </form>
+
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <div id="loadingStatus">正在初始化...</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                </div>
+                <ul id="progressSteps">
+                    <!-- Progress steps will be added here by JavaScript -->
+                </ul>
+            </div>
+        </div>
+
+        <div class="results-area">
+            <div id="reportContainer" style="display:none;">
+                <h2 class="results-title">生成的报告:</h2>
+                <pre class="report" id="reportContent"></pre>
+            </div>
+            <div id="errorContainer" style="display:none;">
+                <h2 class="results-title">错误:</h2>
+                <pre class="error-message" id="errorContent"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function linkifyReport(reportText) {
+            if (!reportText) return '';
+            const lines = reportText.split('\n');
+            const processedLines = lines.map(line => {
+                const urlPattern = /^(原文网址：|链接：)(\s*)(https?:\/\/[^\s"'<>()]+)/;
+                const match = line.match(urlPattern);
+                if (match) {
+                    const label = match[1];
+                    const spaces = match[2];
+                    const url = match[3];
+                    const restOfLine = line.substring(match[0].length);
+                    const escapedUrl = url.replace(/"/g, '&quot;');
+                    return `${label}${spaces}<a href="${escapedUrl}" target="_blank" rel="noopener noreferrer">${url}</a>${restOfLine}`;
+                }
+                return line;
+            });
+            return processedLines.join('\n');
+        }
+
+        const TOTAL_STEPS = 6; // Define total steps for progress UI
+        const STEP_DEFINITIONS = [ // Define step names
+            { id: 1, name: "收集用户信息" },
+            { id: 2, name: "用户画像分析" },
+            { id: 3, name: "构建搜索参数" },
+            { id: 4, name: "执行搜索" },
+            { id: 5, name: "生成报告" },
+            { id: 6, name: "完成处理" }
+        ];
+
+
+        document.getElementById('knowledgeForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const form = event.target; // 获取表单元素
+            const formData = new FormData(form); // <--- formData 在这里定义
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingStatus = document.getElementById('loadingStatus');
+            const progressStepsUl = document.getElementById('progressSteps');
+            const progressBarFill = document.getElementById('progressBarFill');
+            const reportContainer = document.getElementById('reportContainer');
+            const reportContent = document.getElementById('reportContent');
+            const errorContainer = document.getElementById('errorContainer');
+            const errorContent = document.getElementById('errorContent');
+
+            // Initialize UI for loading
+            loadingStatus.textContent = '正在初始化...';
+            progressBarFill.style.width = '0%';
+            progressStepsUl.innerHTML = ''; 
+            STEP_DEFINITIONS.forEach(step => {
+                const li = document.createElement('li');
+                li.id = `step-${step.id}`;
+                li.textContent = step.name;
+                progressStepsUl.appendChild(li);
+            });
+            loadingOverlay.style.display = 'flex';
+            reportContainer.style.display = 'none';
+            reportContent.innerHTML = '';
+            errorContainer.style.display = 'none';
+            errorContent.textContent = '';
+
+            let currentStep = 0;
+            let responseConsumed = false; // 标记响应体是否已被消耗
+
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    body: formData // <--- formData 在这里被使用
+                });
+
+                if (!response.ok) {
+                    // 如果 HTTP 状态码表示错误 (例如 500)
+                    let errorMsg = `服务器错误 ${response.status}: ${response.statusText}`;
+                    // 尝试读取响应体作为文本 (只读一次)
+                    // 检查 Content-Type 是否为 application/json
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.includes("application/json")) {
+                        try {
+                            const errorResult = await response.json();
+                            responseConsumed = true;
+                            errorMsg = errorResult.message || errorMsg;
+                        } catch (e) {
+                            // 如果解析 JSON 失败，可能响应体为空或不是有效 JSON
+                            // 此时不要再尝试 response.text()，因为 json() 已消耗
+                            console.warn("无法将错误响应解析为 JSON:", e);
+                        }
+                    } else {
+                        try {
+                            // 如果不是 JSON，尝试作为文本读取
+                            const textError = await response.text();
+                            responseConsumed = true;
+                            if (textError) errorMsg = textError; // 使用文本错误（如果存在）
+                        } catch (e) {
+                            console.warn("无法将错误响应读取为文本:", e);
+                        }
+                    }
+                    throw new Error(errorMsg);
+                }
+
+                // 如果 response.ok，则开始处理 SSE 流
+                const reader = response.body.getReader();
+                responseConsumed = true; // 流的读取器已获取，视为已消耗
+                const decoder = new TextDecoder(); // 默认 utf-8
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        // 确保在流结束后处理可能剩余的 buffer 内容
+                        if (buffer.startsWith('data: ')) { // 检查是否有未处理的 SSE 消息
+                            try {
+                                const jsonData = buffer.substring(buffer.indexOf('data: ') + 6).trim();
+                                if (jsonData) { // 确保 jsonData 不是空的
+                                    const eventData = JSON.parse(jsonData);
+                                    if (eventData.type === 'complete') {
+                                        progressBarFill.style.width = '100%';
+                                        // 先将报告内容转为 HTML（支持 Markdown）
+                                        const html = marked.parse(eventData.report || '');
+                                        reportContent.innerHTML = html;
+                                        reportContainer.style.display = 'block';
+                                        loadingStatus.textContent = '处理完成！';
+                                        const finalStepLi = document.getElementById(`step-${TOTAL_STEPS}`);
+                                        if(finalStepLi) finalStepLi.className = 'completed';
+                                    } else if (eventData.type === 'error') { // 处理流中发出的错误
+                                        throw new Error(eventData.message || "流处理中发生未知错误。");
+                                    }
+                                }
+                            } catch(e) { 
+                                console.error('处理 SSE 流尾部缓冲区时出错:', e, buffer);
+                                // 即使这里出错，也可能已经有部分报告显示了
+                                if (!reportContainer.style.display || reportContainer.style.display === 'none') {
+                                // 如果还没有报告，则显示这个错误
+                                errorContent.textContent = '解析最终数据时发生错误: ' + e.message;
+                                errorContainer.style.display = 'block';
+                                }
+                            }
+                        }
+                        break; // 流结束
+                    }
+
+                    buffer += decoder.decode(value, { stream: true });
+                    
+                    let eolIndex;
+                    while ((eolIndex = buffer.indexOf('\n\n')) >= 0) {
+                        const message = buffer.substring(0, eolIndex);
+                        buffer = buffer.substring(eolIndex + 2); 
+
+                        if (message.startsWith('data: ')) {
+                            const jsonData = message.substring(6);
+                            try {
+                                const eventData = JSON.parse(jsonData);
+                                // console.log("接收到 SSE 事件:", eventData); // 调试时可以取消注释
+
+                                if (eventData.type === 'progress') {
+                                    currentStep = eventData.step;
+                                    const progressPercent = Math.min(100, (currentStep / TOTAL_STEPS) * 100);
+                                    progressBarFill.style.width = progressPercent + '%';
+                                    loadingStatus.textContent = `${eventData.message} (${currentStep}/${TOTAL_STEPS})`;
+                                    for (let i = 1; i <= TOTAL_STEPS; i++) {
+                                        const stepLi = document.getElementById(`step-${i}`);
+                                        if (stepLi) {
+                                            if (i < currentStep) stepLi.className = 'completed';
+                                            else if (i === currentStep) stepLi.className = 'active';
+                                            else stepLi.className = '';
+                                        }
+                                    }
+                                } else if (eventData.type === 'complete') {
+                                    progressBarFill.style.width = '100%';
+                                    loadingStatus.textContent = '处理完成！';
+                                    const finalStepLi = document.getElementById(`step-${TOTAL_STEPS}`);
+                                    if(finalStepLi) finalStepLi.className = 'completed';
+                                    // 先将报告内容转为 HTML（支持 Markdown）
+                                    const html = marked.parse(eventData.report || '');
+                                    reportContent.innerHTML = html;
+                                    reportContainer.style.display = 'block';
+                                } else if (eventData.type === 'error') {
+                                    // 由流本身发出的特定错误，在这里处理
+                                    throw new Error(eventData.message || "流处理中发生未知错误。");
+                                }
+                            } catch (e) {
+                                console.error('解析 SSE JSON 或处理事件时出错:', e, jsonData);
+                                // 决定是抛出错误停止所有处理，还是仅记录并尝试继续（取决于严重性）
+                                // 为简单起见，我们向上抛出，由外层 catch 处理
+                                throw new Error('解析服务器事件时发生错误: ' + e.message);
+                            }
+                        }
+                    }
+                }
+            } catch (error) { // 外层 catch，处理 fetch 错误、非 ok 响应、或 SSE 处理中抛出的错误
+                console.error('表单提交或 SSE 处理错误:', error);
+                errorContent.textContent = error.message || '处理过程中发生未知错误。'; // 显示错误信息
+                errorContainer.style.display = 'block';
+                loadingStatus.textContent = '处理失败';
+                progressBarFill.style.backgroundColor = '#ef4444'; // 错误时进度条变红 (可选)
+                if (currentStep > 0 && currentStep <= TOTAL_STEPS) {
+                    const failedStepLi = document.getElementById(`step-${currentStep}`);
+                    // if (failedStepLi && failedStepLi.className !== 'completed') failedStepLi.className = 'error-step'; // 需要定义 .error-step 样式
+                }
+            } finally {
+                // 默认情况下，我们总是想隐藏加载覆盖层，除非有特殊情况
+                let hideOverlay = true;
+                
+                // 检查是否已成功完成并显示了报告
+                if (reportContainer.style.display === 'block') {
+                    setTimeout(() => {
+                        alert('报告已成功生成！');
+                        // 成功完成后，可以安全地隐藏覆盖层
+                        if (loadingOverlay.style.display !== 'none') {
+                            loadingOverlay.style.display = 'none';
+                        }
+                        // 重置进度条以备下次使用
+                        if(progressBarFill) { // 确保元素存在
+                           progressBarFill.style.width = '0%';
+                           progressBarFill.style.backgroundColor = '#3b82f6'; // 恢复进度条颜色
+                        }
+                    }, 300); // 短暂延迟，让用户看到最终的 "处理完成！" 状态
+                    hideOverlay = false; // alert 之后已经处理了隐藏，不需要再执行下面的通用隐藏
+                } 
+                // 如果有错误显示，也应该隐藏加载界面
+                else if (errorContainer.style.display === 'block') {
+                     setTimeout(() => {
+                        if (loadingOverlay.style.display !== 'none') {
+                            loadingOverlay.style.display = 'none';
+                        }
+                        if(progressBarFill) {
+                           progressBarFill.style.width = '0%'; 
+                           progressBarFill.style.backgroundColor = '#3b82f6';
+                        }
+                    }, 500);
+                    hideOverlay = false; // 错误显示后，也已处理隐藏
+                }
+
+                // 通用的隐藏逻辑，以防万一之前的条件都没满足（例如，流中断）
+                // 并且确保 responseConsumed 为 true，意味着我们至少尝试读取了响应
+                if (hideOverlay && responseConsumed) { 
+                    setTimeout(() => {
+                        if (loadingOverlay.style.display !== 'none') {
+                            loadingOverlay.style.display = 'none';
+                        }
+                        if(progressBarFill) {
+                            progressBarFill.style.width = '0%';
+                            progressBarFill.style.backgroundColor = '#3b82f6';
+                        }
+                    }, 500); // 给一点时间让用户看到最后的状态，或者处理可能未完成的流读取
+                } else if (hideOverlay && !responseConsumed) {
+                    // 如果 response 根本没有被消耗（例如，fetch 本身失败），也应该隐藏
+                     setTimeout(() => {
+                        if (loadingOverlay.style.display !== 'none') {
+                            loadingOverlay.style.display = 'none';
+                        }
+                         if(progressBarFill) {
+                            progressBarFill.style.width = '0%';
+                            progressBarFill.style.backgroundColor = '#3b82f6';
+                        }
+                    }, 100); // 快速隐藏
+                }
+            }
+        });
+        </script>
+</body>
+</html> 
