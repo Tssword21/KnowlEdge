@@ -30,10 +30,10 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 # 常量配置
 CONFIG = {
     "API_KEYS": {
-        "deepseek": os.environ.get("DEEPSEEK_API_KEY", "sk-58c6314fd9ae47a6a493d0d8499d2271"),
-        "qwen": os.environ.get("QWEN_API_KEY", "sk-cfae3cfc07764f9ab16f34fdab2cf54a"),
-        "serper": os.environ.get("SERPER_API_KEY", "a196a1abc535244a7430523550c88adb422d893e"),
-        "baidu_translate": os.environ.get("BAIDU_API_KEY", ""),
+        "deepseek": os.environ.get("DEEPSEEK_API_KEY", "YOUR_DEEPSEEK_APIKEY"),
+        "qwen": os.environ.get("QWEN_API_KEY", "YOUR_QWEN_APIKEY"),
+        "serper": os.environ.get("SERPER_API_KEY", "YOUR_SERPER_APIKEY"),
+        "baidu_translate": os.environ.get("BAIDU_API_KEY", "YOUR_BAIDU_APIKEY"),
     },
     "MODELS": {
         "BERT": "bert-base-multilingual-cased",
