@@ -228,13 +228,14 @@
         .report a { color: #2563eb; text-decoration: underline; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>KnowlEdge 个性化知识更新</h1>
+        <h1>KnowlEdge 个性化知识推送</h1>
         <form id="knowledgeForm">
             <label for="user_name">用户名:</label>
-            <input type="text" id="user_name" name="user_name" value="Tssword3" required>
+            <input type="text" id="user_name" name="user_name" value="Tssword" required>
 
             <label for="occupation">职业:</label>
             <input type="text" id="occupation" name="occupation" value="算法工程师" required>
@@ -253,12 +254,14 @@
             <input type="text" id="content_type" name="content_type" value="自然语言处理" required>
 
             <label for="email">邮箱:</label>
-            <input type="email" id="email" name="email" value="1145143@qq.com" required>
+            <input type="email" id="email" name="email" value="114514@qq.com" required>
 
             <label for="report_type">报告类型:</label>
             <select id="report_type" name="report_type" required>
                 <option value="standard_report" selected>标准行业报告</option>
                 <option value="literature_review">文献综述报告</option>
+                <option value="industry_research_report">行业调研报告</option>
+                <option value="popular_science_report">知识科普报告</option>
             </select>
 
             <!-- 新增文献/报告数量选择 -->

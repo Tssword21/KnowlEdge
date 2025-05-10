@@ -18,6 +18,8 @@ import docx
 import pandas as pd
 import pytesseract
 from PIL import Image
+import asyncio
+import re
 
 # 配置日志
 # logging.getLogger("httpcore").setLevel(logging.WARNING)
@@ -29,6 +31,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 CONFIG = {
     "API_KEYS": {
         "deepseek": os.environ.get("DEEPSEEK_API_KEY", "sk-58c6314fd9ae47a6a493d0d8499d2271"),
+        "qwen": os.environ.get("QWEN_API_KEY", "sk-cfae3cfc07764f9ab16f34fdab2cf54a"),
         "serper": os.environ.get("SERPER_API_KEY", "a196a1abc535244a7430523550c88adb422d893e"),
         "baidu_translate": os.environ.get("BAIDU_API_KEY", ""),
     },
@@ -840,6 +843,78 @@ class KnowledgeFlow:
         self.serper_api_key = CONFIG["API_KEYS"]["serper"]
         self.user_profile_manager = UserProfileManager(client=self.client)
 
+    async def _call_llm(self, prompt: str, system_message: str = "你是一个知识渊博且表达能力优秀的AI助手。") -> str:
+        """
+        辅助方法：调用大语言模型并返回文本结果。
+        """
+        logging.debug(f"调用LLM。系统消息: '{system_message[:100]}...', 用户Prompt: '{prompt[:150]}...'")
+        try:
+            response = await asyncio.to_thread(
+                self.client.chat.completions.create,
+                model=CONFIG["MODELS"]["LLM"],
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+            )
+            if response and hasattr(response, 'choices') and len(response.choices) > 0:
+                content = response.choices[0].message.content
+                logging.debug(f"LLM原始返回内容 (前200字符): {content[:200]}")
+
+                # --- 后处理开始 ---
+                processed_content = content.strip() 
+                processed_content = processed_content.replace('\r\n', '\n')
+                # 规范化段落间距：确保段落间是两个换行符，但不要创建超过两个的连续换行。
+                # 1. 将3个或更多连续换行符替换为2个。
+                processed_content = re.sub(r'\n{3,}', '\n\n', processed_content)
+                # 2. 对于一些LLM可能只用单个换行做段落分隔的情况，如果前后都不是列表项或特殊MD结构，可以考虑将其替换为\n\n (此步较复杂，暂时省略，依赖LLM提示)
+                
+                # 再次移除处理后可能产生的首尾空白
+                processed_content = processed_content.strip()
+                # --- 后处理结束 ---
+
+                logging.debug(f"LLM处理后内容 (前200字符): {processed_content[:200]}")
+                return processed_content
+            else:
+                logging.error("LLM API响应无效或没有choices字段")
+                return "LLM未能生成有效回复。"
+        except Exception as e:
+            logging.error(f"调用LLM时发生错误: {e}", exc_info=True)
+            return f"调用LLM时出错: {str(e)}"
+
+    def _prepare_llm_context_from_search_results(self, search_results: Dict, max_items_per_source: int = 3, max_chars: int = 8000) -> str:
+        """
+        从搜索结果中准备文本上下文给LLM。
+        """
+        context_parts = []
+        total_chars = 0
+        for source, data in search_results.items():
+            if data and isinstance(data, dict) and 'results' in data:
+                items_processed = 0
+                for item in data['results']:
+                    if items_processed >= max_items_per_source:
+                        break
+                    title = item.get('title', '')
+                    snippet = item.get('snippet', item.get('abstract', '')) 
+                    if title and snippet:
+                        item_text = f"来源: {source}\n标题: {title}\n摘要: {snippet}\n---\n"
+                        if total_chars + len(item_text) > max_chars:
+                            remaining_chars = max_chars - total_chars
+                            if remaining_chars > 50: 
+                                context_parts.append(item_text[:remaining_chars] + "...")
+                            break 
+                        context_parts.append(item_text)
+                        total_chars += len(item_text)
+                        items_processed += 1
+            if total_chars >= max_chars:
+                break
+        
+        context_str = "\n".join(context_parts)
+        if not context_str:
+            return "未从搜索结果中提取到足够的上下文信息。"
+        return context_str
+
     def start_node(self, user_input: Dict[str, Any]) -> Dict:
         """ 收集用户初始信息 """
         logging.info("开始收集用户输入信息...")
@@ -1602,23 +1677,19 @@ class KnowledgeFlow:
         return "\n\n".join(report)
 
     async def generate_literature_review(self, search_results: Dict, original_query: str) -> str:
-        """
-        使用LLM基于搜索结果生成文献综述。
-        """
         logging.info(f"开始为查询 '{original_query}' 生成文献综述...")
+        llm_context_str = self._prepare_llm_context_from_search_results(search_results, max_items_per_source=5)
 
-        # 1. 收集文献链接和标题
         references_list = []
         for source, data in search_results.items():
             if data and isinstance(data, dict) and 'results' in data and data['results']:
                 for item in data['results']:
                     if isinstance(item, dict):
                         title = item.get('title', '未知标题')
-                        link = item.get('link', '#') # 如果没有链接，提供一个占位符
-                        if link and link != '#': # 只添加有效链接
+                        link = item.get('link', '#')
+                        if link and link != '#':
                             references_list.append({"title": title, "link": link, "source": source})
         
-        # 去重，基于链接
         unique_references = []
         seen_links = set()
         for ref in references_list:
@@ -1626,70 +1697,154 @@ class KnowledgeFlow:
                 unique_references.append(ref)
                 seen_links.add(ref["link"])
 
-        search_results_str = json.dumps(search_results, ensure_ascii=False, cls=NumpyEncoder)
-
+        system_message_lit_review = "你是一名资深的学术研究员和文献综述撰写专家。请严格按照用户要求的结构和格式生成内容。确保所有输出均为结构良好、干净的Markdown格式，段落间使用双换行符分隔，列表使用标准的Markdown语法。不要在段落中随意插入不必要的换行。用户在Prompt中章节标题后用括号 () 或 （） 包含的文字是对您生成该章节内容的引导和提示，这些括号及其内部的文字绝对不能出现在最终的输出中。您只需要生成这些括号提示之外的、针对该章节的实际内容。所有章节标题和结构由用户在Prompt中指定，请严格遵循。"
+        
         prompt = f"""
-        作为一名专业的学术研究助手，请基于以下针对主题 "{original_query}" 收集到的学术文献信息，撰写一份全面且结构清晰的文献综述。
+        请基于主题 "{original_query}" 和以下提供的相关学术文献信息，撰写一份全面且结构清晰的文献综述报告。
+        报告应包含以下Markdown结构和内容。请直接在每个章节标题下撰写对应的内容，不要重复标题，也不要输出括号中的提示文字。
 
-        请在综述中涵盖以下几个方面：
-        1.  引言：简要介绍研究主题的背景和重要性，以及本综述的目的和范围。
-        2.  主要研究方向和主题：识别并总结文献中涉及的核心研究方向、关键概念和主要理论。
-        3.  关键文献和贡献：重点介绍几篇具有里程碑意义或代表性的文献，阐述其主要方法、发现和贡献。
-        4.  研究方法的演变与比较（如果适用）：讨论该领域常用的研究方法，以及它们是如何随时间演变的，对比不同方法的优缺点。
-        5.  现有研究的局限性与研究空白：基于现有文献，指出当前研究中存在的不足、争议点或尚未解决的问题，识别潜在的研究空白。
-        6.  未来研究方向展望：对该领域的未来发展趋势进行预测，并提出值得进一步探索的研究方向。
-        7.  结论：对整个综述进行简要总结。
+        # 文献综述报告: {original_query}
 
-        重要提示：
-        -   在综述正文中提及文献时，请使用 "《文献标题》" 的格式。
-        -   请勿在综述正文中包含文献的URL或直接链接，我们将在末尾统一提供参考文献列表。
-        -   避免简单罗列文献摘要，而是要进行深入的分析、综合和批判性评价。
-        -   报告使用中文。如果原文不是中文，请准确翻译核心内容并融入综述。
+        ## 1. 引言
+        (请在此处撰写引言：简要介绍 "{original_query}" 主题的背景和重要性，以及本综述的目的和范围。)
 
-        可用的文献信息如下（JSON格式），请主要关注其内容进行分析，而不是重复其元数据：
-        {search_results_str}
+        ## 2. 主要研究方向和核心概念
+        (请在此处撰写主要研究方向和核心概念：识别并系统总结文献中涉及的核心研究方向、关键理论模型和重要概念。)
 
-        请直接开始撰写文献综述正文。
+        ## 3. 关键文献回顾与贡献
+        (请在此处撰写关键文献回顾与贡献：挑选几篇（3-5篇）具有里程碑意义或代表性的文献进行重点回顾，阐述其主要研究方法、核心发现和学术贡献。在提及具体文献时，可以使用其标题，例如"在《文献标题》中，作者指出..."。)
+
+        ## 4. 研究方法的演进与比较
+        (请在此处撰写研究方法的演进与比较：如果文献信息支持，讨论该领域常用的研究方法，它们是如何随时间演变的，并对比不同方法的优缺点。)
+
+        ## 5. 现有研究的局限性与未来研究空白
+        (请在此处撰写现有研究的局限性与未来研究空白：基于现有文献，批判性地指出当前研究中存在的不足、争议点或尚未解决的关键问题，从而识别潜在的未来研究空白和方向。)
+
+        ## 6. 结论与展望
+        (请在此处撰写结论与展望：对整个综述进行总结，并对 "{original_query}" 领域的未来发展趋势进行展望。)
+
+        ---\n*重要提示：*\n*- 请勿在综述正文中包含URL或直接的链接地址。参考文献列表将由外部程序在报告末尾单独提供。*\n*- 避免简单罗列文献摘要的堆砌，重点在于进行深入的分析、归纳、综合和批判性评价。*\n*- 报告全文请使用中文撰写。如果原始文献材料是其他语言，请确保核心信息的准确翻译和自然融入。*\n
+
+        ---文献信息参考---\n{llm_context_str}\n---文献信息参考结束---\n
+
+        请严格按照以上Markdown结构和要求生成完整的文献综述内容，直接从第一个章节的内容开始写，不要重复最顶层的报告标题。
         """
+        review_text = await self._call_llm(prompt, system_message_lit_review)
 
-        review_text = ""
-        try:
-            response = self.client.chat.completions.create(
-                model=CONFIG["MODELS"]["LLM"],
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "你是一个专业的学术研究助手，擅长撰写高质量的文献综述。请使用中文回答，并在综述正文中以特定格式引用文献，但不要包含URL。"
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                temperature=0.5,
-                stream=False
-            )
-            if response and hasattr(response, 'choices') and len(response.choices) > 0:
-                review_text = response.choices[0].message.content
-                logging.info(f"文献综述主体生成完成，长度: {len(review_text)}")
-            else:
-                raise ValueError("LLM API响应无效或没有choices字段")
+        # Prepend the main title that Python controls
+        final_report = f"# 文献综述报告: {original_query}\n\n{review_text}"
 
-        except Exception as e:
-            logging.error(f"生成文献综述主体时发生错误: {e}", exc_info=True)
-            review_text = f"抱歉，在为您生成关于 '{original_query}' 的文献综述主体时遇到错误: {str(e)}"
-
-        # 3. 拼接参考文献列表 (Markdown格式)
         if unique_references:
             references_section = "\n\n---\n## 参考文献\n\n"
             for i, ref in enumerate(unique_references):
-                references_section += f"{i+1}. **{ref['title']}** ({ref['source']})\n   - 链接: [{ref['link']}]({ref['link']})\n"
-            review_text += references_section
+                references_section += f"{i+1}. **{ref['title']}** (来源: {ref['source']})\n   - 链接: [{ref['link']}]({ref['link']})\n"
+            final_report += references_section
         else:
-            review_text += "\n\n---\n未找到可引用的文献链接。"
+            final_report += "\n\n---\n未找到可引用的文献链接。"
             
-        logging.debug(f"最终生成的文献综述 (包含参考文献) 长度: {len(review_text)}")
-        return review_text
+        return final_report
+
+    async def generate_industry_research_report(self, search_results: Dict, user_input: Dict, original_query: str) -> str:
+        logging.info(f"开始生成行业调研报告: {original_query}")
+        context_str = self._prepare_llm_context_from_search_results(search_results)
+        
+        system_message_industry_analyst = "你是一位经验丰富的行业分析师和商业顾问。请严格按照用户在Prompt中指定的Markdown结构和内容要求进行撰写。确保所有输出均为结构良好、干净的Markdown格式，段落间使用双换行符分隔，列表和表格使用标准的Markdown语法。不要在段落中随意插入不必要的换行。用户在Prompt中章节标题后用括号 () 或 （） 包含的文字是对您生成该章节内容的引导和提示，这些括号及其内部的文字绝对不能出现在最终的输出中。您只需要生成这些括号提示之外的、针对该章节的实际内容。所有章节标题和结构由用户在Prompt中指定，请严格遵循。"
+
+        prompt = f"""
+        请针对主题 "{original_query}"，并结合以下提供的背景信息，撰写一份结构清晰、内容详实的行业调研报告。
+        报告应严格遵循以下Markdown结构，并在每个章节标题之下直接撰写对应的内容。不要重复章节标题本身，也不要输出括号中的提示性文字。
+
+        # 行业调研报告: {original_query}
+
+        ## 1. 执行摘要
+        (请在此处撰写200-300字的执行摘要：概括核心现状、技术特点、关键应用、成熟度判断、机遇与挑战。面向企业决策者或项目负责人。)
+
+        ## 2. 技术概览与核心组件分析
+        (请在此处撰写技术概览：分析 "{original_query}" 的核心技术组件、方法论或主要技术分支。描述其原理、特征和作用。确保专业准确，语言清晰。)
+
+        ## 3. 技术对比分析
+        (请在此处进行技术对比分析：如果领域内存在多种主流技术路径值得对比，选择2-3个关键点，对比优势、劣势、适用场景、技术差异。尽量使用Markdown表格或列表。如果技术路径单一或不适合对比，请说明原因。)
+
+        ## 4. 技术成熟度评估
+        (请在此处评估技术成熟度：评估 "{original_query}" 相关核心技术/分支的当前技术成熟度，如概念验证、研发攻坚、早期市场、快速成长、成熟应用、衰退期。给出判断理由和阶段特征。)
+
+        ## 5. 应用前景与市场机遇
+        (请在此处分析应用前景与市场机遇：分析 "{original_query}" 技术未来3-5年的主要应用前景和潜在市场机遇。从行业、场景角度展开，指出驱动因素。)
+
+        ## 6. 近期趋势与潜在风险点
+        (请在此处总结近期趋势与潜在风险点：总结 "{original_query}" 领域的最新发展趋势、研究进展或行业动态。识别技术瓶颈、市场风险、伦理或合规挑战。)
+        \n
+        ## 7. 初步战略建议
+        (请在此处提供初步战略建议：针对希望在 "{original_query}" 领域进行技术评估、项目投入或战略布局的机构，提供3-5条操作性初步战略建议，聚焦于把握机遇、规避风险、关键切入点。)
+
+        ---\n*免责声明：本报告基于公开信息和AI模型分析生成，仅供参考，不构成任何具体的投资或决策建议。*\n
+
+        ---文献信息参考---\n{context_str}\n---文献信息参考结束---\n
+
+        请严格按照以上Markdown结构和要求生成完整的报告内容，直接从第一个章节的内容开始写，不要重复最顶层的报告标题。
+        """
+        
+        full_report_content = await self._call_llm(prompt, system_message_industry_analyst)
+        # Prepend the main title that Python controls
+        final_report = f"# 行业调研报告: {original_query}\n\n{full_report_content}"
+        return final_report
+
+    async def generate_popular_science_report(self, search_results: Dict, user_input: Dict, original_query: str) -> str:
+        logging.info(f"开始生成知识科普报告: {original_query}")
+        context_str = self._prepare_llm_context_from_search_results(search_results, max_items_per_source=2, max_chars=4000)
+
+        system_msg_science_writer = "你是一位优秀的科普作家和沟通专家。请严格按照用户在Prompt中指定的Markdown结构和内容要求进行撰写。确保所有输出均为结构良好、干净的Markdown格式，段落间使用双换行符分隔，列表和图表（如Mermaid）使用标准Markdown语法。不要在段落中随意插入不必要的换行。用户在Prompt中章节标题后用括号 () 或 （） 包含的文字是对您生成该章节内容的引导和提示，这些括号及其内部的文字绝对不能出现在最终的输出中。您只需要生成这些括号提示之外的、针对该章节的实际内容。所有章节标题和结构由用户在Prompt中指定，请严格遵循。"
+
+        prompt = f"""
+        请针对科普主题 "{original_query}"，并结合以下提供的背景信息，为希望拓展知识边界的成年非专业人士撰写一篇生动有趣、易于理解的知识科普文章。
+        文章应严格遵循以下Markdown结构，并在每个章节标题之下直接撰写对应的内容。不要重复章节标题本身，也不要输出括号中的提示性文字。
+
+        # 知识科普: 解密 {original_query}
+
+        ## 1. 嘿，{original_query} 是什么东东？
+        (请为以上标题下的内容，提供针对成年非专业人士的清晰、简洁且易于理解的核心概念解释。必须包含一个生动且贴切的生活化类比，帮助快速抓住要点。确保解释既准确又不失趣味性。避免不必要的专业术语；如果必须使用，请立即给出通俗解释。)
+
+        ## 2. 为什么我们应该关心 {original_query}？
+        (请为以上标题下的内容，阐述对于成年人而言，了解 "{original_query}" 的实际意义或潜在价值。它可能如何影响工作、生活或对世界的认知？请列举2-3点，并用简洁明了的语言阐述。)
+
+        ## 3. 核心概念三连击 (由浅入深)
+        (请为以上标题下的内容，采用"三层渐进式解读"的方式阐述其核心概念。
+        请按以下结构提供三层解读，可以使用Markdown加粗文本强调分层，但不要自行添加更低级别的Markdown标题如###等：
+        *   **第一层：核心概要 (一句话点睛):** [此处填写您的解读内容]
+        *   **第二层：工作原理浅析 (形象化解析):** [此处填写您的解读内容]
+        *   **第三层：关键特性与延伸思考 (启发性细节):** [此处填写您的解读内容]
+        每一层解读都应力求清晰、准确且易于理解。)
+
+        ## 4. 如何开始学习 {original_query}？
+        (请为以上标题下的内容，提供一份简洁实用的入门学习指南。指南应包含：
+        1.  推荐的学习资源类型（例如，高质量的在线课程、权威科普文章/白皮书、专家访谈或讲座视频、互动式学习网站等）。
+        2.  初学者应首先掌握的核心概念或基础知识。
+        3.  一个建议的学习步骤或顺序。如果合适，您可以使用Mermaid的graph LR代码块（包裹在 \\\`\\\`\\\`mermaid ... \\\`\\\`\\\` 中）来可视化学习路线图。
+        请以清晰的列表或分点形式呈现。)
+
+        ## 5. 关于 {original_query} 的快问快答
+        (请为以上标题下的内容，模拟一次面向成年人的入门级Q&A环节。设计2-3个典型且富有启发性的问题。对每个问题给出清晰、准确且通俗易懂的回答，格式如下，不要添加额外标题：
+        **Q1: [问题1]**
+        A1: [回答1]
+
+        **Q2: [问题2]**
+        A2: [回答2]
+        )
+        \n
+        ## 6. 结语：探索 {original_query} 的更多乐趣
+        (请为以上标题下的内容，撰写一个精炼（约50-80字）、能够激发成年读者持续学习兴趣和探索欲望的结语。结语应积极正面，并强调持续学习的重要性。)
+
+        ---\n*本内容由KnowlEdge AI生成，旨在知识普及，力求通俗易懂。专业细节请参考学术文献。*\n
+
+        ---文献信息参考---\n{context_str}\n---文献信息参考结束---\n
+
+        请严格按照以上Markdown结构和要求生成完整的科普文章内容，直接从第一个章节的内容开始写，不要重复最顶层的报告标题。
+        """
+        
+        full_report_content = await self._call_llm(prompt, system_msg_science_writer)
+        # Prepend the main title that Python controls
+        final_report = f"# 知识科普: 解密 {original_query}\n\n{full_report_content}"
+        return final_report
 
     def send_email(self, report: str):
         """发送邮件（示例）"""
@@ -1963,7 +2118,7 @@ async def main():
         print("系统尚未初始化，正在进行初始化...")
         # 导入并运行初始化脚本
         try:
-            import init_system
+            import scripts.init_system as init_system
             init_result = init_system.main()
             if not init_result:
                 print("系统初始化失败，请检查日志并解决问题后重试")

@@ -1,121 +1,187 @@
-# 学术搜索工具集
+# **KnowlEdge 个性化知识引擎 - 作品使用手册**
 
-这个工具集提供了一系列用于学术论文搜索和比较的Python脚本，可以帮助研究人员更高效地查找和分析相关文献。
+## **1. 欢迎使用 KnowlEdge！**
 
-## 功能特点
+KnowlEdge 是一款智能引擎，旨在为您提供高度个性化的行业知识更新、深度文献综述、专业行业调研报告以及通俗易懂的知识科普文章。通过简单的操作，您可以快速获取与您职业和兴趣紧密相关的最新资讯和深度分析。
 
-- **arXiv搜索**：搜索arXiv上的论文，提取标题、作者、摘要、发表时间等信息
-- **Google Scholar搜索**：搜索Google Scholar上的论文，获取引用次数和期刊信息
-- **结果比较与合并**：比较两个来源的搜索结果，识别相似论文，合并信息
-- **综合报告生成**：生成包含统计信息和详细结果的Markdown格式报告
+本手册将引导您完成系统的安装、配置和日常使用。
 
-## 安装依赖
+## **2. 系统特点**
 
-在使用这些工具前，请先安装必要的依赖：
+*   **个性化定制**: 根据您的职业、关注领域和可选的简历信息，为您量身打造内容。
+*   **多样化报告**: 支持生成标准行业报告、文献综述、行业调研报告和知识科普文章。
+*   **权威信息源**: 整合来自学术期刊 (ArXiv) 和广泛网络搜索 (Google) 的信息。
+*   **智能分析与撰写**: 利用先进的大语言模型 (LLM) 进行内容提取、分析、翻译和报告生成。
+*   **实时进度反馈**: 清晰展示后台处理的每一个步骤，让您随时了解任务进展。
+*   **多格式兼容**: 支持读取多种格式的简历文件（TXT, PDF, DOCX, 图片等）。
 
-```bash
-pip install arxiv scholarly difflib argparse
-```
+## **3. 系统需求与环境准备**
 
-## 使用方法
+在开始之前，请确保您的系统满足以下基本要求：
 
-### arXiv搜索
+*   **Python 环境**: 建议 Python 3.8 或更高版本。
+*   **pip**: Python 包管理工具。
+*   **Tesseract OCR**: 如果需要从图片格式的简历中提取文本，请确保已安装 Tesseract OCR 引擎，并将其添加到系统 PATH。同时，需要安装对应的语言包 (如中文 `chi_sim` 和英文 `eng`)。
+*   **API 密钥**:
+    *   **DeepSeek API Key**: 用于驱动核心的AI分析和内容生成功能。
+    *   **Serper API Key**: 用于执行 Google 搜索。
+    *   **(可选) Baidu Translate API Key**: 如果计划启用百度翻译。
+*   **网络连接**: 系统需要访问外部API服务。
 
-使用`improved_arxiv_search.py`脚本搜索arXiv上的论文：
+## **4. 安装与配置**
 
-```bash
-python improved_arxiv_search.py "机器学习" --max 20 --sort-by relevance --categories cs.AI,cs.LG
-```
+### **4.1. 获取代码**
 
-参数说明：
-- 第一个参数是搜索查询字符串
-- `--max`：最大返回结果数（默认：20）
-- `--sort-by`：排序方式，可选值：relevance（相关性）、lastUpdatedDate（最近更新）、submittedDate（提交日期）
-- `--categories`：限制搜索的类别，多个类别用逗号分隔
-- `--output`：输出文件名（不包含扩展名）
-- `--format`：输出格式，可选值：json、markdown、both（默认：both）
+从代码仓库获取项目文件到您的本地计算机。
 
-### Google Scholar搜索
+### **4.2. 安装依赖**
 
-使用`google_scholar_search.py`脚本搜索Google Scholar上的论文：
+1.  打开命令行/终端，导航到项目根目录。
+2.  建议创建一个 Python 虚拟环境:
+    ```bash
+    python -m venv .venv
+    # 激活虚拟环境
+    # Windows:
+    # .venv\Scripts\activate
+    # macOS/Linux:
+    # source .venv/bin/activate
+    ```
+3.  安装所需的 Python 包:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *(您项目中可能需要手动创建 `requirements.txt` 文件，根据 `KnowlEdge.py` 和 `app.py` 中的 `import` 语句，主要依赖可能包括： `fastapi`, `uvicorn`, `python-dotenv`, `openai`, `requests`, `deep-translator`, `transformers`, `torch`, `scikit-learn`, `pypdf2`, `python-docx`, `pandas`, `pytesseract`, `pillow`, `jinja2` 等)*
 
-```bash
-python google_scholar_search.py "深度学习" --max 20 --year-start 2020 --year-end 2023
-```
+### **4.3. 配置 API 密钥**
 
-参数说明：
-- 第一个参数是搜索查询字符串
-- `--max`：最大返回结果数（默认：20）
-- `--year-start`：开始年份
-- `--year-end`：结束年份
-- `--author`：按作者名搜索（添加此参数表示按作者搜索）
-- `--output`：输出文件名（不包含扩展名）
-- `--format`：输出格式，可选值：json、markdown、both（默认：both）
-- `--topic`：Markdown输出的主题名称
+1.  在项目根目录创建一个名为 `.env` 的文件 (如果尚不存在)。
+2.  在 `.env` 文件中添加您的 API 密钥，格式如下：
+    ```env
+    DEEPSEEK_API_KEY="您的DeepSeek API密钥"
+    SERPER_API_KEY="您的Serper API密钥"
+    # BAIDU_API_KEY="您的百度翻译APP ID" (如果使用)
+    # BAIDU_SECRET_KEY="您的百度翻译密钥" (如果使用)
+    ```
+    系统会通过 `os.environ.get()` 读取这些环境变量。
 
-### 结果比较与合并
+### **4.4. 系统初始化**
 
-使用`compare_search_results.py`脚本比较和合并arXiv和Google Scholar的搜索结果：
+首次运行或需要重置系统时，执行初始化脚本：
 
-```bash
-python compare_search_results.py "自然语言处理" --max 20 --similarity 0.8
-```
+1.  确保您的终端位于项目根目录，并且虚拟环境已激活。
+2.  运行初始化脚本：
+    ```bash
+    python src/scripts/init_system.py
+    ```
+    此脚本将：
+    *   创建必要的数据目录 (如 `./user_data`, `./user_data/logs`, `./user_data/cache`)。
+    *   初始化 SQLite 数据库 (`./user_data/user_profiles.db`) 及表结构。
+    *   创建默认的兴趣分类文件 (`./user_data/interest_categories.json`)。
 
-参数说明：
-- 第一个参数是搜索查询字符串
-- `--arxiv-file`：arXiv搜索结果JSON文件（如果已有结果文件）
-- `--scholar-file`：Google Scholar搜索结果JSON文件（如果已有结果文件）
-- `--max`：每个来源的最大结果数（默认：20）
-- `--similarity`：标题相似度阈值（默认：0.8）
-- `--output`：输出文件名（不包含扩展名）
-- `--year-start`：开始年份
-- `--year-end`：结束年份
+## **5. 运行 KnowlEdge 引擎**
 
-## 输出示例
+系统通过 FastAPI Web 服务器运行。
 
-### 综合报告
+1.  确保您的终端位于项目根目录，并且虚拟环境已激活。
+2.  启动 FastAPI 应用：
+    ```bash
+    uvicorn src.app:app --reload --port 5001
+    ```
+    *   `--reload`: 开发模式下，代码更改会自动重载服务器。
+    *   `--port 5001`: 指定服务器运行的端口号，您可以根据需要更改。
 
-综合报告包含以下几个部分：
+3.  服务器成功启动后，您会在终端看到类似以下的输出：
+    ```
+    INFO:     Uvicorn running on http://127.0.0.1:5001 (Press CTRL+C to quit)
+    INFO:     Started reloader process [xxxxx] using statreload
+    INFO:     Started server process [xxxxx]
+    INFO:     Waiting for application startup.
+    INFO:     Application startup complete.
+    ```
 
-1. **报告摘要**：包含查询信息、结果数量等基本信息
-2. **统计信息**：显示仅在arXiv中找到的论文数、仅在Google Scholar中找到的论文数、两个来源都有的论文数
-3. **合并搜索结果**：按发表年份和引用次数排序的合并结果表格
-4. **相似论文比较**：显示在两个来源中找到的相似论文及其相似度
-5. **原始结果**：分别显示arXiv和Google Scholar的原始搜索结果
+## **6. 使用 KnowlEdge Web 界面**
 
-## 注意事项
+服务器启动后，您可以通过浏览器访问 KnowlEdge。
 
-1. Google Scholar搜索可能会受到Google的访问限制，脚本中已添加延迟以减少被封禁的风险，但仍建议不要短时间内进行大量查询
-2. 对于大量查询，建议先保存结果文件，然后使用`--arxiv-file`和`--scholar-file`参数进行比较，以避免重复查询
-3. 相似度阈值可以根据需要调整，值越高表示要求标题越相似才会被认为是同一篇论文
+1.  打开您的 Web 浏览器 (如 Chrome, Firefox, Edge)。
+2.  在地址栏输入： `http://127.0.0.1:5001` 并回车。
 
-## 示例工作流程
+您将看到 KnowlEdge 的主界面。
 
-1. 首先搜索arXiv获取最新论文：
-   ```bash
-   python improved_arxiv_search.py "transformer models" --max 30 --categories cs.CL,cs.AI
-   ```
+### **6.1. 输入您的信息**
 
-2. 然后搜索Google Scholar获取引用信息：
-   ```bash
-   python google_scholar_search.py "transformer models" --max 30
-   ```
+在表单中填写以下信息：
 
-3. 最后比较和合并结果：
-   ```bash
-   python compare_search_results.py "transformer models" --arxiv-file arxiv_20230501_transformer_models.json --scholar-file scholar_20230501_transformer_models.json
-   ```
+*   **用户名**: 您在系统中的称呼 (默认: Tssword)。
+*   **职业**: 您当前的职业 (默认: 算法工程师)。
+*   **知识更新周期 (天数)**: 您希望获取多少天内的最新信息 (默认: 7)。
+*   **消息来源平台**:
+    *   `学术期刊`: 主要从 ArXiv 等学术数据库获取信息。
+    *   `新闻类`: 主要从广泛的网页新闻中获取信息。
+    *   `综合类`: 结合学术和新闻来源。
+*   **关注领域 (用于报告/综述主题)**: 您最感兴趣的具体技术、行业或研究方向 (默认: 自然语言处理)。这将作为报告的核心主题。
+*   **邮箱**: 用于唯一识别您的用户身份 (默认: 114514@qq.com)。
+*   **报告类型**: 选择您希望生成的报告种类：
+    *   `标准行业报告`: 对搜索结果进行整合和初步分析。
+    *   `文献综述报告`: 生成结构化的学术文献综述。
+    *   `行业调研报告`: 生成专业的行业分析报告。
+    *   `知识科普报告`: 生成通俗易懂的科普文章。
+*   **文献/报告数量 (5-20)**: 您希望系统在搜索时目标获取并分析的文献或信息条目的大致数量 (默认: 10)。
+*   **简历文本 (可选)**: 您可以粘贴您的简历文本。系统会尝试从中提取您的技能和兴趣，以构建更精准的用户画像，从而提供更个性化的服务。
 
-4. 查看生成的综合报告（Markdown格式）：
-   ```bash
-   compare_20230501_transformer_models.md
-   ```
+### **6.2. 生成报告**
 
-## 贡献与改进
+填写完毕后，点击 **“生成报告”** 按钮。
 
-欢迎提出建议和改进意见，或者提交代码贡献。可能的改进方向包括：
+系统后台将开始处理您的请求。界面上会显示一个加载覆盖层，包含：
 
-- 添加更多学术搜索源（如IEEE Xplore、ACM Digital Library等）
-- 改进相似度匹配算法
-- 添加更多过滤和排序选项
-- 实现Web界面 
+*   **旋转的加载动画**。
+*   **当前处理状态**: 如“正在初始化...”、“用户画像分析”、“构建搜索参数”、“执行搜索”、“整合结果并生成[报告类型]报告”、“处理完成”。
+*   **进度条**: 显示整体任务的完成百分比。
+*   **详细步骤列表**: 高亮显示当前正在执行的步骤，并标记已完成的步骤。
+
+请耐心等待处理完成。根据网络状况和请求的复杂程度，这可能需要几十秒到几分钟不等。
+
+### **6.3. 查看报告**
+
+处理完成后，加载覆盖层将消失，生成的报告会直接显示在页面下方。
+
+*   报告以 Markdown 格式生成，并通过前端的 `Marked.js` 渲染为易于阅读的 HTML 格式。
+*   如果报告中包含图表代码 (如 Mermaid 格式，常见于知识科普报告的学习路径图)，`Mermaid.js` 会将其渲染为可视化图表。
+*   报告中的外部链接（如文献原文链接）会自动转换为可点击的超链接。
+
+### **6.4. 错误处理**
+
+如果在处理过程中发生任何错误，加载覆盖层也会消失，并在页面下方显示具体的错误信息，帮助您了解问题所在。
+
+## **7. 辅助工具 (可选)**
+
+项目包含一些命令行辅助脚本，位于 `src/scripts/` 目录下，供开发者或高级用户使用：
+
+*   **`view_database.py`**:
+    *   运行方式: `python src/scripts/view_database.py`
+    *   功能: 提供查看数据库内容（如用户信息、兴趣、技能、搜索历史）、统计信息以及导出特定用户数据到文件的功能。
+*   **`clean_database.py`**:
+    *   运行方式: `python src/scripts/clean_database.py`
+    *   功能: 清理数据库中超过90天的旧搜索和交互记录。
+*   **`verify_profile.py`**:
+    *   运行方式: `python src/scripts/verify_profile.py`
+    *   功能: 检查数据库表结构、用户数据完整性以及兴趣分类文件的存在性，用于系统诊断。
+
+**注意**: 运行这些脚本前，请确保已激活 Python 虚拟环境。
+
+## **8. 注意事项与提示**
+
+*   **API 密钥安全**: 妥善保管您的 API 密钥，不要将其直接硬编码到代码中或提交到公共代码仓库。使用 `.env` 文件是推荐的做法。
+*   **网络连接**: 确保您的计算机可以正常访问互联网，以便系统能够调用外部 API 服务。
+*   **Tesseract OCR**: 如果您需要从图片简历中提取信息，请确保 Tesseract OCR 及其语言包已正确安装并配置。
+*   **日志文件**: 系统运行过程中会产生日志。主要日志配置在 `KnowlEdge.py` 和 `app.py` 中，默认输出到控制台。根据 `init_system.py` 的设定，未来可以考虑将日志统一输出到 `./user_data/logs` 目录。
+*   **性能**: LLM 调用和大规模网络搜索可能是耗时操作。系统通过异步处理和 SSE 提供了良好的用户体验，但复杂请求仍可能需要一定的等待时间。
+
+## **9. 技术支持与反馈**
+
+如果您在使用过程中遇到任何问题，或有任何建议，欢迎与我们联系。
+
+---
+
+希望这份使用手册能帮助您顺利地使用 KnowlEdge 个性化知识引擎！

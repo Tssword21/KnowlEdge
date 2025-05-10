@@ -1,5 +1,4 @@
 # app.py
-
 import asyncio
 import logging
 import os
@@ -22,7 +21,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [%
 app = FastAPI(title="KnowlEdge 智能引擎", version="1.0.0") # 这是 Uvicorn 将运行的 app 实例
 
 # 3. 配置模板目录 (假设 index.html 在 ./templates/ 文件夹中)
-templates_dir = os.path.join(os.path.dirname(__file__), "templates")
+templates_dir = os.path.join(os.path.dirname(__file__), "../templates")
 if not os.path.exists(templates_dir) or not os.path.isfile(os.path.join(templates_dir, "index.html")):
     logging.error(f"模板目录 '{templates_dir}' 或 'index.html' 未找到。HTML 页面可能无法加载。")
     # 如果没有模板，根路径将无法正常工作。
@@ -46,14 +45,21 @@ TOTAL_STEPS = 6
 STEP_DEFINITIONS = [
     {"id": 1, "name": "接收和初始化"}, {"id": 2, "name": "用户画像分析"},
     {"id": 3, "name": "构建搜索参数"}, {"id": 4, "name": "执行搜索"},
-    {"id": 5, "name": "整合结果并生成报告/综述"},
+    {"id": 5, "name": "整合结果并生成报告/综述"}, # 将根据类型动态调整
     {"id": 6, "name": "处理完成"}
 ]
 
 def get_step_name(step_id, report_type="standard_report"):
     """辅助函数：根据步骤 ID 获取描述性的步骤名称。"""
     if step_id == 5:
-        return "整合结果并生成文献综述" if report_type == "literature_review" else "整合结果并生成报告"
+        if report_type == "literature_review":
+            return "整合结果并生成文献综述"
+        elif report_type == "industry_research_report":
+            return "整合结果并生成行业调研报告"
+        elif report_type == "popular_science_report":
+            return "整合结果并生成知识科普报告"
+        else: # standard_report 及其他未知类型
+            return "整合结果并生成报告"
     
     for step_def in STEP_DEFINITIONS:
         if step_def["id"] == step_id: return step_def["name"]
@@ -123,7 +129,13 @@ async def knowledge_flow_sse_generator(user_input_data: dict, cv_text_data: str,
         if report_type == "literature_review":
             logging.info(f"开始生成文献综述，查询: {original_query}")
             report_text = await workflow.generate_literature_review(search_results, original_query)
-        else:
+        elif report_type == "industry_research_report":
+            logging.info(f"开始生成行业调研报告，查询: {original_query}")
+            report_text = await workflow.generate_industry_research_report(search_results, user_input_data, original_query)
+        elif report_type == "popular_science_report":
+            logging.info(f"开始生成知识科普报告，查询: {original_query}")
+            report_text = await workflow.generate_popular_science_report(search_results, user_input_data, original_query)
+        else: # standard_report
             logging.info("开始生成标准报告")
             report_text = await asyncio.to_thread(workflow.generate_report, search_results)
         
@@ -197,4 +209,4 @@ async def handle_process_submission(
 # 3. 在您的终端 (激活了 Python 虚拟环境 .venv 的情况下)，导航到项目根目录。
 # 4. 执行命令:
 #    uvicorn app:app --reload --port 5001
-#    (如果文件名为 main.py，则使用 uvicorn main:app --reload --port 5001)
+#    (如果文件名为 main.py，则使用 uvicorn main:app --reload --port 5001) 
