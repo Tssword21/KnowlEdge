@@ -204,9 +204,7 @@ async def handle_process_submission(
 
 # --- Uvicorn 运行说明 ---
 # 要运行此 FastAPI 应用:
-# 1. 将此文件保存为 `app.py` (或者如果您愿意，可以保存为 `main.py`，相应调整下面的命令)。
-# 2. 确保您的 `KnowlEdge.py` 和 `templates/index.html` 文件与此文件在正确的相对路径。
-# 3. 在您的终端 (激活了 Python 虚拟环境 .venv 的情况下)，导航到项目根目录。
-# 4. 执行命令:
+# 1. 在您的终端 (激活了 Python 虚拟环境 .venv 的情况下（.venv\Scripts\activate.ps1）)，导航到项目根目录。
+# 2. 执行命令:
+#    cd src
 #    uvicorn app:app --reload --port 5001
-#    (如果文件名为 main.py，则使用 uvicorn main:app --reload --port 5001) 

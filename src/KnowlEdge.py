@@ -20,6 +20,9 @@ import pytesseract
 from PIL import Image
 import asyncio
 import re
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # 配置日志
 # logging.getLogger("httpcore").setLevel(logging.WARNING)
@@ -30,10 +33,10 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 # 常量配置
 CONFIG = {
     "API_KEYS": {
-        "deepseek": os.environ.get("DEEPSEEK_API_KEY", "sk-58c6314fd9ae47a6a493d0d8499d2271"),
-        "qwen": os.environ.get("QWEN_API_KEY", "sk-cfae3cfc07764f9ab16f34fdab2cf54a"),
-        "serper": os.environ.get("SERPER_API_KEY", "a196a1abc535244a7430523550c88adb422d893e"),
-        "baidu_translate": os.environ.get("BAIDU_API_KEY", ""),
+        "deepseek": os.getenv("DEEPSEEK_API_KEY"),
+        "qwen": os.getenv("QWEN_API_KEY"),
+        "serper": os.getenv("SERPER_API_KEY"),
+        "baidu_translate": os.getenv("BAIDU_API_KEY"),
     },
     "MODELS": {
         "BERT": "bert-base-multilingual-cased",
@@ -1678,7 +1681,7 @@ class KnowledgeFlow:
 
     async def generate_literature_review(self, search_results: Dict, original_query: str) -> str:
         logging.info(f"开始为查询 '{original_query}' 生成文献综述...")
-        llm_context_str = self._prepare_llm_context_from_search_results(search_results, max_items_per_source=5)
+        llm_context_str = self._prepare_llm_context_from_search_results(search_results, max_items_per_source=8)
 
         references_list = []
         for source, data in search_results.items():
@@ -1702,24 +1705,17 @@ class KnowledgeFlow:
         prompt = f"""
         请基于主题 "{original_query}" 和以下提供的相关学术文献信息，撰写一份全面且结构清晰的文献综述报告。
         报告应包含以下Markdown结构和内容。请直接在每个章节标题下撰写对应的内容，不要重复标题，也不要输出括号中的提示文字。
-
         # 文献综述报告: {original_query}
-
         ## 1. 引言
         (请在此处撰写引言：简要介绍 "{original_query}" 主题的背景和重要性，以及本综述的目的和范围。)
-
         ## 2. 主要研究方向和核心概念
         (请在此处撰写主要研究方向和核心概念：识别并系统总结文献中涉及的核心研究方向、关键理论模型和重要概念。)
-
         ## 3. 关键文献回顾与贡献
         (请在此处撰写关键文献回顾与贡献：挑选几篇（3-5篇）具有里程碑意义或代表性的文献进行重点回顾，阐述其主要研究方法、核心发现和学术贡献。在提及具体文献时，可以使用其标题，例如"在《文献标题》中，作者指出..."。)
-
         ## 4. 研究方法的演进与比较
         (请在此处撰写研究方法的演进与比较：如果文献信息支持，讨论该领域常用的研究方法，它们是如何随时间演变的，并对比不同方法的优缺点。)
-
         ## 5. 现有研究的局限性与未来研究空白
         (请在此处撰写现有研究的局限性与未来研究空白：基于现有文献，批判性地指出当前研究中存在的不足、争议点或尚未解决的关键问题，从而识别潜在的未来研究空白和方向。)
-
         ## 6. 结论与展望
         (请在此处撰写结论与展望：对整个综述进行总结，并对 "{original_query}" 领域的未来发展趋势进行展望。)
 
@@ -1727,7 +1723,7 @@ class KnowledgeFlow:
 
         ---文献信息参考---\n{llm_context_str}\n---文献信息参考结束---\n
 
-        请严格按照以上Markdown结构和要求生成完整的文献综述内容，直接从第一个章节的内容开始写，不要重复最顶层的报告标题。
+        请严格按照以上Markdown结构和要求生成完整的文献综述内容，直接从第一个章节的内容开始写，不要重复最顶层的报告标题，每段话之间至多一句换行，标题和下面内容之间不换行，别部分也不要多余的换行。
         """
         review_text = await self._call_llm(prompt, system_message_lit_review)
 
@@ -1753,35 +1749,26 @@ class KnowledgeFlow:
         prompt = f"""
         请针对主题 "{original_query}"，并结合以下提供的背景信息，撰写一份结构清晰、内容详实的行业调研报告。
         报告应严格遵循以下Markdown结构，并在每个章节标题之下直接撰写对应的内容。不要重复章节标题本身，也不要输出括号中的提示性文字。
-
         # 行业调研报告: {original_query}
-
         ## 1. 执行摘要
         (请在此处撰写200-300字的执行摘要：概括核心现状、技术特点、关键应用、成熟度判断、机遇与挑战。面向企业决策者或项目负责人。)
-
         ## 2. 技术概览与核心组件分析
         (请在此处撰写技术概览：分析 "{original_query}" 的核心技术组件、方法论或主要技术分支。描述其原理、特征和作用。确保专业准确，语言清晰。)
-
         ## 3. 技术对比分析
         (请在此处进行技术对比分析：如果领域内存在多种主流技术路径值得对比，选择2-3个关键点，对比优势、劣势、适用场景、技术差异。尽量使用Markdown表格或列表。如果技术路径单一或不适合对比，请说明原因。)
-
         ## 4. 技术成熟度评估
         (请在此处评估技术成熟度：评估 "{original_query}" 相关核心技术/分支的当前技术成熟度，如概念验证、研发攻坚、早期市场、快速成长、成熟应用、衰退期。给出判断理由和阶段特征。)
-
         ## 5. 应用前景与市场机遇
         (请在此处分析应用前景与市场机遇：分析 "{original_query}" 技术未来3-5年的主要应用前景和潜在市场机遇。从行业、场景角度展开，指出驱动因素。)
-
         ## 6. 近期趋势与潜在风险点
         (请在此处总结近期趋势与潜在风险点：总结 "{original_query}" 领域的最新发展趋势、研究进展或行业动态。识别技术瓶颈、市场风险、伦理或合规挑战。)
-        \n
         ## 7. 初步战略建议
         (请在此处提供初步战略建议：针对希望在 "{original_query}" 领域进行技术评估、项目投入或战略布局的机构，提供3-5条操作性初步战略建议，聚焦于把握机遇、规避风险、关键切入点。)
-
         ---\n*免责声明：本报告基于公开信息和AI模型分析生成，仅供参考，不构成任何具体的投资或决策建议。*\n
 
-        ---文献信息参考---\n{context_str}\n---文献信息参考结束---\n
+        ---文献信息参考---\n{context_str}\n---文献信息参考结束---
 
-        请严格按照以上Markdown结构和要求生成完整的报告内容，直接从第一个章节的内容开始写，不要重复最顶层的报告标题。
+        请严格按照以上Markdown结构和要求生成完整的报告内容，直接从第一个章节的内容开始写，不要重复最顶层的报告标题，每段话之间至多一句换行，标题和下面内容之间不换行，别部分也不要多余的换行。
         """
         
         full_report_content = await self._call_llm(prompt, system_message_industry_analyst)
@@ -1791,22 +1778,18 @@ class KnowledgeFlow:
 
     async def generate_popular_science_report(self, search_results: Dict, user_input: Dict, original_query: str) -> str:
         logging.info(f"开始生成知识科普报告: {original_query}")
-        context_str = self._prepare_llm_context_from_search_results(search_results, max_items_per_source=2, max_chars=4000)
+        context_str = self._prepare_llm_context_from_search_results(search_results, max_items_per_source=2, max_chars=6000)
 
         system_msg_science_writer = "你是一位优秀的科普作家和沟通专家。请严格按照用户在Prompt中指定的Markdown结构和内容要求进行撰写。确保所有输出均为结构良好、干净的Markdown格式，段落间使用双换行符分隔，列表和图表（如Mermaid）使用标准Markdown语法。不要在段落中随意插入不必要的换行。用户在Prompt中章节标题后用括号 () 或 （） 包含的文字是对您生成该章节内容的引导和提示，这些括号及其内部的文字绝对不能出现在最终的输出中。您只需要生成这些括号提示之外的、针对该章节的实际内容。所有章节标题和结构由用户在Prompt中指定，请严格遵循。"
 
         prompt = f"""
         请针对科普主题 "{original_query}"，并结合以下提供的背景信息，为希望拓展知识边界的成年非专业人士撰写一篇生动有趣、易于理解的知识科普文章。
         文章应严格遵循以下Markdown结构，并在每个章节标题之下直接撰写对应的内容。不要重复章节标题本身，也不要输出括号中的提示性文字。
-
         # 知识科普: 解密 {original_query}
-
-        ## 1. 嘿，{original_query} 是什么东东？
+        ## 1. 什么是{original_query} ？
         (请为以上标题下的内容，提供针对成年非专业人士的清晰、简洁且易于理解的核心概念解释。必须包含一个生动且贴切的生活化类比，帮助快速抓住要点。确保解释既准确又不失趣味性。避免不必要的专业术语；如果必须使用，请立即给出通俗解释。)
-
         ## 2. 为什么我们应该关心 {original_query}？
         (请为以上标题下的内容，阐述对于成年人而言，了解 "{original_query}" 的实际意义或潜在价值。它可能如何影响工作、生活或对世界的认知？请列举2-3点，并用简洁明了的语言阐述。)
-
         ## 3. 核心概念三连击 (由浅入深)
         (请为以上标题下的内容，采用"三层渐进式解读"的方式阐述其核心概念。
         请按以下结构提供三层解读，可以使用Markdown加粗文本强调分层，但不要自行添加更低级别的Markdown标题如###等：
@@ -1814,31 +1797,24 @@ class KnowledgeFlow:
         *   **第二层：工作原理浅析 (形象化解析):** [此处填写您的解读内容]
         *   **第三层：关键特性与延伸思考 (启发性细节):** [此处填写您的解读内容]
         每一层解读都应力求清晰、准确且易于理解。)
-
         ## 4. 如何开始学习 {original_query}？
         (请为以上标题下的内容，提供一份简洁实用的入门学习指南。指南应包含：
         1.  推荐的学习资源类型（例如，高质量的在线课程、权威科普文章/白皮书、专家访谈或讲座视频、互动式学习网站等）。
         2.  初学者应首先掌握的核心概念或基础知识。
         3.  一个建议的学习步骤或顺序。如果合适，您可以使用Mermaid的graph LR代码块（包裹在 \\\`\\\`\\\`mermaid ... \\\`\\\`\\\` 中）来可视化学习路线图。
         请以清晰的列表或分点形式呈现。)
-
         ## 5. 关于 {original_query} 的快问快答
         (请为以上标题下的内容，模拟一次面向成年人的入门级Q&A环节。设计2-3个典型且富有启发性的问题。对每个问题给出清晰、准确且通俗易懂的回答，格式如下，不要添加额外标题：
         **Q1: [问题1]**
         A1: [回答1]
-
         **Q2: [问题2]**
         A2: [回答2]
         )
-        \n
         ## 6. 结语：探索 {original_query} 的更多乐趣
         (请为以上标题下的内容，撰写一个精炼（约50-80字）、能够激发成年读者持续学习兴趣和探索欲望的结语。结语应积极正面，并强调持续学习的重要性。)
-
         ---\n*本内容由KnowlEdge AI生成，旨在知识普及，力求通俗易懂。专业细节请参考学术文献。*\n
-
         ---文献信息参考---\n{context_str}\n---文献信息参考结束---\n
-
-        请严格按照以上Markdown结构和要求生成完整的科普文章内容，直接从第一个章节的内容开始写，不要重复最顶层的报告标题。
+        请严格按照以上Markdown结构和要求生成完整的科普文章内容，直接从第一个章节的内容开始写，不要重复最顶层的报告标题，每段话之间至多一句换行，标题和下面内容之间不换行，别部分也不要多余的换行。
         """
         
         full_report_content = await self._call_llm(prompt, system_msg_science_writer)
