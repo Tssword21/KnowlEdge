@@ -23,7 +23,7 @@ KnowlEdge 是一款智能引擎，旨在为您提供高度个性化的行业知�
 *   **pip**: Python 包管理工具。
 *   **Tesseract OCR**: 如果需要从图片格式的简历中提取文本，请确保已安装 Tesseract OCR 引擎，并将其添加到系统 PATH。同时，需要安装对应的语言包 (如中文 `chi_sim` 和英文 `eng`)。
 *   **API 密钥**:
-    *   **DeepSeek API Key**: 用于驱动核心的AI分析和内容生成功能。
+    *   **DeepSeek API Key**: 用于驱动核心的AI分析和内容生成功能。(必须填写)
     *   **Serper API Key**: 用于执行 Google 搜索。
     *   **(可选) Baidu Translate API Key**: 如果计划启用百度翻译。
 *   **网络连接**: 系统需要访问外部API服务。
@@ -54,15 +54,15 @@ KnowlEdge 是一款智能引擎，旨在为您提供高度个性化的行业知�
 
 ### **4.3. 配置 API 密钥**
 
-1.  在项目根目录创建一个名为 `.env` 的文件 (如果尚不存在)。
-2.  在 `.env` 文件中添加您的 API 密钥，格式如下：
-    ```env
-    DEEPSEEK_API_KEY="您的DeepSeek API密钥"
-    SERPER_API_KEY="您的Serper API密钥"
-    # BAIDU_API_KEY="您的百度翻译APP ID" (如果使用)
-    # BAIDU_SECRET_KEY="您的百度翻译密钥" (如果使用)
+1.  在 `KnowlEdge.py`文件中添加您的 API 密钥，格式如下：
+    ```python
+    "API_KEYS": {
+        "deepseek": os.environ.get("DEEPSEEK_API_KEY", "YOUR_DEEPSEEK_APIKEY"),
+        "qwen": os.environ.get("QWEN_API_KEY", "YOUR_QWEN_APIKEY"), # (可选)
+        "serper": os.environ.get("SERPER_API_KEY", "YOUR_SERPER_APIKEY"), # (可选)
+        "baidu_translate": os.environ.get("BAIDU_API_KEY", "YOUR_BAIDU_APIKEY"), # (可选)
+    },
     ```
-    系统会通过 `os.environ.get()` 读取这些环境变量。
 
 ### **4.4. 系统初始化**
 
@@ -173,14 +173,14 @@ KnowlEdge 是一款智能引擎，旨在为您提供高度个性化的行业知�
 ## **8. 注意事项与提示**
 
 *   **API 密钥安全**: 妥善保管您的 API 密钥，不要将其直接硬编码到代码中或提交到公共代码仓库。使用 `.env` 文件是推荐的做法。
-*   **网络连接**: 确保您的计算机可以正常访问互联网，以便系统能够调用外部 API 服务。
+*   **网络连接**: 确保您的计算机可以正常访问互联网，以便系统能够调用外部 API 服务。（谷歌翻译，需要连通外网）
 *   **Tesseract OCR**: 如果您需要从图片简历中提取信息，请确保 Tesseract OCR 及其语言包已正确安装并配置。
 *   **日志文件**: 系统运行过程中会产生日志。主要日志配置在 `KnowlEdge.py` 和 `app.py` 中，默认输出到控制台。根据 `init_system.py` 的设定，未来可以考虑将日志统一输出到 `./user_data/logs` 目录。
 *   **性能**: LLM 调用和大规模网络搜索可能是耗时操作。系统通过异步处理和 SSE 提供了良好的用户体验，但复杂请求仍可能需要一定的等待时间。
 
 ## **9. 技术支持与反馈**
 
-如果您在使用过程中遇到任何问题，或有任何建议，欢迎与我们联系。
+如果您在使用过程中遇到任何问题，或有任何建议，欢迎与我们联系。若要商用请联系我们！
 
 ---
 
