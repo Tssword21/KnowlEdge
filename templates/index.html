@@ -1,563 +1,765 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KnowlEdge</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f2f5;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-        .container {
-            background-color: #fff;
-            padding: 30px 40px;
-            border-radius: 12px;
-            box-shadow: 0 6px 25px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 700px;
-            box-sizing: border-box;
-        }
-        h1 {
-            color: #1a2b4d;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 2.2em;
-            font-weight: 600;
-        }
-        label {
-            display: block;
-            margin-top: 18px;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #334155;
-        }
-        input[type="text"], input[type="number"], input[type="email"], select, textarea {
-            width: 100%;
-            padding: 12px 15px;
-            margin-bottom: 20px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 16px;
-            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-        input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus, select:focus, textarea:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-            outline: none;
-        }
-        textarea {
-            min-height: 140px;
-            resize: vertical;
-        }
-        button[type="submit"] {
-            background-color: #3b82f6;
-            color: white;
-            padding: 14px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 17px;
-            font-weight: 600;
-            width: 100%;
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease;
-            margin-top: 10px;
-        }
-        button[type="submit"]:hover {
-            background-color: #2563eb;
-            transform: translateY(-1px);
-        }
-        button[type="submit"]:active {
-            transform: translateY(0px);
-        }
-        .results-area {
-            margin-top: 35px;
-            width: 100%;
-        }
-        .report, .error-message {
-            padding: 20px;
-            border-radius: 8px;
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            white-space: pre-wrap;
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
-            font-size: 14px;
-            line-height: 1.7;
-            overflow-x: auto;
-            color: #334155;
-        }
-        .error-message {
-            background-color: #fff1f2;
-            border-color: #ffdfe1;
-            color: #c51046;
-        }
-        h2.results-title {
-            font-size: 1.6em;
-            color: #1a2b4d;
-            margin-top: 25px;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 10px;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KnowlEdge 个性化知识引擎</title>
 
-        /* Updated Loading Overlay and Progress Display */
-        .loading-overlay {
-            display: none; /* Hidden by default */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.9); /* More opaque for better focus */
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column; /* Stack spinner and progress vertically */
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .loading-content {
-            background-color: #fff;
-            padding: 30px 40px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-        }
-        .spinner {
-            border: 5px solid #e2e8f0;
-            border-top: 5px solid #3b82f6;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 20px auto; /* Center spinner and add bottom margin */
-        }
-        #loadingStatus { /* For current status text */
-            font-size: 1.1em;
-            color: #334155;
-            font-weight: 500;
-            margin-bottom: 15px; /* 调整间距为进度条腾出空间 */
-            min-height: 1.2em; /* Prevent layout shift */
-        }
-        #progressSteps { /* Container for step list */
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            text-align: left;
-            max-height: 180px; /* 调整最大高度以适应进度条 */
-            overflow-y: auto;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 10px;
-        }
-        #progressSteps li {
-            padding: 8px 12px;
-            font-size: 0.95em;
-            color: #475569; /* Slightly lighter text */
-            border-bottom: 1px dashed #e2e8f0;
-            opacity: 0.6; /* Default state: not yet active */
-            transition: opacity 0.3s ease, color 0.3s ease;
-        }
-        #progressSteps li:last-child {
-            border-bottom: none;
-        }
-        #progressSteps li.active { /* Current step */
-            font-weight: 600;
-            color: #1e293b;
-            opacity: 1;
-        }
-        #progressSteps li.completed { /* Completed step */
-            color: #3b82f6; /* Blue for completed */
-            opacity: 1;
-        }
-        #progressSteps li.completed::before {
-            content: "✓ "; /* Checkmark for completed */
-            color: #3b82f6;
-            font-weight: bold;
-            margin-right: 5px;
-        }
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Markdown 渲染 & Mermaid 流程图 -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  
+  <!-- 字体和图标 -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-        /* --- 新增：进度条样式 --- */
-        .progress-bar-container {
-            width: 100%;
-            background-color: #e2e8f0; /* 进度条背景色 */
-            border-radius: 4px;
-            height: 10px; /* 进度条高度 */
-            margin-bottom: 20px; /* 与步骤列表的间距 */
-            overflow: hidden; /* 确保内部填充条不出界 */
-        }
-        .progress-bar-fill {
-            width: 0%; /* 初始宽度为0 */
-            height: 100%;
-            background-color: #3b82f6; /* 进度条填充色 (与按钮同色) */
-            border-radius: 4px;
-            transition: width 0.3s ease-in-out; /* 宽度变化动画 */
-        }
-        /* --- 结束：进度条样式 --- */
+  <style>
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%);
+      background-attachment: fixed;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 60%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .glass-input {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      color: white;
+      padding: 14px 16px;
+      width: 100%;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .glass-input:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(139, 92, 246, 0.5);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    .glass-input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .glass-select {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      color: white;
+      padding: 14px 16px;
+      width: 100%;
+      font-size: 15px;
+      appearance: none;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 12px center;
+      background-repeat: no-repeat;
+      background-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .glass-select:focus {
+      outline: none;
+      background-color: rgba(255, 255, 255, 0.15);
+      border-color: rgba(139, 92, 246, 0.5);
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    .glass-select option {
+      background: #1a1a2e;
+      color: white;
+    }
+    
+    .generate-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      border: none;
+      border-radius: 16px;
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      padding: 18px 32px;
+      width: 100%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .generate-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+    }
+    
+    .generate-btn:active {
+      transform: translateY(-1px);
+    }
+    
+    .generate-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .generate-btn:hover::before {
+      left: 100%;
+    }
+    
+    .floating-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(40px);
+      animation: float 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+    
+    .floating-orb:nth-child(1) {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      top: 10%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+    
+    .floating-orb:nth-child(2) {
+      width: 200px;
+      height: 200px;
+      background: linear-gradient(45deg, #f093fb, #f5576c);
+      top: 60%;
+      right: 10%;
+      animation-delay: -2s;
+    }
+    
+    .floating-orb:nth-child(3) {
+      width: 250px;
+      height: 250px;
+      background: linear-gradient(45deg, #4facfe, #00f2fe);
+      bottom: 20%;
+      left: 50%;
+      animation-delay: -4s;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) scale(1); opacity: 0.7; }
+      50% { transform: translateY(-30px) scale(1.1); opacity: 0.9; }
+    }
+    
+    .progress-modal {
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+    }
+    
+    .progress-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(30px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+    }
+    
+    .progress-bar {
+      background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+      border-radius: 10px;
+      transition: width 0.5s ease;
+    }
+    
+    .report-content {
+      color: white;
+      line-height: 1.8;
+      font-size: 16px;
+    }
+    
+    .report-content h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 3px solid #667eea;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .report-content h2 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-left: 1rem;
+      border-left: 4px solid #667eea;
+    }
+    
+    .report-content h3 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .report-content p {
+      color: #e2e8f0;
+      margin-bottom: 1rem;
+      text-align: justify;
+    }
+    
+    .report-content ul, .report-content ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .report-content li {
+      color: #e2e8f0;
+      margin-bottom: 0.5rem;
+    }
+    
+    .report-content blockquote {
+      border-left: 4px solid #667eea;
+      padding-left: 1rem;
+      font-style: italic;
+      background: rgba(102, 126, 234, 0.1);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 0 8px 8px 0;
+      color: #cbd5e1;
+    }
+    
+    .report-content code {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      color: #fbbf24;
+    }
+    
+    .report-content pre {
+      background: rgba(0, 0, 0, 0.6);
+      color: #10b981;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1rem 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .report-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .report-content th, .report-content td {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.75rem;
+      text-align: left;
+    }
+    
+    .report-content th {
+      background: rgba(102, 126, 234, 0.2);
+      font-weight: 600;
+      color: white;
+    }
+    
+    .report-content td {
+      color: #e2e8f0;
+    }
+    
+    .nav-glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .typewriter {
+      overflow: hidden;
+      white-space: pre-wrap;
+    }
+    
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 500;
+      z-index: 1000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .toast.show {
+      transform: translateX(0);
+    }
+    
+    .toast.success {
+      background: rgba(16, 185, 129, 0.9);
+    }
+    
+    .toast.error {
+      background: rgba(239, 68, 68, 0.9);
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'inter': ['Inter', 'sans-serif'],
+          }
         }
-
-        /* 可选：为 markdown 内容添加样式 */
-        .report {
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
-            font-size: 15px;
-            line-height: 1.7;
-            background: #f8fafc;
-            border-radius: 8px;
-            padding: 20px;
-            border: 1px solid #e2e8f0;
-            color: #334155;
-        }
-        .report h1, .report h2, .report h3 { color: #1a2b4d; }
-        .report code { background: #f3f4f6; padding: 2px 4px; border-radius: 4px; }
-        .report pre { background: #f3f4f6; padding: 10px; border-radius: 6px; }
-        .report a { color: #2563eb; text-decoration: underline; }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      }
+    }
+  </script>
 </head>
-<body>
-    <div class="container">
-        <h1>KnowlEdge 个性化知识推送</h1>
-        <form id="knowledgeForm">
-            <label for="user_name">用户名:</label>
-            <input type="text" id="user_name" name="user_name" value="Tssword" required>
+<body class="min-h-screen">
+  <!-- 浮动装饰球体 -->
+  <div class="floating-orb"></div>
+  <div class="floating-orb"></div>
+  <div class="floating-orb"></div>
 
-            <label for="occupation">职业:</label>
-            <input type="text" id="occupation" name="occupation" value="算法工程师" required>
+  <!-- 顶部导航 -->
+  <nav class="nav-glass p-4 sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+          <i class="fas fa-brain text-white text-lg"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-white">KnowlEdge</h1>
+      </div>
+      <div class="text-white/70 text-sm flex items-center">
+        <i class="fas fa-lightbulb mr-2"></i>
+        个性化知识引擎
+      </div>
+    </div>
+  </nav>
 
-            <label for="day">知识更新周期 (天数):</label>
-            <input type="number" id="day" name="day" value="7" min="1" required>
+  <!-- 主内容区域 -->
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <!-- 表单卡片 -->
+    <div class="glass-card p-8 mb-8 fade-in">
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 pulse">
+          <i class="fas fa-magic text-3xl text-white"></i>
+        </div>
+        <h2 class="text-3xl font-bold text-white mb-3">AI知识报告生成器</h2>
+        <p class="text-white/70 text-lg">输入您的需求，获得专业的个性化知识报告</p>
+      </div>
 
-            <label for="platform">消息来源平台:</label>
-            <select id="platform" name="platform" required>
-                <option value="学术期刊" selected>学术期刊</option>
-                <option value="新闻类">新闻类</option>
-                <option value="综合类">综合类</option>
-            </select>
-
-            <label for="content_type">关注领域 (用于报告/综述主题):</label>
-            <input type="text" id="content_type" name="content_type" value="自然语言处理" required>
-
-            <label for="email">邮箱:</label>
-            <input type="email" id="email" name="email" value="114514@qq.com" required>
-
-            <label for="report_type">报告类型:</label>
-            <select id="report_type" name="report_type" required>
-                <option value="standard_report" selected>标准行业报告</option>
-                <option value="literature_review">文献综述报告</option>
-                <option value="industry_research_report">行业调研报告</option>
-                <option value="popular_science_report">知识科普报告</option>
-            </select>
-
-            <!-- 新增文献/报告数量选择 -->
-            <label for="num_papers">文献/报告数量 (5-20):</label>
-            <input type="number" id="num_papers" name="num_papers" value="10" min="5" max="20" required>
-
-            <label for="cv_text">简历文本 (可选):</label>
-            <textarea id="cv_text" name="cv_text" placeholder="在此处粘贴您的简历文本..."></textarea>
-
-            <button type="submit">生成报告</button>
-        </form>
-
-        <div id="loadingOverlay" class="loading-overlay">
-            <div class="loading-content">
-                <div class="spinner"></div>
-                <div id="loadingStatus">正在初始化...</div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar-fill" id="progressBarFill"></div>
-                </div>
-                <ul id="progressSteps">
-                    <!-- Progress steps will be added here by JavaScript -->
-                </ul>
-            </div>
+      <form id="knowledgeForm" class="space-y-6">
+        <!-- 基本信息行 -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-white/80 text-sm font-medium mb-2">您的姓名</label>
+            <input name="user_name" placeholder="请输入您的姓名" class="glass-input" />
+          </div>
+          <div>
+            <label class="block text-white/80 text-sm font-medium mb-2">职业领域</label>
+            <input name="occupation" placeholder="如：软件工程师、研究员等" class="glass-input" />
+          </div>
         </div>
 
-        <div class="results-area">
-            <div id="reportContainer" style="display:none;">
-                <h2 class="results-title">生成的报告:</h2>
-                <pre class="report" id="reportContent"></pre>
-            </div>
-            <div id="errorContainer" style="display:none;">
-                <h2 class="results-title">错误:</h2>
-                <pre class="error-message" id="errorContent"></pre>
-            </div>
+        <!-- 关注领域 -->
+        <div>
+          <label class="block text-white/80 text-sm font-medium mb-2">研究关注领域</label>
+          <input name="content_type" placeholder="请输入您感兴趣的领域，如：自然语言处理、机器学习、深度学习等" class="glass-input" />
         </div>
+
+        <!-- 报告类型 -->
+        <div>
+          <label class="block text-white/80 text-sm font-medium mb-2">报告类型</label>
+          <select name="report_type" class="glass-select">
+            <option value="standard_report">标准行业报告</option>
+            <option value="literature_review">文献综述报告</option>
+            <option value="industry_research_report">行业调研报告</option>
+            <option value="popular_science_report">知识科普报告</option>
+          </select>
+        </div>
+
+        <!-- 文献数量 -->
+        <div>
+          <label class="block text-white/80 text-sm font-medium mb-2">参考文献数量</label>
+          <input type="number" name="num_papers" value="10" min="1" max="30" 
+                 class="glass-input" placeholder="建议 5-20 篇" />
+        </div>
+
+        <!-- 生成按钮 -->
+        <div class="pt-4">
+          <button type="submit" class="generate-btn" disabled>
+            <i class="fas fa-rocket mr-3"></i>
+            <span>开始生成智能报告</span>
+          </button>
+        </div>
+      </form>
     </div>
 
-    <script>
-        function linkifyReport(reportText) {
-            if (!reportText) return '';
-            const lines = reportText.split('\n');
-            const processedLines = lines.map(line => {
-                const urlPattern = /^(原文网址：|链接：)(\s*)(https?:\/\/[^\s"'<>()]+)/;
-                const match = line.match(urlPattern);
-                if (match) {
-                    const label = match[1];
-                    const spaces = match[2];
-                    const url = match[3];
-                    const restOfLine = line.substring(match[0].length);
-                    const escapedUrl = url.replace(/"/g, '&quot;');
-                    return `${label}${spaces}<a href="${escapedUrl}" target="_blank" rel="noopener noreferrer">${url}</a>${restOfLine}`;
-                }
-                return line;
-            });
-            return processedLines.join('\n');
+    <!-- 报告输出区域 -->
+    <div class="glass-card p-8 min-h-96 fade-in">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-semibold text-white flex items-center">
+          <i class="fas fa-file-alt mr-3 text-blue-400"></i>
+          报告输出
+        </h3>
+        <div class="flex space-x-3">
+          <button class="p-2 text-white/60 hover:text-blue-400 transition-colors" title="复制报告">
+            <i class="fas fa-copy"></i>
+          </button>
+          <button class="p-2 text-white/60 hover:text-green-400 transition-colors" title="下载报告">
+            <i class="fas fa-download"></i>
+          </button>
+          <button class="p-2 text-white/60 hover:text-purple-400 transition-colors" title="分享报告">
+            <i class="fas fa-share-alt"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 报告内容区 -->
+      <div id="reportContent" class="report-content typewriter">
+        <div class="text-center py-16">
+          <div class="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center border-2 border-blue-500/30">
+            <i class="fas fa-file-text text-4xl text-blue-400"></i>
+          </div>
+          <h3 class="text-xl font-medium text-white mb-3">等待生成报告</h3>
+          <p class="text-white/60 mb-6">请填写完整信息后点击生成按钮</p>
+          <div class="flex justify-center space-x-6 text-sm text-white/50">
+            <div class="flex items-center">
+              <i class="fas fa-check-circle mr-2 text-green-400"></i>
+              AI智能分析
+            </div>
+            <div class="flex items-center">
+              <i class="fas fa-check-circle mr-2 text-green-400"></i>
+              实时进度追踪
+            </div>
+            <div class="flex items-center">
+              <i class="fas fa-check-circle mr-2 text-green-400"></i>
+              专业报告格式
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 进度模态框 -->
+  <div id="progressModal" class="fixed bottom-4 right-4 w-120 progress-modal rounded-2xl shadow-xl z-50 hidden">
+    <div class="progress-card p-8 w-96 max-w-[90vw]">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 pulse">
+          <i class="fas fa-cog spin text-white text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-white mb-2">正在生成报告...</h3>
+        <p id="progressMsg" class="text-white/70">正在初始化系统</p>
+      </div>
+      
+      <div class="space-y-4">
+        <div class="w-full h-3 bg-black/30 rounded-full overflow-hidden">
+          <div id="progressBar" class="h-full progress-bar" style="width:0%"></div>
+        </div>
+        
+        <div class="flex justify-between text-sm text-white/60">
+          <span>处理进度</span>
+          <span id="progressPercent">0%</span>
+        </div>
+      </div>
+      
+      <div class="mt-6 text-center text-sm text-white/50">
+        <i class="fas fa-info-circle mr-2"></i>
+        AI正在为您分析和整理知识内容，请稍候...
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript 逻辑 -->
+  <script type="module">
+    import { createParser } from 'https://cdn.jsdelivr.net/npm/eventsource-parser@3.0.2/+esm';
+
+    // 初始化 Mermaid
+    mermaid.initialize({ 
+      theme: 'dark',
+      themeVariables: {
+        primaryColor: '#667eea',
+        primaryTextColor: '#fff',
+        primaryBorderColor: '#764ba2',
+        lineColor: '#667eea',
+        background: '#1a1a2e'
+      }
+    });
+
+    const form = document.getElementById('knowledgeForm');
+    const reportEl = document.getElementById('reportContent');
+    // ==== 打字机相关（新增） ====
+    let rawMarkdown = '';   // 暂存后台推来的 markdown
+    let typing = false;     // 是否正在逐字渲染
+
+    function appendWithTypewriter(text) {
+    rawMarkdown += text;
+    if (typing) return;           // 上一次还没播完
+    typing = true;
+
+    const chars = rawMarkdown.split('');
+    rawMarkdown = '';             // 清空已排队的
+
+    let i = 0;
+    const timer = setInterval(() => {
+        if (i >= chars.length) {    // 一个批次播完
+        clearInterval(timer);
+        typing = false;
+        if (rawMarkdown.length) appendWithTypewriter('');  // 继续播下一批
+        return;
         }
+        reportEl.textContent += chars[i++];
+        reportEl.scrollTop = reportEl.scrollHeight;          // 边打字边滚到底
+    }, 18);                         // 18-20 ms ≈ 60 字/秒
+    }
+    // ==== 打字机相关结束 ====
 
-        const TOTAL_STEPS = 6; // Define total steps for progress UI
-        const STEP_DEFINITIONS = [ // Define step names
-            { id: 1, name: "收集用户信息" },
-            { id: 2, name: "用户画像分析" },
-            { id: 3, name: "构建搜索参数" },
-            { id: 4, name: "执行搜索" },
-            { id: 5, name: "生成报告" },
-            { id: 6, name: "完成处理" }
-        ];
+    const progressModal = document.getElementById('progressModal');
+    const barEl = document.getElementById('progressBar');
+    const msgEl = document.getElementById('progressMsg');
+    const percentEl = document.getElementById('progressPercent');
 
+    // 表单验证
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const contentInput = form.querySelector('input[name="content_type"]');
+    
+    function validateForm() {
+      const isValid = contentInput.value.trim().length > 0;
+      submitBtn.disabled = !isValid;
+      
+      if (isValid) {
+        submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+      } else {
+        submitBtn.style.opacity = '0.6';
+        submitBtn.style.cursor = 'not-allowed';
+      }
+    }
+    
+    contentInput.addEventListener('input', validateForm);
+    validateForm();
 
-        document.getElementById('knowledgeForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
+    // 表单提交处理
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      
+      reportEl.innerHTML = `
+        <div class="text-center py-16">
+          <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+            <i class="fas fa-cog spin text-white text-xl"></i>
+          </div>
+          <p class="text-white/70">正在生成您的专属报告...</p>
+        </div>
+      `;
+      
+      showProgress('正在初始化处理流程...', 0);
 
-            const form = event.target; // 获取表单元素
-            const formData = new FormData(form); // <--- formData 在这里定义
-
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            const loadingStatus = document.getElementById('loadingStatus');
-            const progressStepsUl = document.getElementById('progressSteps');
-            const progressBarFill = document.getElementById('progressBarFill');
-            const reportContainer = document.getElementById('reportContainer');
-            const reportContent = document.getElementById('reportContent');
-            const errorContainer = document.getElementById('errorContainer');
-            const errorContent = document.getElementById('errorContent');
-
-            // Initialize UI for loading
-            loadingStatus.textContent = '正在初始化...';
-            progressBarFill.style.width = '0%';
-            progressStepsUl.innerHTML = ''; 
-            STEP_DEFINITIONS.forEach(step => {
-                const li = document.createElement('li');
-                li.id = `step-${step.id}`;
-                li.textContent = step.name;
-                progressStepsUl.appendChild(li);
-            });
-            loadingOverlay.style.display = 'flex';
-            reportContainer.style.display = 'none';
-            reportContent.innerHTML = '';
-            errorContainer.style.display = 'none';
-            errorContent.textContent = '';
-
-            let currentStep = 0;
-            let responseConsumed = false; // 标记响应体是否已被消耗
-
-            try {
-                const response = await fetch('/process', {
-                    method: 'POST',
-                    body: formData // <--- formData 在这里被使用
-                });
-
-                if (!response.ok) {
-                    // 如果 HTTP 状态码表示错误 (例如 500)
-                    let errorMsg = `服务器错误 ${response.status}: ${response.statusText}`;
-                    // 尝试读取响应体作为文本 (只读一次)
-                    // 检查 Content-Type 是否为 application/json
-                    const contentType = response.headers.get("content-type");
-                    if (contentType && contentType.includes("application/json")) {
-                        try {
-                            const errorResult = await response.json();
-                            responseConsumed = true;
-                            errorMsg = errorResult.message || errorMsg;
-                        } catch (e) {
-                            // 如果解析 JSON 失败，可能响应体为空或不是有效 JSON
-                            // 此时不要再尝试 response.text()，因为 json() 已消耗
-                            console.warn("无法将错误响应解析为 JSON:", e);
-                        }
-                    } else {
-                        try {
-                            // 如果不是 JSON，尝试作为文本读取
-                            const textError = await response.text();
-                            responseConsumed = true;
-                            if (textError) errorMsg = textError; // 使用文本错误（如果存在）
-                        } catch (e) {
-                            console.warn("无法将错误响应读取为文本:", e);
-                        }
-                    }
-                    throw new Error(errorMsg);
-                }
-
-                // 如果 response.ok，则开始处理 SSE 流
-                const reader = response.body.getReader();
-                responseConsumed = true; // 流的读取器已获取，视为已消耗
-                const decoder = new TextDecoder(); // 默认 utf-8
-                let buffer = '';
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) {
-                        // 确保在流结束后处理可能剩余的 buffer 内容
-                        if (buffer.startsWith('data: ')) { // 检查是否有未处理的 SSE 消息
-                            try {
-                                const jsonData = buffer.substring(buffer.indexOf('data: ') + 6).trim();
-                                if (jsonData) { // 确保 jsonData 不是空的
-                                    const eventData = JSON.parse(jsonData);
-                                    if (eventData.type === 'complete') {
-                                        progressBarFill.style.width = '100%';
-                                        // 先将报告内容转为 HTML（支持 Markdown）
-                                        const html = marked.parse(eventData.report || '');
-                                        reportContent.innerHTML = html;
-                                        reportContainer.style.display = 'block';
-                                        loadingStatus.textContent = '处理完成！';
-                                        const finalStepLi = document.getElementById(`step-${TOTAL_STEPS}`);
-                                        if(finalStepLi) finalStepLi.className = 'completed';
-                                    } else if (eventData.type === 'error') { // 处理流中发出的错误
-                                        throw new Error(eventData.message || "流处理中发生未知错误。");
-                                    }
-                                }
-                            } catch(e) { 
-                                console.error('处理 SSE 流尾部缓冲区时出错:', e, buffer);
-                                // 即使这里出错，也可能已经有部分报告显示了
-                                if (!reportContainer.style.display || reportContainer.style.display === 'none') {
-                                // 如果还没有报告，则显示这个错误
-                                errorContent.textContent = '解析最终数据时发生错误: ' + e.message;
-                                errorContainer.style.display = 'block';
-                                }
-                            }
-                        }
-                        break; // 流结束
-                    }
-
-                    buffer += decoder.decode(value, { stream: true });
-                    
-                    let eolIndex;
-                    while ((eolIndex = buffer.indexOf('\n\n')) >= 0) {
-                        const message = buffer.substring(0, eolIndex);
-                        buffer = buffer.substring(eolIndex + 2); 
-
-                        if (message.startsWith('data: ')) {
-                            const jsonData = message.substring(6);
-                            try {
-                                const eventData = JSON.parse(jsonData);
-                                // console.log("接收到 SSE 事件:", eventData); // 调试时可以取消注释
-
-                                if (eventData.type === 'progress') {
-                                    currentStep = eventData.step;
-                                    const progressPercent = Math.min(100, (currentStep / TOTAL_STEPS) * 100);
-                                    progressBarFill.style.width = progressPercent + '%';
-                                    loadingStatus.textContent = `${eventData.message} (${currentStep}/${TOTAL_STEPS})`;
-                                    for (let i = 1; i <= TOTAL_STEPS; i++) {
-                                        const stepLi = document.getElementById(`step-${i}`);
-                                        if (stepLi) {
-                                            if (i < currentStep) stepLi.className = 'completed';
-                                            else if (i === currentStep) stepLi.className = 'active';
-                                            else stepLi.className = '';
-                                        }
-                                    }
-                                } else if (eventData.type === 'complete') {
-                                    progressBarFill.style.width = '100%';
-                                    loadingStatus.textContent = '处理完成！';
-                                    const finalStepLi = document.getElementById(`step-${TOTAL_STEPS}`);
-                                    if(finalStepLi) finalStepLi.className = 'completed';
-                                    // 先将报告内容转为 HTML（支持 Markdown）
-                                    const html = marked.parse(eventData.report || '');
-                                    reportContent.innerHTML = html;
-                                    reportContainer.style.display = 'block';
-                                } else if (eventData.type === 'error') {
-                                    // 由流本身发出的特定错误，在这里处理
-                                    throw new Error(eventData.message || "流处理中发生未知错误。");
-                                }
-                            } catch (e) {
-                                console.error('解析 SSE JSON 或处理事件时出错:', e, jsonData);
-                                // 决定是抛出错误停止所有处理，还是仅记录并尝试继续（取决于严重性）
-                                // 为简单起见，我们向上抛出，由外层 catch 处理
-                                throw new Error('解析服务器事件时发生错误: ' + e.message);
-                            }
-                        }
-                    }
-                }
-            } catch (error) { // 外层 catch，处理 fetch 错误、非 ok 响应、或 SSE 处理中抛出的错误
-                console.error('表单提交或 SSE 处理错误:', error);
-                errorContent.textContent = error.message || '处理过程中发生未知错误。'; // 显示错误信息
-                errorContainer.style.display = 'block';
-                loadingStatus.textContent = '处理失败';
-                progressBarFill.style.backgroundColor = '#ef4444'; // 错误时进度条变红 (可选)
-                if (currentStep > 0 && currentStep <= TOTAL_STEPS) {
-                    const failedStepLi = document.getElementById(`step-${currentStep}`);
-                    // if (failedStepLi && failedStepLi.className !== 'completed') failedStepLi.className = 'error-step'; // 需要定义 .error-step 样式
-                }
-            } finally {
-                // 默认情况下，我们总是想隐藏加载覆盖层，除非有特殊情况
-                let hideOverlay = true;
-                
-                // 检查是否已成功完成并显示了报告
-                if (reportContainer.style.display === 'block') {
-                    setTimeout(() => {
-                        alert('报告已成功生成！');
-                        // 成功完成后，可以安全地隐藏覆盖层
-                        if (loadingOverlay.style.display !== 'none') {
-                            loadingOverlay.style.display = 'none';
-                        }
-                        // 重置进度条以备下次使用
-                        if(progressBarFill) { // 确保元素存在
-                           progressBarFill.style.width = '0%';
-                           progressBarFill.style.backgroundColor = '#3b82f6'; // 恢复进度条颜色
-                        }
-                    }, 300); // 短暂延迟，让用户看到最终的 "处理完成！" 状态
-                    hideOverlay = false; // alert 之后已经处理了隐藏，不需要再执行下面的通用隐藏
-                } 
-                // 如果有错误显示，也应该隐藏加载界面
-                else if (errorContainer.style.display === 'block') {
-                     setTimeout(() => {
-                        if (loadingOverlay.style.display !== 'none') {
-                            loadingOverlay.style.display = 'none';
-                        }
-                        if(progressBarFill) {
-                           progressBarFill.style.width = '0%'; 
-                           progressBarFill.style.backgroundColor = '#3b82f6';
-                        }
-                    }, 500);
-                    hideOverlay = false; // 错误显示后，也已处理隐藏
-                }
-
-                // 通用的隐藏逻辑，以防万一之前的条件都没满足（例如，流中断）
-                // 并且确保 responseConsumed 为 true，意味着我们至少尝试读取了响应
-                if (hideOverlay && responseConsumed) { 
-                    setTimeout(() => {
-                        if (loadingOverlay.style.display !== 'none') {
-                            loadingOverlay.style.display = 'none';
-                        }
-                        if(progressBarFill) {
-                            progressBarFill.style.width = '0%';
-                            progressBarFill.style.backgroundColor = '#3b82f6';
-                        }
-                    }, 500); // 给一点时间让用户看到最后的状态，或者处理可能未完成的流读取
-                } else if (hideOverlay && !responseConsumed) {
-                    // 如果 response 根本没有被消耗（例如，fetch 本身失败），也应该隐藏
-                     setTimeout(() => {
-                        if (loadingOverlay.style.display !== 'none') {
-                            loadingOverlay.style.display = 'none';
-                        }
-                         if(progressBarFill) {
-                            progressBarFill.style.width = '0%';
-                            progressBarFill.style.backgroundColor = '#3b82f6';
-                        }
-                    }, 100); // 快速隐藏
-                }
-            }
+      try {
+        const resp = await fetch('/process', { 
+          method: 'POST', 
+          body: new FormData(form) 
         });
-        </script>
+        
+        if (!resp.ok) throw new Error('服务器响应错误');
+
+        const reader = resp.body.getReader();
+        const parser = createParser({
+          onEvent(evt) {
+            switch (evt.event) {
+              case 'progress':
+                updateProgress(JSON.parse(evt.data));
+                break;
+              case 'report_start':           // <=== 新增
+                reportEl.textContent = '';   // 清屏
+                break;
+              case 'report_chunk':           // <=== 新增
+                appendWithTypewriter(evt.data);
+                break;
+              case 'error':
+                hideProgress();
+                showError(JSON.parse(evt.data).message);
+                break;
+              case 'complete':
+              hideProgress();
+                // 等最后一批字符播完再渲染 Markdown
+                const timer = setInterval(() => {
+                if (!typing) {
+                    clearInterval(timer);
+                    reportEl.innerHTML = marked.parse(reportEl.textContent);
+                    mermaid.run();           // 如果你之前有渲染 Mermaid 的需求
+                    showToast('报告生成完成！', 'success');
+                }
+                }, 40);
+                break;
+            }
+          }
+        });
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          parser.feed(new TextDecoder().decode(value));
+        }
+      } catch (err) {
+        hideProgress();
+        showError(err.message || '网络连接失败，请重试');
+        console.error('处理错误:', err);
+      }
+    });
+
+    // 打字机效果
+    function startTypewriter(fullText) {
+      let i = 0;
+      reportEl.innerHTML = '';
+      
+      const timer = setInterval(() => {
+        reportEl.textContent += fullText[i++];
+        
+        if (i >= fullText.length) {
+          clearInterval(timer);
+          
+          try {
+            const htmlContent = marked.parse(reportEl.textContent);
+            reportEl.innerHTML = htmlContent;
+            mermaid.run();
+            showToast('报告生成完成！', 'success');
+          } catch (error) {
+            console.error('渲染错误:', error);
+            showToast('报告生成完成，但渲染可能有问题', 'error');
+          }
+        }
+      }, 60);
+    }
+
+    // 进度控制
+    function showProgress(text, ratio) {
+      msgEl.textContent = text;
+      const percentage = Math.round(ratio * 100);
+      barEl.style.width = `${percentage}%`;
+      percentEl.textContent = `${percentage}%`;
+      progressModal.classList.remove('hidden');
+    }
+
+    function updateProgress({ step, total_steps, message }) {
+      showProgress(message, step / total_steps);
+    }
+
+    function hideProgress() {
+      progressModal.classList.add('hidden');
+    }
+
+    // Toast 通知
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <div class="flex items-center">
+          <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} mr-2"></i>
+          ${message}
+        </div>
+      `;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => toast.classList.add('show'), 100);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, type === 'error' ? 5000 : 3000);
+    }
+
+    // 错误处理
+    function showError(msg) {
+      showToast(`生成失败：${msg}`, 'error');
+      
+      reportEl.innerHTML = `
+        <div class="text-center py-16">
+          <div class="w-24 h-24 mx-auto mb-6 bg-red-500/20 rounded-full flex items-center justify-center border-2 border-red-500/30">
+            <i class="fas fa-exclamation-triangle text-4xl text-red-400"></i>
+          </div>
+          <h3 class="text-xl font-medium mb-2 text-red-400">生成失败</h3>
+          <p class="text-white/60 mb-6">${msg}</p>
+          <button onclick="location.reload()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+            <i class="fas fa-redo mr-2"></i>重新尝试
+          </button>
+        </div>
+      `;
+    }
+  </script>
 </body>
-</html> 
+</html>

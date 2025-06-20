@@ -54,13 +54,22 @@ KnowlEdge 是一款智能引擎，旨在为您提供高度个性化的行业知�
 
 ### **4.3. 配置 API 密钥**
 
-1.  在 `KnowlEdge.py`文件中添加您的 API 密钥，格式如下：
+1.  在 `KnowlEdge.py`文件中添加您的 API 密钥在.env文件中，.env格式如下：
+    
+    ```
+    DEEPSEEK_API_KEY = 
+    QWEN_API_KEY = 
+    SERPER_API_KEY = 
+    ```
+    
+    .py内容如下：
+    
     ```python
     "API_KEYS": {
-        "deepseek": os.environ.get("DEEPSEEK_API_KEY", "YOUR_DEEPSEEK_APIKEY"),
-        "qwen": os.environ.get("QWEN_API_KEY", "YOUR_QWEN_APIKEY"), # (可选)
-        "serper": os.environ.get("SERPER_API_KEY", "YOUR_SERPER_APIKEY"), # (可选)
-        "baidu_translate": os.environ.get("BAIDU_API_KEY", "YOUR_BAIDU_APIKEY"), # (可选)
+            "deepseek": os.getenv("DEEPSEEK_API_KEY"),
+            "qwen": os.getenv("QWEN_API_KEY"), #(可选)
+            "serper": os.getenv("SERPER_API_KEY"),
+            "baidu_translate": os.getenv("BAIDU_API_KEY"), #(可选)
     },
     ```
 
@@ -82,22 +91,27 @@ KnowlEdge 是一款智能引擎，旨在为您提供高度个性化的行业知�
 
 系统通过 FastAPI Web 服务器运行。
 
-1.  确保您的终端位于项目根目录，并且虚拟环境已激活。
-2.  启动 FastAPI 应用：
-    ```bash
-    uvicorn src.app:app --reload --port 5001
-    ```
-    *   `--reload`: 开发模式下，代码更改会自动重载服务器。
-    *   `--port 5001`: 指定服务器运行的端口号，您可以根据需要更改。
+1. 确保您的终端位于项目根目录，并且虚拟环境已激活。
+   ```
+   .venv\Scripts\activate.ps1
+   ```
 
-3.  服务器成功启动后，您会在终端看到类似以下的输出：
-    ```
-    INFO:     Uvicorn running on http://127.0.0.1:5001 (Press CTRL+C to quit)
-    INFO:     Started reloader process [xxxxx] using statreload
-    INFO:     Started server process [xxxxx]
-    INFO:     Waiting for application startup.
-    INFO:     Application startup complete.
-    ```
+2. 启动 FastAPI 应用：
+   ```bash
+   cd
+   uvicorn src.app:app --reload --port 5001
+   ```
+   *   `--reload`: 开发模式下，代码更改会自动重载服务器。
+   *   `--port 5001`: 指定服务器运行的端口号，您可以根据需要更改。
+
+3. 服务器成功启动后，您会在终端看到类似以下的输出：
+   ```
+   INFO:     Uvicorn running on http://127.0.0.1:5001 (Press CTRL+C to quit)
+   INFO:     Started reloader process [xxxxx] using statreload
+   INFO:     Started server process [xxxxx]
+   INFO:     Waiting for application startup.
+   INFO:     Application startup complete.
+   ```
 
 ## **6. 使用 KnowlEdge Web 界面**
 

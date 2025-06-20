@@ -12,7 +12,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import os
 import sqlite3
 import hashlib
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, Any, List, Tuple, Optional, AsyncIterator 
 import PyPDF2
 import docx
 import pandas as pd
@@ -846,12 +846,48 @@ class KnowledgeFlow:
         self.serper_api_key = CONFIG["API_KEYS"]["serper"]
         self.user_profile_manager = UserProfileManager(client=self.client)
 
+    async def _call_llm_stream(self, prompt: str, system_message: str = "你是一个知识渊博且表达能力优秀的AI助手。", stream: bool = True) -> AsyncIterator[str]:
+        """
+        流式调用：每拿到一个 token 就 yield 给上层，
+        用法示例：
+            async for tok in self._call_llm_stream(prompt):
+                yield tok        # 直接转给前端
+        """
+        logging.debug(f"调用LLM(流式)。系统消息: '{system_message[:100]}...', 用户Prompt: '{prompt[:150]}...'")
+        try:
+            # OpenAI 的同步接口放在线程池里跑，返回一个迭代器
+            response_iter = await asyncio.to_thread(
+                self.client.chat.completions.create,
+                model=CONFIG["MODELS"]["LLM"],
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                stream=True
+            )
+
+            # Stream对象是同步迭代器，不是异步迭代器，所以不能使用async for
+            # 使用普通for循环迭代，每次yield一个token
+            for chunk in response_iter:
+                if (chunk.choices
+                        and chunk.choices[0].delta
+                        and (tok := chunk.choices[0].delta.content)):
+                    yield tok
+                    # 添加一个小的延迟，避免过快输出
+                    await asyncio.sleep(0.01)
+
+        except Exception as e:
+            logging.error(f"调用LLM(流式)时发生错误: {e}", exc_info=True)
+            yield f"\n\n[错误]: {str(e)}"
+            
     async def _call_llm(self, prompt: str, system_message: str = "你是一个知识渊博且表达能力优秀的AI助手。") -> str:
         """
-        辅助方法：调用大语言模型并返回文本结果。
+        非流式调用LLM：等待完整响应后一次性返回
         """
-        logging.debug(f"调用LLM。系统消息: '{system_message[:100]}...', 用户Prompt: '{prompt[:150]}...'")
+        logging.debug(f"调用LLM(非流式)。系统消息: '{system_message[:100]}...', 用户Prompt: '{prompt[:150]}...'")
         try:
+            # 使用线程池执行同步调用
             response = await asyncio.to_thread(
                 self.client.chat.completions.create,
                 model=CONFIG["MODELS"]["LLM"],
@@ -860,31 +896,16 @@ class KnowledgeFlow:
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.7,
+                stream=False
             )
-            if response and hasattr(response, 'choices') and len(response.choices) > 0:
-                content = response.choices[0].message.content
-                logging.debug(f"LLM原始返回内容 (前200字符): {content[:200]}")
-
-                # --- 后处理开始 ---
-                processed_content = content.strip() 
-                processed_content = processed_content.replace('\r\n', '\n')
-                # 规范化段落间距：确保段落间是两个换行符，但不要创建超过两个的连续换行。
-                # 1. 将3个或更多连续换行符替换为2个。
-                processed_content = re.sub(r'\n{3,}', '\n\n', processed_content)
-                # 2. 对于一些LLM可能只用单个换行做段落分隔的情况，如果前后都不是列表项或特殊MD结构，可以考虑将其替换为\n\n (此步较复杂，暂时省略，依赖LLM提示)
-                
-                # 再次移除处理后可能产生的首尾空白
-                processed_content = processed_content.strip()
-                # --- 后处理结束 ---
-
-                logging.debug(f"LLM处理后内容 (前200字符): {processed_content[:200]}")
-                return processed_content
-            else:
-                logging.error("LLM API响应无效或没有choices字段")
-                return "LLM未能生成有效回复。"
+            
+            # 返回完整内容
+            result = response.choices[0].message.content
+            return result
+            
         except Exception as e:
-            logging.error(f"调用LLM时发生错误: {e}", exc_info=True)
-            return f"调用LLM时出错: {str(e)}"
+            logging.error(f"调用LLM(非流式)时发生错误: {e}", exc_info=True)
+            return f"生成内容时发生错误: {str(e)}"
 
     def _prepare_llm_context_from_search_results(self, search_results: Dict, max_items_per_source: int = 3, max_chars: int = 8000) -> str:
         """
@@ -1679,6 +1700,14 @@ class KnowledgeFlow:
         logging.debug(f"生成的报告内容: {report}")
         return "\n\n".join(report)
 
+    async def _yield_with_title(self, title: str, llm_prompt: str,
+                                system_msg: str = "你是一位资深写作者。") -> AsyncIterator[str]:
+        """通用小工具：先把标题丢给前端，再流式产出正文"""
+        # 先把第一行标题 yield 出去，避免前端一片空白
+        yield title + "\n\n"
+        async for tok in self._call_llm_stream(llm_prompt, system_msg):
+            yield tok
+
     async def generate_literature_review(self, search_results: Dict, original_query: str) -> str:
         logging.info(f"开始为查询 '{original_query}' 生成文献综述...")
         llm_context_str = self._prepare_llm_context_from_search_results(search_results, max_items_per_source=8)
@@ -1821,6 +1850,194 @@ class KnowledgeFlow:
         # Prepend the main title that Python controls
         final_report = f"# 知识科普: 解密 {original_query}\n\n{full_report_content}"
         return final_report
+
+    async def generate_report_stream(self, search_results: Dict) -> AsyncIterator[str]:
+        """流式生成最终的搜索报告"""
+        logging.info("流式生成最终的搜索报告...")
+        platform_type = self.context.get('platform')
+        
+        # 调用大语言模型整合结果
+        llm_context_str = self._prepare_llm_context_from_search_results(search_results)
+        
+        prompt = f"""
+        请根据以下搜索结果，生成一份结构清晰、信息丰富的综合报告。
+        报告中应该包含对重要信息的提取、归纳总结，并按照逻辑关系组织内容。
+        
+        ---搜索结果---
+        {llm_context_str}
+        ---搜索结果结束---
+        
+        请确保报告：
+        1. 有明确的结构和标题
+        2. 逻辑清晰，内容连贯
+        3. 提炼关键信息，避免冗余
+        4. 使用Markdown格式进行排版
+        
+        根据用户选择的【{platform_type}】平台特点，请特别关注该领域的最新进展和重要信息。
+        """
+        
+        title = f"# 【{platform_type}】综合报告\n\n"
+        yield title
+        
+        async for chunk in self._call_llm_stream(prompt):
+            yield chunk
+            
+        yield f"\n\n---\n\n根据您选择的【{platform_type}】平台，近几日的行业内最新进展已整理好，请查收！"
+
+    async def generate_literature_review_stream(self, search_results: Dict, original_query: str) -> AsyncIterator[str]:
+        """流式生成文献综述"""
+        logging.info(f"开始流式生成文献综述: {original_query}")
+        llm_context_str = self._prepare_llm_context_from_search_results(search_results, max_items_per_source=8)
+
+        references_list = []
+        for source, data in search_results.items():
+            if data and isinstance(data, dict) and 'results' in data and data['results']:
+                for item in data['results']:
+                    if isinstance(item, dict):
+                        title = item.get('title', '未知标题')
+                        link = item.get('link', '#')
+                        if link and link != '#':
+                            references_list.append({"title": title, "link": link, "source": source})
+        
+        unique_references = []
+        seen_links = set()
+        for ref in references_list:
+            if ref["link"] not in seen_links:
+                unique_references.append(ref)
+                seen_links.add(ref["link"])
+
+        system_message_lit_review = "你是一名资深的学术研究员和文献综述撰写专家。请严格按照用户要求的结构和格式生成内容。确保所有输出均为结构良好、干净的Markdown格式，段落间使用双换行符分隔，列表使用标准的Markdown语法。不要在段落中随意插入不必要的换行。用户在Prompt中章节标题后用括号 () 或 （） 包含的文字是对您生成该章节内容的引导和提示，这些括号及其内部的文字绝对不能出现在最终的输出中。您只需要生成这些括号提示之外的、针对该章节的实际内容。所有章节标题和结构由用户在Prompt中指定，请严格遵循。"
+        
+        prompt = f"""
+        请基于主题 "{original_query}" 和以下提供的相关学术文献信息，撰写一份全面且结构清晰的文献综述报告。
+        报告应包含以下Markdown结构和内容。请直接在每个章节标题下撰写对应的内容，不要重复标题，也不要输出括号中的提示文字。
+        # 文献综述报告: {original_query}
+        ## 1. 引言
+        (请在此处撰写引言：简要介绍 "{original_query}" 主题的背景和重要性，以及本综述的目的和范围。)
+        ## 2. 主要研究方向和核心概念
+        (请在此处撰写主要研究方向和核心概念：识别并系统总结文献中涉及的核心研究方向、关键理论模型和重要概念。)
+        ## 3. 关键文献回顾与贡献
+        (请在此处撰写关键文献回顾与贡献：挑选几篇（3-5篇）具有里程碑意义或代表性的文献进行重点回顾，阐述其主要研究方法、核心发现和学术贡献。在提及具体文献时，可以使用其标题，例如"在《文献标题》中，作者指出..."。)
+        ## 4. 研究方法的演进与比较
+        (请在此处撰写研究方法的演进与比较：如果文献信息支持，讨论该领域常用的研究方法，它们是如何随时间演变的，并对比不同方法的优缺点。)
+        ## 5. 现有研究的局限性与未来研究空白
+        (请在此处撰写现有研究的局限性与未来研究空白：基于现有文献，批判性地指出当前研究中存在的不足、争议点或尚未解决的关键问题，从而识别潜在的未来研究空白和方向。)
+        ## 6. 结论与展望
+        (请在此处撰写结论与展望：对整个综述进行总结，并对 "{original_query}" 领域的未来发展趋势进行展望。)
+
+        ---\n*重要提示：*\n*- 请勿在综述正文中包含URL或直接的链接地址。参考文献列表将由外部程序在报告末尾单独提供。*\n*- 避免简单罗列文献摘要的堆砌，重点在于进行深入的分析、归纳、综合和批判性评价。*\n*- 报告全文请使用中文撰写。如果原始文献材料是其他语言，请确保核心信息的准确翻译和自然融入。*\n
+
+        ---文献信息参考---\n{llm_context_str}\n---文献信息参考结束---\n
+
+        请严格按照以上Markdown结构和要求生成完整的文献综述内容，直接从第一个章节的内容开始写，不要重复最顶层的报告标题，每段话之间至多一句换行，标题和下面内容之间不换行，别部分也不要多余的换行。
+        """
+        
+        # 先输出标题
+        title = f"# 文献综述报告: {original_query}\n\n"
+        yield title
+        
+        # 流式输出主体内容
+        async for chunk in self._call_llm_stream(prompt, system_message_lit_review):
+            yield chunk
+            
+        # 输出参考文献部分
+        if unique_references:
+            references_section = "\n\n---\n## 参考文献\n\n"
+            for i, ref in enumerate(unique_references):
+                references_section += f"{i+1}. **{ref['title']}** (来源: {ref['source']})\n   - 链接: [{ref['link']}]({ref['link']})\n"
+            yield references_section
+        else:
+            yield "\n\n---\n未找到可引用的文献链接。"
+
+    async def generate_industry_research_report_stream(self, search_results: Dict, user_input: Dict, original_query: str) -> AsyncIterator[str]:
+        """流式生成行业调研报告"""
+        logging.info(f"开始流式生成行业调研报告: {original_query}")
+        context_str = self._prepare_llm_context_from_search_results(search_results)
+        
+        system_message_industry_analyst = "你是一位经验丰富的行业分析师和商业顾问。请严格按照用户在Prompt中指定的Markdown结构和内容要求进行撰写。确保所有输出均为结构良好、干净的Markdown格式，段落间使用双换行符分隔，列表和表格使用标准的Markdown语法。不要在段落中随意插入不必要的换行。用户在Prompt中章节标题后用括号 () 或 （） 包含的文字是对您生成该章节内容的引导和提示，这些括号及其内部的文字绝对不能出现在最终的输出中。您只需要生成这些括号提示之外的、针对该章节的实际内容。所有章节标题和结构由用户在Prompt中指定，请严格遵循。"
+
+        prompt = f"""
+        请针对主题 "{original_query}"，并结合以下提供的背景信息，撰写一份结构清晰、内容详实的行业调研报告。
+        报告应严格遵循以下Markdown结构，并在每个章节标题之下直接撰写对应的内容。不要重复章节标题本身，也不要输出括号中的提示性文字。
+        # 行业调研报告: {original_query}
+        ## 1. 执行摘要
+        (请在此处撰写200-300字的执行摘要：概括核心现状、技术特点、关键应用、成熟度判断、机遇与挑战。面向企业决策者或项目负责人。)
+        ## 2. 技术概览与核心组件分析
+        (请在此处撰写技术概览：分析 "{original_query}" 的核心技术组件、方法论或主要技术分支。描述其原理、特征和作用。确保专业准确，语言清晰。)
+        ## 3. 技术对比分析
+        (请在此处进行技术对比分析：如果领域内存在多种主流技术路径值得对比，选择2-3个关键点，对比优势、劣势、适用场景、技术差异。尽量使用Markdown表格或列表。如果技术路径单一或不适合对比，请说明原因。)
+        ## 4. 技术成熟度评估
+        (请在此处评估技术成熟度：评估 "{original_query}" 相关核心技术/分支的当前技术成熟度，如概念验证、研发攻坚、早期市场、快速成长、成熟应用、衰退期。给出判断理由和阶段特征。)
+        ## 5. 应用前景与市场机遇
+        (请在此处分析应用前景与市场机遇：分析 "{original_query}" 技术未来3-5年的主要应用前景和潜在市场机遇。从行业、场景角度展开，指出驱动因素。)
+        ## 6. 近期趋势与潜在风险点
+        (请在此处总结近期趋势与潜在风险点：总结 "{original_query}" 领域的最新发展趋势、研究进展或行业动态。识别技术瓶颈、市场风险、伦理或合规挑战。)
+        ## 7. 初步战略建议
+        (请在此处提供初步战略建议：针对希望在 "{original_query}" 领域进行技术评估、项目投入或战略布局的机构，提供3-5条操作性初步战略建议，聚焦于把握机遇、规避风险、关键切入点。)
+        ---\n*免责声明：本报告基于公开信息和AI模型分析生成，仅供参考，不构成任何具体的投资或决策建议。*\n
+
+        ---文献信息参考---\n{context_str}\n---文献信息参考结束---
+
+        请严格按照以上Markdown结构和要求生成完整的报告内容，直接从第一个章节的内容开始写，不要重复最顶层的报告标题，每段话之间至多一句换行，标题和下面内容之间不换行，别部分也不要多余的换行。
+        """
+        
+        # 先输出标题
+        title = f"# 行业调研报告: {original_query}\n\n"
+        yield title
+        
+        # 流式输出内容
+        async for chunk in self._call_llm_stream(prompt, system_message_industry_analyst):
+            yield chunk
+
+    async def generate_popular_science_report_stream(self, search_results: Dict, user_input: Dict, original_query: str) -> AsyncIterator[str]:
+        """流式生成知识科普报告"""
+        logging.info(f"开始流式生成知识科普报告: {original_query}")
+        context_str = self._prepare_llm_context_from_search_results(search_results, max_items_per_source=2, max_chars=6000)
+
+        system_msg_science_writer = "你是一位优秀的科普作家和沟通专家。请严格按照用户在Prompt中指定的Markdown结构和内容要求进行撰写。确保所有输出均为结构良好、干净的Markdown格式，段落间使用双换行符分隔，列表和图表（如Mermaid）使用标准Markdown语法。不要在段落中随意插入不必要的换行。用户在Prompt中章节标题后用括号 () 或 （） 包含的文字是对您生成该章节内容的引导和提示，这些括号及其内部的文字绝对不能出现在最终的输出中。您只需要生成这些括号提示之外的、针对该章节的实际内容。所有章节标题和结构由用户在Prompt中指定，请严格遵循。"
+
+        prompt = f"""
+        请针对科普主题 "{original_query}"，并结合以下提供的背景信息，为希望拓展知识边界的成年非专业人士撰写一篇生动有趣、易于理解的知识科普文章。
+        文章应严格遵循以下Markdown结构，并在每个章节标题之下直接撰写对应的内容。不要重复章节标题本身，也不要输出括号中的提示性文字。
+        # 知识科普: 解密 {original_query}
+        ## 1. 什么是{original_query} ？
+        (请为以上标题下的内容，提供针对成年非专业人士的清晰、简洁且易于理解的核心概念解释。必须包含一个生动且贴切的生活化类比，帮助快速抓住要点。确保解释既准确又不失趣味性。避免不必要的专业术语；如果必须使用，请立即给出通俗解释。)
+        ## 2. 为什么我们应该关心 {original_query}？
+        (请为以上标题下的内容，阐述对于成年人而言，了解 "{original_query}" 的实际意义或潜在价值。它可能如何影响工作、生活或对世界的认知？请列举2-3点，并用简洁明了的语言阐述。)
+        ## 3. 核心概念三连击 (由浅入深)
+        (请为以上标题下的内容，采用"三层渐进式解读"的方式阐述其核心概念。
+        请按以下结构提供三层解读，可以使用Markdown加粗文本强调分层，但不要自行添加更低级别的Markdown标题如###等：
+        *   **第一层：核心概要 (一句话点睛):** [此处填写您的解读内容]
+        *   **第二层：工作原理浅析 (形象化解析):** [此处填写您的解读内容]
+        *   **第三层：关键特性与延伸思考 (启发性细节):** [此处填写您的解读内容]
+        每一层解读都应力求清晰、准确且易于理解。)
+        ## 4. 如何开始学习 {original_query}？
+        (请为以上标题下的内容，提供一份简洁实用的入门学习指南。指南应包含：
+        1.  推荐的学习资源类型（例如，高质量的在线课程、权威科普文章/白皮书、专家访谈或讲座视频、互动式学习网站等）。
+        2.  初学者应首先掌握的核心概念或基础知识。
+        3.  一个建议的学习步骤或顺序。如果合适，您可以使用Mermaid的graph LR代码块（包裹在 \\\`\\\`\\\`mermaid ... \\\`\\\`\\\` 中）来可视化学习路线图。
+        请以清晰的列表或分点形式呈现。)
+        ## 5. 关于 {original_query} 的快问快答
+        (请为以上标题下的内容，模拟一次面向成年人的入门级Q&A环节。设计2-3个典型且富有启发性的问题。对每个问题给出清晰、准确且通俗易懂的回答，格式如下，不要添加额外标题：
+        **Q1: [问题1]**
+        A1: [回答1]
+        **Q2: [问题2]**
+        A2: [回答2]
+        )
+        ## 6. 结语：探索 {original_query} 的更多乐趣
+        (请为以上标题下的内容，撰写一个精炼（约50-80字）、能够激发成年读者持续学习兴趣和探索欲望的结语。结语应积极正面，并强调持续学习的重要性。)
+        ---\n*本内容由KnowlEdge AI生成，旨在知识普及，力求通俗易懂。专业细节请参考学术文献。*\n
+        ---文献信息参考---\n{context_str}\n---文献信息参考结束---\n
+        请严格按照以上Markdown结构和要求生成完整的科普文章内容，直接从第一个章节的内容开始写，不要重复最顶层的报告标题，每段话之间至多一句换行，标题和下面内容之间不换行，别部分也不要多余的换行。
+        """
+        
+        # 先输出标题
+        title = f"# 知识科普: 解密 {original_query}\n\n"
+        yield title
+        
+        # 流式输出内容
+        async for chunk in self._call_llm_stream(prompt, system_msg_science_writer):
+            yield chunk
 
     def send_email(self, report: str):
         """发送邮件（示例）"""
