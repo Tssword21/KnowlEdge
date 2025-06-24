@@ -145,12 +145,12 @@ KnowlEdge 是一款智能引擎，旨在为您提供高度个性化的行业知�
 
 ### **6.2. 生成报告**
 
-填写完毕后，点击 **“生成报告”** 按钮。
+填写完毕后，点击 **"生成报告"** 按钮。
 
 系统后台将开始处理您的请求。界面上会显示一个加载覆盖层，包含：
 
 *   **旋转的加载动画**。
-*   **当前处理状态**: 如“正在初始化...”、“用户画像分析”、“构建搜索参数”、“执行搜索”、“整合结果并生成[报告类型]报告”、“处理完成”。
+*   **当前处理状态**: 如"正在初始化..."、"用户画像分析"、"构建搜索参数"、"执行搜索"、"整合结果并生成[报告类型]报告"、"处理完成"。
 *   **进度条**: 显示整体任务的完成百分比。
 *   **详细步骤列表**: 高亮显示当前正在执行的步骤，并标记已完成的步骤。
 
@@ -199,3 +199,102 @@ KnowlEdge 是一款智能引擎，旨在为您提供高度个性化的行业知�
 ---
 
 希望这份使用手册能帮助您顺利地使用 KnowlEdge 个性化知识引擎！
+
+## **系统架构**
+
+KnowlEdge系统采用模块化设计，核心模块包括：
+
+```
+src/
+  ├── app.py                # FastAPI应用主入口
+  ├── config.py             # 配置管理
+  ├── utils.py              # 工具函数
+  ├── db_utils.py           # 数据库操作工具
+  ├── KnowlEdge.py          # 旧版主类文件(已拆分)
+  ├── models/               # 数据模型
+  │   ├── __init__.py
+  │   ├── user_profile.py   # 用户画像管理
+  │   └── resume_reader.py  # 简历解析器
+  ├── core/                 # 核心功能
+  │   ├── __init__.py
+  │   ├── knowledge_flow.py # 知识流程管理
+  │   ├── llm_interface.py  # LLM接口
+  │   ├── search.py         # 搜索功能
+  │   └── generators.py     # 报告生成器
+  └── template.env          # 环境变量模板
+```
+
+## **安装与配置**
+
+1. 克隆仓库：
+```bash
+git clone https://github.com/your-username/KnowlEdge.git
+cd KnowlEdge
+```
+
+2. 安装依赖：
+```bash
+pip install -r requirements.txt
+```
+
+3. 初始化系统：
+```bash
+python scripts/init_system.py
+```
+
+4. 配置API密钥：
+编辑根目录下的`.env`文件，填入必要的API密钥和配置。
+
+## **运行应用**
+
+```bash
+cd src
+python -m uvicorn app:app --reload --port 5001
+```
+
+然后在浏览器中访问 http://localhost:5001
+
+## **使用指南**
+
+1. 在主页面填写您的个人信息和关注领域
+2. 选择需要的报告类型（标准报告、文献综述、行业调研或科普文章）
+3. 上传简历(可选)以获得更加个性化的搜索体验
+4. 点击"生成报告"按钮，系统将开始处理并流式输出结果
+
+## **数据源支持**
+
+- Google Scholar: 学术论文和引用
+- ArXiv: 预印本论文
+- 专利数据库: 技术专利信息
+- 网页搜索: 综合网页信息
+- 新闻源: 最新新闻和动态
+
+## **报告类型**
+
+- 标准报告: 综合性信息摘要
+- 文献综述: 学术文献的综合分析
+- 行业调研报告: 特定领域的技术和市场分析
+- 科普文章: 通俗易懂的知识解读
+
+## **依赖项**
+
+- Python 3.8+
+- FastAPI
+- uvicorn
+- httpx
+- SQLite
+- 以及其他在requirements.txt中列出的库
+
+## **贡献指南**
+
+欢迎提交问题报告、功能建议或代码贡献。请确保遵循以下步骤：
+
+1. Fork仓库
+2. 创建您的特性分支 (`git checkout -b feature/amazing-feature`)
+3. 提交您的更改 (`git commit -m 'Add some amazing feature'`)
+4. 推送到分支 (`git push origin feature/amazing-feature`)
+5. 打开一个Pull Request
+
+## **许可证**
+
+本项目采用MIT许可证 - 详情请参见 LICENSE 文件

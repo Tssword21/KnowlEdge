@@ -1,28 +1,62 @@
 # app.py - 修改后的流式输出版本
+import os
+import sys
 import asyncio
 import logging
-import os
 import json
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
+import uuid
+from typing import Dict, List, Optional, Any
+
+# 添加项目根目录到Python路径
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+sys.path.insert(0, project_root)
+
+# 修复导入路径问题
+try:
+    # 当在项目根目录运行时
+    from src.core.knowledge_flow import KnowledgeFlow
+    from src.config import Config
+    from src.utils import setup_logging, verify_database, get_user_data_path
+except ImportError:
+    # 当在src目录下运行时
+    from core.knowledge_flow import KnowledgeFlow
+    from config import Config
+    from utils import setup_logging, verify_database, get_user_data_path
+
+from fastapi import FastAPI, Request, Form, File, UploadFile, HTTPException
+from fastapi.responses import HTMLResponse, JSONResponse
 from sse_starlette.sse import EventSourceResponse
 from fastapi.templating import Jinja2Templates
-from KnowlEdge import KnowledgeFlow, CONFIG, verify_database, UserProfileManager
+from fastapi.staticfiles import StaticFiles
+import tempfile
 
 # --- 应用配置和初始化 ---
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s')
+setup_logging()
 app = FastAPI(title="KnowlEdge 智能引擎", version="1.0.0")
 
-templates_dir = os.path.join(os.path.dirname(__file__), "../templates")
+# 获取配置
+config = Config()
+
+# 设置静态文件和模板
+templates_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
 if not os.path.exists(templates_dir) or not os.path.isfile(os.path.join(templates_dir, "index.html")):
     logging.error(f"模板目录 '{templates_dir}' 或 'index.html' 未找到。HTML 页面可能无法加载。")
 templates = Jinja2Templates(directory=templates_dir)
 
+# 静态文件服务
+static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+else:
+    logging.warning(f"静态文件目录 '{static_dir}' 未找到。静态资源可能无法加载。")
+    os.makedirs(static_dir, exist_ok=True)
+
 try:
     if not verify_database():
         logging.warning("数据库验证失败。系统可能无法按预期工作。请考虑运行 init_system.py 进行初始化。")
-    os.makedirs(CONFIG["DATA_DIR"], exist_ok=True)
-    logging.info(f"数据目录 '{CONFIG['DATA_DIR']}' 已确保存在。")
+    os.makedirs(get_user_data_path(), exist_ok=True)
+    logging.info(f"数据目录 '{get_user_data_path()}' 已确保存在。")
 except Exception as e:
     logging.error(f"初始化设置错误 (数据库/目录检查): {e}", exc_info=True)
 
@@ -35,30 +69,49 @@ STEP_DEFINITIONS = [
     {"id": 6, "name": "处理完成"}
 ]
 
-def get_step_name(step_id, report_type="standard_report"):
+# 定义报告类型映射
+REPORT_TYPE_MAP = {
+    "standard": "standard",                    # 标准报告
+    "literature_review": "literature_review",  # 文献综述
+    "industry_research_report": "industry_research",  # 行业研究报告
+    "popular_science_report": "popular_science"      # 科普知识报告
+}
+
+def get_step_name(step_id, report_type="standard"):
     """辅助函数：根据步骤 ID 获取描述性的步骤名称。"""
     if step_id == 5:
-        if report_type == "literature_review":
+        # 根据报告类型映射显示不同的第5步描述
+        normalized_type = REPORT_TYPE_MAP.get(report_type, "standard")
+        if normalized_type == "literature_review":
             return "整合结果并生成文献综述"
-        elif report_type == "industry_research_report":
-            return "整合结果并生成行业调研报告"
-        elif report_type == "popular_science_report":
-            return "整合结果并生成知识科普报告"
+        elif normalized_type == "industry_research":
+            return "整合结果并生成行业研究报告"
+        elif normalized_type == "popular_science":
+            return "整合结果并生成科普知识报告"
         else:
-            return "整合结果并生成报告"
+            return "整合结果并生成标准报告"
     
     for step_def in STEP_DEFINITIONS:
         if step_def["id"] == step_id: return step_def["name"]
     return "未知处理阶段"
 
 # --- 核心异步生成器 (用于 SSE 事件流) ---
-async def knowledge_flow_sse_generator(user_input_data: dict, cv_text_data: str, report_type: str, original_query: str):
+async def knowledge_flow_sse_generator(user_input_data: dict, resume_file: UploadFile = None, report_type: str = "standard", original_query: str = ""):
     """
     异步生成器，为知识流处理过程生成服务器发送事件 (SSE)。
-    现在支持流式输出报告内容。
+    支持流式输出报告内容。
     """
     current_step_id = 0
+    temp_file_path = None
+    
+    # 规范化报告类型
+    normalized_report_type = REPORT_TYPE_MAP.get(report_type, "standard")
+    
     try:
+        # 初始化KnowledgeFlow
+        workflow = KnowledgeFlow()
+        
+        # 为进度状态更新创建辅助函数
         async def yield_progress_dict(step_id_inner, message_override=None):
             nonlocal current_step_id
             current_step_id = step_id_inner
@@ -79,34 +132,107 @@ async def knowledge_flow_sse_generator(user_input_data: dict, cv_text_data: str,
         # 步骤 1: 初始化
         async for sse_event in yield_progress_dict(1, "正在初始化处理流程..."):
             yield sse_event
-        workflow = KnowledgeFlow()
-        logging.info("KnowledgeFlow 引擎已为流式传输初始化。")
+        
+        # 生成用户ID，这里简单使用用户名
+        user_id = user_input_data.get("user_name", "anonymous").lower().replace(" ", "_")
+        user_name = user_input_data.get("user_name", "未知用户")
+        logging.info(f"处理用户: {user_name}, ID: {user_id}")
 
-        # 步骤 2: 处理用户输入
-        async for sse_event in yield_progress_dict(1):
-            yield sse_event
-        await asyncio.to_thread(workflow.start_node, user_input_data)
-        logging.info(f"用户输入已处理: {user_input_data.get('user_name')}")
-
-        # 步骤 3: 用户画像分析
+        # 步骤 2: 用户画像分析
         async for sse_event in yield_progress_dict(2):
             yield sse_event
-        await asyncio.to_thread(workflow.build_user_profile, user_input_data, cv_text_data)
-        logging.info("用户画像已构建或跳过。")
+            
+        # 如果有简历文件，处理并分析
+        if resume_file:
+            try:
+                # 保存上传的文件到临时位置
+                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(resume_file.filename)[1])
+                temp_file_path = temp_file.name
+                temp_file.close()
+                
+                # 写入文件内容
+                content = await resume_file.read()
+                with open(temp_file_path, "wb") as f:
+                    f.write(content)
+                
+                # 分析简历
+                await workflow.analyze_resume(user_id, temp_file_path)
+                logging.info(f"简历分析完成: {resume_file.filename}")
+            except Exception as e:
+                logging.error(f"处理简历文件时出错: {str(e)}")
+        else:
+            # 如果没有简历，只确保用户画像存在
+            await workflow.get_or_create_user_profile(user_id, user_name)
+            logging.info("无简历文件，已创建或获取基本用户画像。")
 
-        # 步骤 4: 构建搜索参数
+        # 步骤 3: 构建搜索参数
         async for sse_event in yield_progress_dict(3):
             yield sse_event
-        queries = await workflow.build_search_query()
-        logging.info(f"搜索查询已构建: {list(queries.keys())}")
+            
+        # 准备平台列表
+        platform_map = {
+            "arXiv论文": ["arxiv"],
+            "谷歌学术": ["google_scholar"],
+            "混合搜索": ["google_scholar", "arxiv"], 
+            "综合资讯": ["web", "news"],
+            "全平台": ["google_scholar", "arxiv", "patent", "web", "news"]
+        }
+        platform_type = user_input_data.get("platform", "arXiv论文")
+        platforms = platform_map.get(platform_type, ["web"])
+        
+        # 获取查询内容
+        query = original_query or user_input_data.get("content_type", "")
+        if not query:
+            raise ValueError("搜索内容不能为空")
+            
+        logging.info(f"搜索平台: {platforms}, 查询内容: {query}")
 
-        # 步骤 5: 执行搜索
+        # 步骤 4: 执行搜索
         async for sse_event in yield_progress_dict(4):
             yield sse_event
-        search_results = await asyncio.to_thread(workflow.execute_search, queries)
-        logging.info(f"搜索执行完成。结果来源: {list(search_results.keys())}")
+            
+        # 设置搜索结果数量
+        max_results = user_input_data.get("num_papers", 10)
+        
+        # 如果是混合搜索，设置每个平台的结果数量
+        platform_max_results = {}
+        if platform_type == "混合搜索":
+            # 对于混合搜索，平均分配结果数量
+            per_platform_results = max(1, max_results // len(platforms))
+            platform_max_results = {
+                "google_scholar": per_platform_results,
+                "arxiv": max_results - per_platform_results  # 确保总数不超过用户要求
+            }
+        else:
+            # 对于其他平台，每个平台使用相同的最大结果数
+            for platform in platforms:
+                platform_max_results[platform] = max_results
+        
+        # 获取排序方式
+        sort_by = user_input_data.get("sort_by", "relevance")
+        
+        # 获取时间范围
+        time_range = user_input_data.get("time_range", None)
+        
+        # 获取类别列表
+        categories = user_input_data.get("categories", None)
+        
+        # 执行个性化搜索
+        search_result_data = await workflow.personalized_search(
+            user_id, 
+            query, 
+            platforms, 
+            platform_max_results,
+            sort_by,
+            time_range,
+            categories
+        )
+        
+        search_results = search_result_data["results"]
+        enhanced_query = search_result_data["enhanced_query"]
+        logging.info(f"搜索执行完成。查询: {query} -> {enhanced_query}. 平台: {platforms}")
 
-        # 步骤 6: 开始生成报告（这里开始流式输出）
+        # 步骤 5: 开始生成报告（流式输出）
         step5_message_override = get_step_name(5, report_type)
         async for sse_event in yield_progress_dict(5, step5_message_override):
             yield sse_event
@@ -117,41 +243,45 @@ async def knowledge_flow_sse_generator(user_input_data: dict, cv_text_data: str,
             "data": json.dumps({"message": "开始生成报告内容"})
         }
         
+        # 构建用户输入数据用于报告生成
+        user_report_input = {
+            "query": query,
+            "enhanced_query": enhanced_query,
+            "platform_type": platform_type,
+            "user_name": user_name,
+            "occupation": user_input_data.get("occupation", ""),
+            "day": user_input_data.get("day", 7),
+            "email": user_input_data.get("email", ""),
+        }
+        
         # 根据报告类型调用相应的流式生成方法
-        if report_type == "literature_review":
-            logging.info(f"开始流式生成文献综述，查询: {original_query}")
+        if normalized_report_type == "literature_review":
             async for chunk in workflow.generate_literature_review_stream(search_results, original_query):
                 yield {
                     "event": "report_chunk",
                     "data": chunk
                 }
-                await asyncio.sleep(0.01)  # 小延迟确保流畅输出
-        elif report_type == "industry_research_report":
-            logging.info(f"开始流式生成行业调研报告，查询: {original_query}")
-            async for chunk in workflow.generate_industry_research_report_stream(search_results, user_input_data, original_query):
+        elif normalized_report_type == "industry_research":
+            async for chunk in workflow.generate_industry_research_report_stream(search_results, user_report_input, original_query):
                 yield {
                     "event": "report_chunk",
                     "data": chunk
                 }
-                await asyncio.sleep(0.01)
-        elif report_type == "popular_science_report":
-            logging.info(f"开始流式生成知识科普报告，查询: {original_query}")
-            async for chunk in workflow.generate_popular_science_report_stream(search_results, user_input_data, original_query):
+        elif normalized_report_type == "popular_science":
+            async for chunk in workflow.generate_popular_science_report_stream(search_results, user_report_input, original_query):
                 yield {
                     "event": "report_chunk",
                     "data": chunk
                 }
-                await asyncio.sleep(0.01)
-        else:  # standard_report
-            logging.info("开始流式生成标准报告")
-            async for chunk in workflow.generate_report_stream(search_results):
+        else:
+            # 默认使用标准报告生成器
+            async for chunk in workflow.generate_report_stream(search_results, {"query": original_query}):
                 yield {
                     "event": "report_chunk",
                     "data": chunk
                 }
-                await asyncio.sleep(0.01)
 
-        # 步骤 7: 完成处理
+        # 步骤 6: 完成处理
         async for sse_event in yield_progress_dict(6):
             yield sse_event
         await asyncio.sleep(0.2)
@@ -175,48 +305,146 @@ async def knowledge_flow_sse_generator(user_input_data: dict, cv_text_data: str,
                 "total_steps": TOTAL_STEPS
             })
         }
+    finally:
+        # 清理临时文件
+        if temp_file_path and os.path.exists(temp_file_path):
+            try:
+                os.unlink(temp_file_path)
+                logging.info(f"临时文件已删除: {temp_file_path}")
+            except Exception as e:
+                logging.warning(f"删除临时文件失败: {temp_file_path}, 错误: {str(e)}")
 
 # --- FastAPI 路径操作 ---
 
 @app.get("/", response_class=HTMLResponse)
 async def get_index_page(request: Request):
     """提供主 HTML 页面。"""
-    index_html_path = os.path.join(templates_dir, "index.html")
-    if not os.path.isfile(index_html_path):
-        logging.error(f"index.html 未在目录 '{templates_dir}' 中找到。")
-        return HTMLResponse(content="<html><body><h1>错误 500：未找到主页面模板。请检查服务器配置。</h1></body></html>", status_code=500)
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/process")
 async def handle_process_submission(
+    request: Request,
     user_name: str = Form(default="未知用户"),
     occupation: str = Form(default="未知职业"),
     day: int = Form(default=7),
-    platform: str = Form(default="学术期刊"),
+    platform: str = Form(default="arXiv论文"),
     content_type: str = Form(default=""),
     email: str = Form(default=""),
-    cv_text: str = Form(default=""),
-    report_type: str = Form(default="standard_report"),
-    num_papers: int = Form(default=10, ge=5, le=20)
+    resume_file: UploadFile = File(None),
+    report_type: str = Form(default="standard"),
+    num_papers: int = Form(default=10, ge=5, le=20),
+    sort_by: str = Form(default="relevance"),
+    time_filter: str = Form(default="recent"),
+    categories: str = Form(default=""),
+    time_from: Optional[str] = Form(None),
+    time_to: Optional[str] = Form(None)
 ):
     """处理表单提交并发起 SSE 事件流。"""
     logging.info(f"'/process' POST 路由命中。请求报告类型: {report_type}, 文献数量: {num_papers}。准备流式传输事件。")
     try:
+        # 处理类别列表
+        category_list = None
+        if categories and categories.strip():
+            category_list = [cat.strip() for cat in categories.split(',')]
+            
+        # 处理时间过滤
+        time_range = None
+        if time_filter == "recent":
+            time_range = {"days": day}
+        elif time_filter == "custom" and time_from and time_to:
+            time_range = {"from": time_from, "to": time_to}
+                
         user_input_data = {
-            "user_name": user_name, "occupation": occupation, "day": day,
-            "platform": platform, "content_type": content_type, "email": email,
-            "num_papers": num_papers
+            "user_name": user_name, 
+            "occupation": occupation, 
+            "day": day,
+            "platform": platform, 
+            "content_type": content_type, 
+            "email": email,
+            "num_papers": num_papers,
+            "sort_by": sort_by,
+            "time_range": time_range,
+            "categories": category_list
         }
-        logging.info(f"接收到用户数据: {user_name}, 职业: {occupation}, 简历长度: {len(cv_text)}, 关注领域: {content_type}, 请求文献数: {num_papers}")
+        
+        resume_file_info = f", 简历文件: {resume_file.filename}" if resume_file else ", 无简历文件"
+        logging.info(f"接收到用户数据: {user_name}, 职业: {occupation}{resume_file_info}, 关注领域: {content_type}, 请求文献数: {num_papers}")
 
-        return EventSourceResponse(knowledge_flow_sse_generator(user_input_data, cv_text, report_type, content_type))
+        return EventSourceResponse(knowledge_flow_sse_generator(
+            user_input_data, 
+            resume_file, 
+            report_type, 
+            content_type
+        ))
     except Exception as e:
         logging.error(f"'/process' 路由在流式传输开始前发生错误 ({report_type}): {e}", exc_info=True)
         return {"status": "error", "message": f"启动流程失败: {str(e)}"}, 500
+
+@app.post('/api/enhanced_literature_review')
+async def enhanced_literature_review(request: Request):
+    """
+    使用多模型并行处理生成增强版文献综述
+    """
+    try:
+        data = await request.json()
+        query = data.get('query', '')
+        platform = data.get('platform', 'arxiv')
+        num_results = int(data.get('num_results', 8))
+        
+        if not query:
+            return JSONResponse(content={"error": "查询不能为空"}, status_code=400)
+            
+        # 创建知识流处理器
+        knowledge_flow = KnowledgeFlow()
+        
+        # 使用多模型并行处理生成增强版文献综述
+        report = await knowledge_flow.generate_enhanced_literature_review(query, platform, num_results)
+        
+        return JSONResponse(content={"result": report})
+        
+    except Exception as e:
+        logging.error(f"生成增强版文献综述时出错: {e}", exc_info=True)
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.post('/api/enhanced_literature_review_stream')
+async def enhanced_literature_review_stream(request: Request):
+    """
+    使用多模型并行处理流式生成增强版文献综述
+    """
+    try:
+        data = await request.json()
+        query = data.get('query', '')
+        platform = data.get('platform', 'arxiv')
+        num_results = int(data.get('num_results', 8))
+        
+        if not query:
+            return JSONResponse(content={"error": "查询不能为空"}, status_code=400)
+            
+        # 创建知识流处理器
+        knowledge_flow = KnowledgeFlow()
+        
+        # 使用SSE流式响应
+        async def generate():
+            try:
+                async for chunk in knowledge_flow.generate_enhanced_literature_review_stream(query, platform, num_results):
+                    yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+            except Exception as e:
+                logging.error(f"流式生成增强版文献综述时出错: {e}", exc_info=True)
+                yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            finally:
+                yield f"data: {json.dumps({'done': True})}\n\n"
+                
+        return EventSourceResponse(generate())
+    except Exception as e:
+        logging.error(f"处理增强版文献综述流请求时出错: {e}", exc_info=True)
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
 # --- Uvicorn 运行说明 ---
 # 要运行此 FastAPI 应用:
 # 1. 在您的终端 (激活了 Python 虚拟环境 .venv 的情况下（.venv\Scripts\activate.ps1)，导航到项目根目录。
 # 2. 执行命令:
 #    cd src
-#    uvicorn app:app --reload --port 5001（或者 python -m uvicorn app:app --reload --port 5001）
+#    uvicorn app:app --reload --port 5001
+# 或者使用 Python 模块运行:
+#    cd src
+#    python -m uvicorn app:app --reload --port 5001

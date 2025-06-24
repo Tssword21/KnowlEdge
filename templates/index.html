@@ -445,12 +445,67 @@
         <!-- 报告类型 -->
         <div>
           <label class="block text-white/80 text-sm font-medium mb-2">报告类型</label>
-          <select name="report_type" class="glass-select">
+          <select name="reportType" class="glass-select">
             <option value="standard_report">标准行业报告</option>
             <option value="literature_review">文献综述报告</option>
-            <option value="industry_research_report">行业调研报告</option>
-            <option value="popular_science_report">知识科普报告</option>
+            <option value="industry_research">行业研究报告</option>
+            <option value="popular_science">科普知识报告</option>
           </select>
+        </div>
+
+        <!-- 排序方式 -->
+        <div>
+          <label class="block text-white/80 text-sm font-medium mb-2">排序方式</label>
+          <select name="sort_by" class="glass-select">
+            <option value="relevance">按相关性排序</option>
+            <option value="submittedDate">按提交日期排序</option>
+            <option value="lastUpdatedDate">按更新日期排序</option>
+          </select>
+        </div>
+
+        <!-- 时间过滤 -->
+        <div>
+          <label class="block text-white/80 text-sm font-medium mb-2">时间过滤</label>
+          <div class="flex items-center space-x-4 mb-2">
+            <div class="flex items-center">
+              <input type="radio" id="time_recent" name="time_filter" value="recent" checked class="mr-2">
+              <label for="time_recent" class="text-white/80">最近</label>
+            </div>
+            <div class="flex items-center">
+              <input type="radio" id="time_custom" name="time_filter" value="custom" class="mr-2">
+              <label for="time_custom" class="text-white/80">自定义日期范围</label>
+            </div>
+          </div>
+          
+          <!-- 最近时间范围 -->
+          <div id="recent_time_container">
+            <select name="day" class="glass-select">
+              <option value="7">最近7天</option>
+              <option value="30">最近30天</option>
+              <option value="90">最近3个月</option>
+              <option value="180">最近6个月</option>
+              <option value="365">最近1年</option>
+            </select>
+          </div>
+          
+          <!-- 自定义日期范围 -->
+          <div id="custom_time_container" class="hidden grid grid-cols-2 gap-4 mt-2">
+            <div>
+              <label class="block text-white/80 text-xs mb-1">开始日期</label>
+              <input type="date" name="time_from" class="glass-input" />
+            </div>
+            <div>
+              <label class="block text-white/80 text-xs mb-1">结束日期</label>
+              <input type="date" name="time_to" class="glass-input" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 论文类别 -->
+        <div>
+          <label class="block text-white/80 text-sm font-medium mb-2">论文类别（可选，多个类别用逗号分隔）</label>
+          <input name="categories" placeholder="例如：cs.AI,cs.CL,cs.CV" class="glass-input" />
+          <p class="text-white/60 text-xs mt-1">常见类别: cs.AI (人工智能), cs.CL (计算语言学), cs.CV (计算机视觉), cs.LG (机器学习), cs.RO (机器人)</p>
         </div>
 
         <!-- 文献数量 -->
@@ -458,6 +513,29 @@
           <label class="block text-white/80 text-sm font-medium mb-2">参考文献数量</label>
           <input type="number" name="num_papers" value="10" min="1" max="30" 
                  class="glass-input" placeholder="建议 5-20 篇" />
+        </div>
+
+        <!-- 平台选择 -->
+        <div>
+          <label class="block text-white/80 text-sm font-medium mb-2">搜索平台</label>
+          <select name="platform" class="glass-select">
+            <option value="arXiv论文">arXiv论文</option>
+            <option value="谷歌学术">谷歌学术</option>
+            <option value="混合搜索">混合搜索 (arXiv + 谷歌学术)</option>
+            <option value="综合资讯">综合资讯</option>
+            <option value="全平台">全平台搜索</option>
+          </select>
+        </div>
+
+        <!-- 在表单中添加多模型并行处理选项 -->
+        <div class="form-group mb-4">
+          <div class="flex items-center">
+            <input type="checkbox" id="useMultiModel" class="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+            <label for="useMultiModel" class="ml-2 text-sm font-medium text-white">
+              使用多模型并行处理（文献综述）
+            </label>
+          </div>
+          <p class="mt-1 text-xs text-gray-400">启用多模型并行处理以生成更详细的文献综述</p>
         </div>
 
         <!-- 生成按钮 -->
@@ -559,36 +637,107 @@
         primaryBorderColor: '#764ba2',
         lineColor: '#667eea',
         background: '#1a1a2e'
-      }
+      },
+      startOnLoad: true
     });
+
+    // 增强Markdown渲染配置
+    marked.setOptions({
+      renderer: new marked.Renderer(),
+      highlight: function(code, lang) {
+        return code;
+      },
+      pedantic: false,
+      gfm: true,
+      breaks: false,
+      sanitize: false,
+      smartypants: false,
+      xhtml: false
+    });
+
+    // 保存报告生成状态，用于页面切换后恢复
+    let reportState = {
+      generating: false,
+      fullMarkdown: '',    // 存储完整的Markdown文本
+      currentStep: 0,
+      totalSteps: 0,
+      reader: null,
+      controller: null,
+      eventSource: null
+    };
 
     const form = document.getElementById('knowledgeForm');
     const reportEl = document.getElementById('reportContent');
-    // ==== 打字机相关（新增） ====
-    let rawMarkdown = '';   // 暂存后台推来的 markdown
-    let typing = false;     // 是否正在逐字渲染
+    
+    // 页面可见性变化事件处理
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'visible' && reportState.generating) {
+        // 页面重新变为可见，如果正在生成报告，渲染当前积累的内容
+        renderMarkdown(reportState.fullMarkdown);
+      }
+    });
 
-    function appendWithTypewriter(text) {
-    rawMarkdown += text;
-    if (typing) return;           // 上一次还没播完
-    typing = true;
+    // 处理时间过滤器切换
+    const timeRecentRadio = document.getElementById('time_recent');
+    const timeCustomRadio = document.getElementById('time_custom');
+    const recentTimeContainer = document.getElementById('recent_time_container');
+    const customTimeContainer = document.getElementById('custom_time_container');
+    
+    timeRecentRadio.addEventListener('change', function() {
+      if (this.checked) {
+        recentTimeContainer.classList.remove('hidden');
+        customTimeContainer.classList.add('hidden');
+      }
+    });
+    
+    timeCustomRadio.addEventListener('change', function() {
+      if (this.checked) {
+        recentTimeContainer.classList.add('hidden');
+        customTimeContainer.classList.remove('hidden');
+      }
+    });
 
-    const chars = rawMarkdown.split('');
-    rawMarkdown = '';             // 清空已排队的
+    // 设置默认日期
+    const setDefaultDates = () => {
+      const today = new Date();
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(today.getMonth() - 1);
+      
+      const timeFromInput = document.querySelector('input[name="time_from"]');
+      const timeToInput = document.querySelector('input[name="time_to"]');
+      
+      if (timeFromInput && timeToInput) {
+        timeFromInput.value = oneMonthAgo.toISOString().split('T')[0];
+        timeToInput.value = today.toISOString().split('T')[0];
+      }
+    };
+    
+    // 页面加载时设置默认日期
+    document.addEventListener('DOMContentLoaded', setDefaultDates);
 
-    let i = 0;
-    const timer = setInterval(() => {
-        if (i >= chars.length) {    // 一个批次播完
-        clearInterval(timer);
-        typing = false;
-        if (rawMarkdown.length) appendWithTypewriter('');  // 继续播下一批
-        return;
-        }
-        reportEl.textContent += chars[i++];
-        reportEl.scrollTop = reportEl.scrollHeight;          // 边打字边滚到底
-    }, 18);                         // 18-20 ms ≈ 60 字/秒
+    // 渲染Markdown内容
+    function renderMarkdown(markdownText) {
+      try {
+        reportEl.innerHTML = marked.parse(markdownText);
+        
+        // 运行代码块高亮和图表渲染
+        setTimeout(() => {
+          // 检查当前DOM内是否有mermaid图表
+          document.querySelectorAll('.mermaid').forEach(el => {
+            if (!el.hasAttribute('data-processed')) {
+              try {
+                mermaid.init(undefined, el);
+              } catch (err) {
+                console.error('Mermaid chart rendering error:', err);
+              }
+            }
+          });
+        }, 100);
+        
+      } catch (error) {
+        console.error('Markdown渲染错误:', error);
+      }
     }
-    // ==== 打字机相关结束 ====
 
     const progressModal = document.getElementById('progressModal');
     const barEl = document.getElementById('progressBar');
@@ -619,6 +768,12 @@
     form.addEventListener('submit', async (ev) => {
       ev.preventDefault();
       
+      // 如果已经在生成过程中，阻止再次提交
+      if (reportState.generating) {
+        showToast('报告正在生成中，请稍候...', 'info');
+        return;
+      }
+      
       reportEl.innerHTML = `
         <div class="text-center py-16">
           <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
@@ -630,82 +785,83 @@
       
       showProgress('正在初始化处理流程...', 0);
 
+      // 重置报告状态
+      reportState = {
+        generating: true,
+        fullMarkdown: '',
+        currentStep: 0,
+        totalSteps: 0,
+        reader: null,
+        controller: null
+      };
+
       try {
+        // 创建AbortController以便在需要时能够中止请求
+        reportState.controller = new AbortController();
+        
         const resp = await fetch('/process', { 
           method: 'POST', 
-          body: new FormData(form) 
+          body: new FormData(form),
+          signal: reportState.controller.signal 
         });
         
         if (!resp.ok) throw new Error('服务器响应错误');
 
-        const reader = resp.body.getReader();
+        reportState.reader = resp.body.getReader();
         const parser = createParser({
           onEvent(evt) {
             switch (evt.event) {
               case 'progress':
-                updateProgress(JSON.parse(evt.data));
+                const progressData = JSON.parse(evt.data);
+                reportState.currentStep = progressData.step;
+                reportState.totalSteps = progressData.total_steps;
+                updateProgress(progressData);
                 break;
-              case 'report_start':           // <=== 新增
-                reportEl.textContent = '';   // 清屏
+              case 'report_start':
+                reportState.fullMarkdown = '';
+                reportEl.textContent = '';
                 break;
-              case 'report_chunk':           // <=== 新增
-                appendWithTypewriter(evt.data);
+              case 'report_chunk':
+                // 累积Markdown内容
+                reportState.fullMarkdown += evt.data;
+                // 实时渲染Markdown
+                renderMarkdown(reportState.fullMarkdown);
+                // 保持滚动到底部
+                reportEl.scrollTop = reportEl.scrollHeight;
                 break;
               case 'error':
+                reportState.generating = false;
                 hideProgress();
                 showError(JSON.parse(evt.data).message);
                 break;
               case 'complete':
-              hideProgress();
-                // 等最后一批字符播完再渲染 Markdown
-                const timer = setInterval(() => {
-                if (!typing) {
-                    clearInterval(timer);
-                    reportEl.innerHTML = marked.parse(reportEl.textContent);
-                    mermaid.run();           // 如果你之前有渲染 Mermaid 的需求
-                    showToast('报告生成完成！', 'success');
-                }
-                }, 40);
+                reportState.generating = false;
+                hideProgress();
+                // 最终渲染
+                renderMarkdown(reportState.fullMarkdown);
+                showToast('报告生成完成！', 'success');
                 break;
             }
           }
         });
 
         while (true) {
-          const { value, done } = await reader.read();
+          const { value, done } = await reportState.reader.read();
           if (done) break;
           parser.feed(new TextDecoder().decode(value));
         }
       } catch (err) {
-        hideProgress();
-        showError(err.message || '网络连接失败，请重试');
-        console.error('处理错误:', err);
+        // 判断是否为用户主动中止请求
+        if (err.name === 'AbortError') {
+          showToast('已取消报告生成', 'info');
+        } else {
+          hideProgress();
+          showError(err.message || '网络连接失败，请重试');
+          console.error('处理错误:', err);
+        }
+        reportState.generating = false;
       }
     });
-
-    // 打字机效果
-    function startTypewriter(fullText) {
-      let i = 0;
-      reportEl.innerHTML = '';
-      
-      const timer = setInterval(() => {
-        reportEl.textContent += fullText[i++];
-        
-        if (i >= fullText.length) {
-          clearInterval(timer);
-          
-          try {
-            const htmlContent = marked.parse(reportEl.textContent);
-            reportEl.innerHTML = htmlContent;
-            mermaid.run();
-            showToast('报告生成完成！', 'success');
-          } catch (error) {
-            console.error('渲染错误:', error);
-            showToast('报告生成完成，但渲染可能有问题', 'error');
-          }
-        }
-      }, 60);
-    }
 
     // 进度控制
     function showProgress(text, ratio) {
@@ -760,6 +916,152 @@
         </div>
       `;
     }
+
+    // 添加多模型并行处理的处理逻辑
+    function searchWithMultiModel() {
+      const query = document.getElementById('query').value;
+      if (!query) {
+        showToast('请输入查询内容', 'error');
+        return;
+      }
+
+      const platform = document.getElementById('platform').value;
+      const resultCount = parseInt(document.getElementById('resultCount').value);
+      
+      // 清空结果区域
+      document.getElementById('result').innerHTML = '';
+      
+      // 显示加载指示器
+      document.getElementById('loadingIndicator').classList.remove('hidden');
+      document.getElementById('resultContainer').classList.remove('hidden');
+      
+      // 根据是否使用流式处理选择不同的API
+      const useStream = document.getElementById('useStream').checked;
+      
+      if (useStream) {
+        // 使用流式API
+        fetchStreamEnhancedLiteratureReview(query, platform, resultCount);
+      } else {
+        // 使用非流式API
+        fetchEnhancedLiteratureReview(query, platform, resultCount);
+      }
+    }
+    
+    // 获取增强版文献综述（非流式）
+    async function fetchEnhancedLiteratureReview(query, platform, resultCount) {
+      try {
+        const response = await fetch('/api/enhanced_literature_review', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: query,
+            platform: platform,
+            num_results: resultCount
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.error) {
+          showToast(data.error, 'error');
+        } else {
+          // 渲染Markdown结果
+          const resultElement = document.getElementById('result');
+          resultElement.innerHTML = marked.parse(data.result);
+          
+          // 高亮代码块
+          document.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
+          });
+        }
+      } catch (error) {
+        showToast(`获取结果时出错: ${error.message}`, 'error');
+      } finally {
+        document.getElementById('loadingIndicator').classList.add('hidden');
+      }
+    }
+    
+    // 获取增强版文献综述（流式）
+    function fetchStreamEnhancedLiteratureReview(query, platform, resultCount) {
+      // 创建EventSource连接
+      const eventSource = new EventSource(`/api/enhanced_literature_review_stream?query=${encodeURIComponent(query)}&platform=${platform}&num_results=${resultCount}`);
+      
+      // 获取结果容器
+      const resultElement = document.getElementById('result');
+      resultElement.innerHTML = '';
+      
+      // 用于累积接收到的文本
+      let accumulatedText = '';
+      
+      // 处理消息事件
+      eventSource.onmessage = function(event) {
+        try {
+          const data = JSON.parse(event.data);
+          
+          // 如果收到错误消息
+          if (data.error) {
+            showToast(data.error, 'error');
+            eventSource.close();
+            document.getElementById('loadingIndicator').classList.add('hidden');
+            return;
+          }
+          
+          // 如果收到完成信号
+          if (data.done) {
+            eventSource.close();
+            document.getElementById('loadingIndicator').classList.add('hidden');
+            return;
+          }
+          
+          // 如果收到文本块
+          if (data.chunk) {
+            // 累积文本
+            accumulatedText += data.chunk;
+            
+            // 渲染Markdown
+            resultElement.innerHTML = marked.parse(accumulatedText);
+            
+            // 高亮代码块
+            document.querySelectorAll('pre code').forEach((block) => {
+              hljs.highlightElement(block);
+            });
+            
+            // 自动滚动到底部
+            window.scrollTo(0, document.body.scrollHeight);
+          }
+        } catch (error) {
+          console.error('处理事件数据时出错:', error);
+        }
+      };
+      
+      // 处理错误
+      eventSource.onerror = function(error) {
+        console.error('EventSource错误:', error);
+        eventSource.close();
+        showToast('连接中断，请重试', 'error');
+        document.getElementById('loadingIndicator').classList.add('hidden');
+      };
+    }
+    
+    // 在原有的搜索函数中添加对多模型选项的处理
+    const originalSearch = window.search;
+    window.search = function() {
+      // 如果选择了使用多模型并行处理且报告类型是文献综述
+      if (document.getElementById('useMultiModel').checked && 
+          document.getElementById('reportType').value === 'literature_review') {
+        searchWithMultiModel();
+        return;
+      }
+      
+      // 调用原有的搜索逻辑
+      originalSearch();
+    };
   </script>
 </body>
 </html>

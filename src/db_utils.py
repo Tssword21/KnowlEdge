@@ -3,20 +3,18 @@ import os
 import sqlite3
 import logging
 import time
+from src.config import Config
+
+# 初始化配置
+config = Config()
 
 # 配置日志
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# 数据库配置
-DB_CONFIG = {
-    "DATA_DIR": "./user_data",
-    "DB_PATH": "./user_data/user_profiles.db"
-}
-
 def get_db_connection():
     """获取数据库连接，如果数据库不存在则创建并初始化表结构"""
-    db_path = DB_CONFIG["DB_PATH"]
+    db_path = config.user_db_path
     
     # 确保数据目录存在
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
@@ -33,31 +31,32 @@ def get_db_connection():
         if not db_exists:
             logger.info(f"数据库文件不存在，正在创建: {db_path}")
             
-            # 创建表
+            # 创建用户表
             conn.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id TEXT PRIMARY KEY,
                 name TEXT,
                 occupation TEXT,
                 email TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             ''')
             
+            # 创建用户画像表（向后兼容）
             conn.execute('''
-            CREATE TABLE IF NOT EXISTS user_interests (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT,
-                topic TEXT,
-                category TEXT,
-                weight REAL,
-                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users (id)
+            CREATE TABLE IF NOT EXISTS user_profiles (
+                user_id TEXT PRIMARY KEY,
+                username TEXT,
+                profile_data TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             ''')
             
+            # 创建搜索历史表
             conn.execute('''
-            CREATE TABLE IF NOT EXISTS user_searches (
+            CREATE TABLE IF NOT EXISTS search_history (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id TEXT,
                 query TEXT,
@@ -67,17 +66,30 @@ def get_db_connection():
             )
             ''')
             
+            # 创建兴趣分类表
             conn.execute('''
-            CREATE TABLE IF NOT EXISTS user_interactions (
+            CREATE TABLE IF NOT EXISTS interest_categories (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                category TEXT,
+                subcategories TEXT
+            )
+            ''')
+            
+            # 创建用户兴趣表
+            conn.execute('''
+            CREATE TABLE IF NOT EXISTS user_interests (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id TEXT,
-                content_id TEXT,
-                action_type TEXT,
-                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                topic TEXT,
+                category TEXT,
+                weight REAL DEFAULT 5.0,
+                reason TEXT,
+                last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users (id)
             )
             ''')
             
+            # 创建用户技能表
             conn.execute('''
             CREATE TABLE IF NOT EXISTS user_skills (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -90,8 +102,154 @@ def get_db_connection():
             )
             ''')
             
+            # 创建用户教育背景表
+            conn.execute('''
+            CREATE TABLE IF NOT EXISTS user_education (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id TEXT,
+                institution TEXT,
+                major TEXT,
+                degree TEXT,
+                time_period TEXT,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+            ''')
+            
+            # 创建用户工作经历表
+            conn.execute('''
+            CREATE TABLE IF NOT EXISTS user_work_experience (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id TEXT,
+                company TEXT,
+                position TEXT,
+                time_period TEXT,
+                description TEXT,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+            ''')
+            
+            # 创建用户交互记录表
+            conn.execute('''
+            CREATE TABLE IF NOT EXISTS user_interactions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id TEXT,
+                content_id TEXT,
+                action_type TEXT,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+            ''')
+            
             conn.commit()
             logger.info("数据库表结构已创建")
+        else:
+            # 检查必要的表是否存在，如果不存在则创建
+            # 获取所有表名
+            tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+            table_names = [table['name'] for table in tables]
+            
+            # 检查各个表是否存在
+            if 'users' not in table_names:
+                logger.warning("数据库缺少users表")
+                conn.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id TEXT PRIMARY KEY,
+                    name TEXT,
+                    occupation TEXT,
+                    email TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+                ''')
+                
+            if 'search_history' not in table_names:
+                logger.warning("数据库缺少search_history表")
+                conn.execute('''
+                CREATE TABLE IF NOT EXISTS search_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id TEXT,
+                    query TEXT,
+                    platform TEXT,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users (id)
+                )
+                ''')
+                
+            if 'user_interests' not in table_names:
+                logger.warning("数据库缺少user_interests表")
+                conn.execute('''
+                CREATE TABLE IF NOT EXISTS user_interests (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id TEXT,
+                    topic TEXT,
+                    category TEXT,
+                    weight REAL DEFAULT 5.0,
+                    reason TEXT,
+                    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users (id)
+                )
+                ''')
+                
+            if 'user_skills' not in table_names:
+                logger.warning("数据库缺少user_skills表")
+                conn.execute('''
+                CREATE TABLE IF NOT EXISTS user_skills (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id TEXT,
+                    skill TEXT,
+                    level TEXT,
+                    category TEXT,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users (id)
+                )
+                ''')
+                
+            if 'user_education' not in table_names:
+                logger.warning("数据库缺少user_education表")
+                conn.execute('''
+                CREATE TABLE IF NOT EXISTS user_education (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id TEXT,
+                    institution TEXT,
+                    major TEXT,
+                    degree TEXT,
+                    time_period TEXT,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users (id)
+                )
+                ''')
+                
+            if 'user_work_experience' not in table_names:
+                logger.warning("数据库缺少user_work_experience表")
+                conn.execute('''
+                CREATE TABLE IF NOT EXISTS user_work_experience (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id TEXT,
+                    company TEXT,
+                    position TEXT,
+                    time_period TEXT,
+                    description TEXT,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users (id)
+                )
+                ''')
+                
+            if 'user_interactions' not in table_names:
+                logger.warning("数据库缺少user_interactions表")
+                conn.execute('''
+                CREATE TABLE IF NOT EXISTS user_interactions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id TEXT,
+                    content_id TEXT,
+                    action_type TEXT,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users (id)
+                )
+                ''')
+                
+            conn.commit()
         
         return conn
     except sqlite3.Error as e:
