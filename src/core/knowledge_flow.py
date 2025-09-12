@@ -34,6 +34,7 @@ try:
     )
     from src.core.generators import ReportGenerator
     from src.core.llm_interface import LLMInterface
+    from src.core.reference_formatter import ReferenceFormatter
 except ImportError:
     # 当在src目录下运行时
     from config import Config
@@ -51,6 +52,7 @@ except ImportError:
     )
     from core.generators import ReportGenerator
     from core.llm_interface import LLMInterface
+    from core.reference_formatter import ReferenceFormatter
 
 # 设置日志
 setup_logging()
@@ -58,19 +60,20 @@ setup_logging()
 class KnowledgeFlow:
     """知识流程管理类"""
     
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: Optional[str] = None, llm_model: Optional[str] = None):
         """初始化知识流程实例"""
         # 加载配置
         self.config = Config(config_path)
         
         # 初始化各组件
-        self.llm = LLMInterface()
+        self.llm = LLMInterface(model_override=llm_model)
         
         self.profile_manager = UserProfileManager(self.config.user_db_path)
         self.resume_reader = ResumeReader()
         self.search_engine = SearchEngine(self.config)
         self.report_generator = ReportGenerator(self.llm)
         self.search_manager = SearchManager()
+        self.reference_formatter = ReferenceFormatter()
         
         # 可用搜索平台映射
         self.search_platforms = {
@@ -177,23 +180,8 @@ class KnowledgeFlow:
         time_range: Optional[Dict] = None,
         categories: Optional[List] = None
     ) -> Dict:
-        """在多个平台上执行搜索
-        
-        Args:
-            query: 搜索查询
-            platforms: 搜索平台列表
-            user_id: 用户ID
-            max_results: 最大结果数量，可以是整数或平台到数量的映射
-            sort_by: 排序方式，可选值：relevance、lastUpdatedDate、submittedDate
-            time_range: 时间范围，格式为 {'from': '2023-01-01', 'to': '2023-12-31'} 或 {'days': 30}
-            categories: 限制搜索的类别列表，如 ['cs.AI', 'cs.CL']
-            
-        Returns:
-            包含各平台搜索结果的字典
-        """
-        results = {}
-        
-        # 创建平台搜索引擎映射
+        """在多个平台上执行搜索（并发）"""
+        results: Dict[str, Any] = {}
         platform_engines = {
             "web": WebSearch(self.config),
             "arxiv": ArxivSearch(self.config),
@@ -201,36 +189,30 @@ class KnowledgeFlow:
             "patent": PatentSearch(self.config),
             "news": NewsSearch(self.config)
         }
-        
-        # 执行每个平台的搜索
-        for platform in platforms:
-            if platform in platform_engines:
-                engine = platform_engines[platform]
-                try:
-                    # 确定当前平台的最大结果数
-                    platform_max_results = max_results[platform] if isinstance(max_results, dict) else max_results
-                    
-                    # 对于arxiv搜索，传递额外的参数
-                    if platform == "arxiv":
-                        results[platform] = await engine.search(
-                            query, 
-                            platform_max_results, 
-                            sort_by=sort_by,
-                            time_range=time_range,
-                            categories=categories
-                        )
-                    else:
-                        results[platform] = await engine.search(query, platform_max_results)
-                        
-                    logging.info(f"{platform} 搜索完成，找到 {results[platform].get('result_count', 0)} 条结果")
-                except Exception as e:
-                    logging.error(f"{platform} 搜索失败: {e}")
-                    results[platform] = {"error": str(e), "query": query, "results": []}
-        
-        # 记录搜索历史
+
+        async def run_one(p: str):
+            if p not in platform_engines:
+                return p, {"error": f"不支持的平台: {p}", "results": []}
+            engine = platform_engines[p]
+            try:
+                platform_max = max_results[p] if isinstance(max_results, dict) else max_results
+                if p == "arxiv":
+                    data = await engine.search(query, platform_max, sort_by=sort_by, time_range=time_range, categories=categories)
+                else:
+                    data = await engine.search(query, platform_max)
+                logging.info(f"{p} 搜索完成，找到 {data.get('result_count', len(data.get('results', [])))} 条结果")
+                return p, data
+            except Exception as e:
+                logging.error(f"{p} 搜索失败: {e}")
+                return p, {"error": str(e), "query": query, "results": []}
+
+        coros = [run_one(p) for p in platforms]
+        done = await asyncio.gather(*coros)
+        for p, data in done:
+            results[p] = data
+
         if user_id:
             self.profile_manager.add_search_history(user_id, query, platforms)
-        
         return results
         
     async def generate_report(
@@ -288,7 +270,7 @@ class KnowledgeFlow:
             ):
                 yield chunk
         else:  # 默认标准报告
-            async for chunk in self.report_generator.generate_report_stream(search_results):
+            async for chunk in self.report_generator.generate_report_stream(search_results, user_input):
                 yield chunk
                 
     async def personalized_search(
@@ -301,31 +283,16 @@ class KnowledgeFlow:
         time_range: Optional[Dict] = None,
         categories: Optional[List] = None
     ) -> Dict:
-        """个性化搜索：优化查询并执行搜索
-        
-        Args:
-            user_id: 用户ID
-            query: 原始查询
-            platforms: 搜索平台列表
-            max_results: 最大结果数量，可以是整数或平台到数量的映射
-            sort_by: 排序方式，可选值：relevance、lastUpdatedDate、submittedDate
-            time_range: 时间范围，格式为 {'from': '2023-01-01', 'to': '2023-12-31'} 或 {'days': 30}
-            categories: 限制搜索的类别列表，如 ['cs.AI', 'cs.CL']
-            
-        Returns:
-            包含搜索结果和增强查询的字典
-        """
-        # 记录用户搜索历史
+        """个性化搜索：优化查询并执行搜索"""
         logging.info(f"记录用户 {user_id} 的搜索: {query}")
         
-        # 获取用户画像，用于个性化查询
         profile = self.profile_manager.get_user_profile(user_id)
         
-        # 使用LLM优化查询，使其更适合学术搜索
+        # 使用LLM优化查询
         enhanced_query = await self._optimize_query(query, profile)
         
-        # 执行多平台搜索
-        logging.info(f"在平台 {', '.join(platforms)} 上搜索: '{query}'")
+        # 这里统一用 enhanced_query 执行和记录
+        logging.info(f"在平台 {', '.join(platforms)} 上搜索(已优化): '{enhanced_query}'")
         search_results = await self.search_multiple_platforms(
             enhanced_query, platforms, user_id, max_results, sort_by, time_range, categories
         )
@@ -336,19 +303,12 @@ class KnowledgeFlow:
             "enhanced_query": enhanced_query,
             "sort_by": sort_by,
             "time_range": time_range,
-            "categories": categories
+            "categories": categories,
+            "platform_type": ", ".join(platforms)
         }
         
     async def _optimize_query(self, query: str, profile: dict = None) -> str:
-        """使用LLM优化查询，使其更适合学术搜索
-        
-        Args:
-            query: 原始查询
-            profile: 用户画像
-            
-        Returns:
-            优化后的查询
-        """
+        """使用LLM优化查询，使其更适合学术搜索"""
         # 检测是否包含中文字符
         if re.search(r'[\u4e00-\u9fff]', query):
             # 如果查询是对话式请求，转换为适合学术搜索的形式
@@ -357,46 +317,24 @@ class KnowledgeFlow:
             ]):
                 prompt = f"""
                 请将以下对话式查询翻译为简洁的英文学术搜索关键词，保留核心主题和概念，去除对话性质的词语。
-                例如：
-                - "帮我查一下深度学习在医疗影像中的应用" -> "deep learning medical imaging applications"
-                - "请介绍一下强化学习最新进展" -> "reinforcement learning recent advances"
-                - "我想了解关于量子计算在密码学中的应用" -> "quantum computing cryptography applications"
-                
                 查询: {query}
-                
-                注意：
-                1. 只返回转换后的英文关键词，不要加任何解释
-                2. 优先使用英文关键词，因为大多学术文献是英文索引
-                3. 如果查询中有时间限制，转换为适当的学术检索表达
+                只返回转换后的英文关键词。
                 """
-                
                 try:
                     enhanced_query = await self.llm.call_llm(prompt)
-                    # 清理结果，移除引号和多余的空格
                     enhanced_query = enhanced_query.strip('" \n\t')
-                    logging.info(f"查询优化和翻译: '{query}' -> '{enhanced_query}'")
-                    
-                    # 确保翻译结果不包含中文
                     if re.search(r'[\u4e00-\u9fff]', enhanced_query):
-                        logging.warning(f"翻译结果仍包含中文，尝试使用传统翻译API")
                         enhanced_query = await self._traditional_translate(query)
-                    
                     return enhanced_query
-                except Exception as e:
-                    logging.error(f"查询优化失败: {e}")
-                    # 如果优化失败，尝试使用传统翻译
+                except Exception:
                     return await self._traditional_translate(query)
             else:
-                # 如果不是对话式查询，直接翻译
                 return await self._traditional_translate(query)
-        
-        # 如果不包含中文，可能已经是关键词形式，直接返回
         return query
         
     async def _traditional_translate(self, text: str, source_lang="zh-CN", target_lang="en") -> str:
         """使用传统翻译API翻译文本"""
         try:
-            # 尝试使用Google翻译API
             translate_api_url = "https://translate.googleapis.com/translate_a/single"
             params = {
                 "client": "gtx",
@@ -405,16 +343,13 @@ class KnowledgeFlow:
                 "dt": "t",
                 "q": text
             }
-            
             response = await asyncio.to_thread(
                 requests.get, 
                 translate_api_url, 
                 params=params, 
                 timeout=5
             )
-            
             if response.status_code == 200:
-                # 解析响应
                 result = response.json()
                 if result and isinstance(result, list) and len(result) > 0:
                     translations = []
@@ -424,8 +359,6 @@ class KnowledgeFlow:
                     translated = " ".join(translations)
                     logging.info(f"传统API翻译: '{text}' -> '{translated}'")
                     return translated
-            
-            # 如果翻译失败，使用简单的映射
             return self._simple_translate(text)
         except Exception as e:
             logging.error(f"传统翻译API调用失败: {e}")
@@ -433,7 +366,6 @@ class KnowledgeFlow:
         
     def _simple_translate(self, query: str) -> str:
         """简单的中文关键词映射"""
-        # 常见AI/ML术语的中英文映射
         translations = {
             "深度学习": "deep learning",
             "机器学习": "machine learning",
@@ -471,22 +403,16 @@ class KnowledgeFlow:
             "过拟合": "overfitting",
             "正则化": "regularization"
         }
-        
-        # 检查查询中是否包含已知的中文术语，如果有则替换
         translated_query = query
         for zh, en in translations.items():
             if zh in query:
                 translated_query = translated_query.replace(zh, en)
-        
-        # 如果没有任何替换发生，提取英文单词
         if translated_query == query:
             english_terms = re.findall(r'[a-zA-Z0-9]+(?:\s+[a-zA-Z0-9]+)*', query)
             if english_terms:
                 return " ".join(english_terms)
             else:
-                # 如果没有提取到英文单词，返回一个通用查询
                 return "recent research papers"
-            
         logging.info(f"简单映射翻译: '{query}' -> '{translated_query}'")
         return translated_query
 
@@ -532,56 +458,35 @@ class KnowledgeFlow:
                      num_results: int = 5, report_type: str = "standard") -> str:
         """
         处理用户查询，执行搜索并生成报告
-        
-        Args:
-            query: 用户查询
-            platform: 搜索平台
-            num_results: 结果数量
-            report_type: 报告类型
-            
-        Returns:
-            生成的报告内容
         """
         logging.info(f"处理查询: '{query}', 平台: {platform}, 结果数量: {num_results}, 报告类型: {report_type}")
         
-        # 执行搜索
         search_results = await self.search_manager.search(query, platform, num_results)
         
-        # 根据报告类型生成报告
+        references = self.reference_formatter.extract_references(search_results)
+        logging.info(f"提取到 {len(references)} 条参考文献")
+        
         if report_type == "literature_review":
             report = await self.report_generator.generate_literature_review(search_results, query)
         elif report_type == "industry_research":
-            report = await self.report_generator.generate_industry_research(search_results, query)
+            report = await self.report_generator.generate_industry_research_report(search_results, {"query": query}, query)
         elif report_type == "popular_science":
-            report = await self.report_generator.generate_popular_science(search_results, query)
-        else:  # 默认标准报告
+            report = await self.report_generator.generate_popular_science_report(search_results, {"query": query}, query)
+        else:
             report = await self.report_generator.generate_report(search_results)
-            
         return report
         
     async def process_query_stream(self, query: str, platform: str = "arxiv", 
                            num_results: int = 5, report_type: str = "standard") -> AsyncIterator[str]:
         """
         流式处理用户查询，执行搜索并生成报告
-        
-        Args:
-            query: 用户查询
-            platform: 搜索平台
-            num_results: 结果数量
-            report_type: 报告类型
-            
-        Returns:
-            生成的报告内容流
         """
         logging.info(f"流式处理查询: '{query}', 平台: {platform}, 结果数量: {num_results}, 报告类型: {report_type}")
         
-        # 先输出一个状态消息
         yield f"正在搜索 '{query}'，平台: {platform}，请稍候...\n\n"
         
-        # 执行搜索
         search_results = await self.search_manager.search(query, platform, num_results)
         
-        # 输出搜索完成消息
         found_count = 0
         for source, data in search_results.items():
             if isinstance(data, dict) and 'results' in data:
@@ -589,18 +494,18 @@ class KnowledgeFlow:
         
         yield f"已找到 {found_count} 条相关结果，正在生成报告...\n\n"
         
-        # 根据报告类型流式生成报告
+        user_input = {"query": query}
         if report_type == "literature_review":
             async for chunk in self.report_generator.generate_literature_review_stream(search_results, query):
                 yield chunk
         elif report_type == "industry_research":
-            async for chunk in self.report_generator.generate_industry_research_stream(search_results, query):
+            async for chunk in self.report_generator.generate_industry_research_report_stream(search_results, user_input, query):
                 yield chunk
         elif report_type == "popular_science":
-            async for chunk in self.report_generator.generate_popular_science_stream(search_results, query):
+            async for chunk in self.report_generator.generate_popular_science_report_stream(search_results, user_input, query):
                 yield chunk
-        else:  # 默认标准报告
-            async for chunk in self.report_generator.generate_report_stream(search_results):
+        else:
+            async for chunk in self.report_generator.generate_report_stream(search_results, user_input):
                 yield chunk
     
     async def generate_enhanced_literature_review(self, query: str, platform: str = "arxiv", 

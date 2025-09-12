@@ -445,12 +445,27 @@
         <!-- 报告类型 -->
         <div>
           <label class="block text-white/80 text-sm font-medium mb-2">报告类型</label>
-          <select name="reportType" class="glass-select">
-            <option value="standard_report">标准行业报告</option>
+          <select name="report_type" class="glass-select">
+            <option value="standard">标准行业报告</option>
             <option value="literature_review">文献综述报告</option>
             <option value="industry_research">行业研究报告</option>
             <option value="popular_science">科普知识报告</option>
           </select>
+        </div>
+
+        <!-- 模型选择 -->
+        <div>
+          <label class="block text-white/80 text-sm font-medium mb-2">模型选择</label>
+          <select name="llm_model" class="glass-select">
+            <option value="deepseek-chat">DeepSeek Chat</option>
+            <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+          </select>
+        </div>
+
+        <!-- 简历上传（可选） -->
+        <div>
+          <label class="block text-white/80 text-sm font-medium mb-2">上传简历（可选）</label>
+          <input type="file" name="resume_file" accept=".txt,.pdf,.doc,.docx,.xlsx,.xls,.jpg,.jpeg,.png" class="glass-input" />
         </div>
 
         <!-- 排序方式 -->
@@ -511,7 +526,7 @@
         <!-- 文献数量 -->
         <div>
           <label class="block text-white/80 text-sm font-medium mb-2">参考文献数量</label>
-          <input type="number" name="num_papers" value="10" min="1" max="30" 
+          <input type="number" name="num_papers" value="15" min="1" max="30" 
                  class="glass-input" placeholder="建议 5-20 篇" />
         </div>
 
@@ -796,14 +811,10 @@
       };
 
       try {
-        // 创建AbortController以便在需要时能够中止请求
         reportState.controller = new AbortController();
+        const fd = new FormData(form);
         
-        const resp = await fetch('/process', { 
-          method: 'POST', 
-          body: new FormData(form),
-          signal: reportState.controller.signal 
-        });
+        const resp = await fetch('/process', { method: 'POST', body: fd, signal: reportState.controller.signal });
         
         if (!resp.ok) throw new Error('服务器响应错误');
 

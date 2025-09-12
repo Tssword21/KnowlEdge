@@ -38,6 +38,47 @@ app = FastAPI(title="KnowlEdge 智能引擎", version="1.0.0")
 # 获取配置
 config = Config()
 
+# 启动时自动初始化（数据库与兴趣分类）
+try:
+    # 数据目录
+    os.makedirs(get_user_data_path(), exist_ok=True)
+    # 初始化数据库（自动补建缺表）
+    try:
+        from src.db_utils import initialize_database
+    except ImportError:
+        from db_utils import initialize_database
+    if initialize_database():
+        logging.info("数据库初始化/校验完成。")
+    else:
+        logging.warning("数据库初始化/校验失败，后续操作可能异常。")
+
+    # 初始化兴趣分类文件（若不存在）
+    interest_file = os.path.join(get_user_data_path(), "interest_categories.json")
+    if not os.path.exists(interest_file):
+        try:
+            # 复用脚本中的默认创建逻辑
+            from src.scripts.init_system import create_interest_categories as _create_ic
+        except Exception:
+            try:
+                from scripts.init_system import create_interest_categories as _create_ic
+            except Exception:
+                _create_ic = None
+        if _create_ic:
+            ok = _create_ic()
+            if ok:
+                logging.info("兴趣分类文件已创建。")
+            else:
+                logging.warning("兴趣分类文件创建失败。")
+        else:
+            logging.warning("未找到兴趣分类创建函数，跳过创建。")
+
+    # 最后再做一次校验输出
+    if not verify_database():
+        logging.warning("数据库验证失败。系统可能无法按预期工作。请考虑运行 init_system.py 进行初始化。")
+    logging.info(f"数据目录 '{get_user_data_path()}' 已确保存在。")
+except Exception as e:
+    logging.error(f"初始化设置错误 (数据库/目录检查): {e}", exc_info=True)
+
 # 设置静态文件和模板
 templates_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
 if not os.path.exists(templates_dir) or not os.path.isfile(os.path.join(templates_dir, "index.html")):
@@ -51,14 +92,6 @@ if os.path.exists(static_dir):
 else:
     logging.warning(f"静态文件目录 '{static_dir}' 未找到。静态资源可能无法加载。")
     os.makedirs(static_dir, exist_ok=True)
-
-try:
-    if not verify_database():
-        logging.warning("数据库验证失败。系统可能无法按预期工作。请考虑运行 init_system.py 进行初始化。")
-    os.makedirs(get_user_data_path(), exist_ok=True)
-    logging.info(f"数据目录 '{get_user_data_path()}' 已确保存在。")
-except Exception as e:
-    logging.error(f"初始化设置错误 (数据库/目录检查): {e}", exc_info=True)
 
 # --- SSE 进度步骤定义 ---
 TOTAL_STEPS = 6
@@ -109,7 +142,7 @@ async def knowledge_flow_sse_generator(user_input_data: dict, resume_file: Uploa
     
     try:
         # 初始化KnowledgeFlow
-        workflow = KnowledgeFlow()
+        workflow = KnowledgeFlow(llm_model=user_input_data.get('llm_model'))
         
         # 为进度状态更新创建辅助函数
         async def yield_progress_dict(step_id_inner, message_override=None):
@@ -125,7 +158,8 @@ async def knowledge_flow_sse_generator(user_input_data: dict, resume_file: Uploa
                     "message": message
                 })
             }
-            await asyncio.sleep(0.05)
+            # 取消限速，按模型返回速度推送
+            # await asyncio.sleep(0.05)
 
         # --- 开始处理流程 ---
 
@@ -192,7 +226,7 @@ async def knowledge_flow_sse_generator(user_input_data: dict, resume_file: Uploa
             yield sse_event
             
         # 设置搜索结果数量
-        max_results = user_input_data.get("num_papers", 10)
+        max_results = user_input_data.get("num_papers", 15)  # 增加默认结果数量
         
         # 如果是混合搜索，设置每个平台的结果数量
         platform_max_results = {}
@@ -275,7 +309,7 @@ async def knowledge_flow_sse_generator(user_input_data: dict, resume_file: Uploa
                 }
         else:
             # 默认使用标准报告生成器
-            async for chunk in workflow.generate_report_stream(search_results, {"query": original_query}):
+            async for chunk in workflow.generate_report_stream(search_results, user_report_input):
                 yield {
                     "event": "report_chunk",
                     "data": chunk
@@ -337,7 +371,8 @@ async def handle_process_submission(
     time_filter: str = Form(default="recent"),
     categories: str = Form(default=""),
     time_from: Optional[str] = Form(None),
-    time_to: Optional[str] = Form(None)
+    time_to: Optional[str] = Form(None),
+    llm_model: Optional[str] = Form(None)
 ):
     """处理表单提交并发起 SSE 事件流。"""
     logging.info(f"'/process' POST 路由命中。请求报告类型: {report_type}, 文献数量: {num_papers}。准备流式传输事件。")
@@ -346,7 +381,7 @@ async def handle_process_submission(
         category_list = None
         if categories and categories.strip():
             category_list = [cat.strip() for cat in categories.split(',')]
-            
+        
         # 处理时间过滤
         time_range = None
         if time_filter == "recent":
@@ -364,7 +399,8 @@ async def handle_process_submission(
             "num_papers": num_papers,
             "sort_by": sort_by,
             "time_range": time_range,
-            "categories": category_list
+            "categories": category_list,
+            "llm_model": llm_model
         }
         
         resume_file_info = f", 简历文件: {resume_file.filename}" if resume_file else ", 无简历文件"
@@ -390,16 +426,13 @@ async def enhanced_literature_review(request: Request):
         query = data.get('query', '')
         platform = data.get('platform', 'arxiv')
         num_results = int(data.get('num_results', 8))
+        llm_model = data.get('llm_model')
         
         if not query:
             return JSONResponse(content={"error": "查询不能为空"}, status_code=400)
             
-        # 创建知识流处理器
-        knowledge_flow = KnowledgeFlow()
-        
-        # 使用多模型并行处理生成增强版文献综述
+        knowledge_flow = KnowledgeFlow(llm_model=llm_model)
         report = await knowledge_flow.generate_enhanced_literature_review(query, platform, num_results)
-        
         return JSONResponse(content={"result": report})
         
     except Exception as e:
@@ -416,14 +449,14 @@ async def enhanced_literature_review_stream(request: Request):
         query = data.get('query', '')
         platform = data.get('platform', 'arxiv')
         num_results = int(data.get('num_results', 8))
+        llm_model = data.get('llm_model')
+        citation_style = data.get('citation_style', 'markdown')
         
         if not query:
             return JSONResponse(content={"error": "查询不能为空"}, status_code=400)
             
-        # 创建知识流处理器
-        knowledge_flow = KnowledgeFlow()
+        knowledge_flow = KnowledgeFlow(llm_model=llm_model)
         
-        # 使用SSE流式响应
         async def generate():
             try:
                 async for chunk in knowledge_flow.generate_enhanced_literature_review_stream(query, platform, num_results):
@@ -437,6 +470,44 @@ async def enhanced_literature_review_stream(request: Request):
         return EventSourceResponse(generate())
     except Exception as e:
         logging.error(f"处理增强版文献综述流请求时出错: {e}", exc_info=True)
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.post('/api/get_references')
+async def get_references(request: Request):
+    """
+    从搜索结果获取格式化的参考文献列表
+    """
+    try:
+        data = await request.json()
+        query = data.get('query', '')
+        platform = data.get('platform', 'arxiv') 
+        num_results = int(data.get('num_results', 10))
+        citation_style = data.get('style', 'markdown')  # 支持 markdown, html, text
+        
+        if not query:
+            return JSONResponse(content={"error": "查询不能为空"}, status_code=400)
+        
+        # 创建知识流处理器和引用格式化器
+        knowledge_flow = KnowledgeFlow()
+        reference_formatter = knowledge_flow.reference_formatter
+        
+        # 执行搜索
+        search_results = await knowledge_flow.search_manager.search(query, platform, num_results)
+        
+        # 获取格式化的引用
+        references = reference_formatter.format_references(search_results, citation_style)
+        
+        # 获取独立的引用列表
+        reference_list = reference_formatter.extract_references(search_results)
+        
+        return JSONResponse(content={
+            "formatted_references": references,
+            "reference_count": len(reference_list),
+            "references": reference_list
+        })
+        
+    except Exception as e:
+        logging.error(f"获取参考文献时出错: {e}", exc_info=True)
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 # --- Uvicorn 运行说明 ---

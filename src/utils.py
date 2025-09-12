@@ -6,10 +6,9 @@ import os
 import json
 import logging
 import sqlite3
-import torch
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-from src.config import tokenizer, model, Config
+from src.config import Config, get_bert
 
 # 初始化配置
 config = Config()
@@ -20,6 +19,18 @@ def setup_logging():
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
     )
+    # 抑制第三方库过多的DEBUG日志
+    for noisy in [
+        "multipart",
+        "multipart.multipart",
+        "uvicorn",
+        "uvicorn.error",
+        "uvicorn.access"
+    ]:
+        try:
+            logging.getLogger(noisy).setLevel(logging.WARNING if 'multipart' in noisy else logging.INFO)
+        except Exception:
+            pass
     logging.info("日志系统初始化完成")
 
 def get_user_data_path():
@@ -28,37 +39,44 @@ def get_user_data_path():
     return config.data_dir
 
 def verify_database():
-    """验证数据库结构是否正确"""
-    config = Config()
-    db_path = config.user_db_path
-    
-    if not os.path.exists(db_path):
-        logging.warning(f"数据库文件不存在: {db_path}")
-        return False
-    
+    """验证数据库结构是否正确，必要时自动初始化缺失表"""
     try:
-        conn = sqlite3.connect(db_path)
+        try:
+            from src.db_utils import get_db_connection, initialize_database
+        except ImportError:
+            from db_utils import get_db_connection, initialize_database
+        # 尝试自愈初始化（会自动补建缺表）
+        initialize_database()
+        conn = get_db_connection()
+        if conn is None:
+            logging.error("无法连接到数据库")
+            return False
         cursor = conn.cursor()
-        
-        # 检查用户画像表
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='user_profiles'")
-        if not cursor.fetchone():
-            logging.warning("数据库缺少user_profiles表")
-            conn.close()
+        required_tables = [
+            'users',
+            'user_profiles',
+            'search_history',
+            'user_interests',
+            'user_skills',
+            'user_education',
+            'user_work_experience',
+            'user_interactions',
+            'interest_categories'
+        ]
+        existing = set(name for (name,) in cursor.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall())
+        missing = [t for t in required_tables if t not in existing]
+        if missing:
+            logging.warning(f"数据库仍缺少表: {', '.join(missing)}")
             return False
-            
-        # 检查搜索历史表
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='search_history'")
-        if not cursor.fetchone():
-            logging.warning("数据库缺少search_history表")
-            conn.close()
-            return False
-        
-        conn.close()
         return True
     except Exception as e:
         logging.error(f"验证数据库时出错: {str(e)}")
         return False
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
 
 class NumpyEncoder(json.JSONEncoder):
     """自定义的 JSON 编码器，用于处理 NumPy 数据类型"""
@@ -71,10 +89,11 @@ class NumpyEncoder(json.JSONEncoder):
             return obj.tolist()
         return super(NumpyEncoder, self).default(obj)
 
-def get_bert_embeddings(text: str) -> torch.Tensor:
+def get_bert_embeddings(text: str):
     """获取文本的BERT嵌入表示"""
+    tokenizer, model = get_bert()
     inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
-    with torch.no_grad():
+    with __import__('torch').no_grad():
         outputs = model(**inputs)
     return outputs.last_hidden_state[:, 0, :]
 
@@ -83,7 +102,7 @@ def compute_similarity(text1: str, text2: str) -> float:
     embedding1 = get_bert_embeddings(text1)
     embedding2 = get_bert_embeddings(text2)
     similarity = cosine_similarity(embedding1.numpy(), embedding2.numpy())
-    return similarity[0][0]
+    return float(similarity[0][0])
 
 def collect_user_input() -> dict:
     """收集用户输入信息"""

@@ -3,440 +3,223 @@
 提供各种类型报告生成功能
 """
 import logging
-from typing import Dict, AsyncIterator, List
+import asyncio
+from typing import Dict, AsyncIterator, List, Any, Optional
 from src.core.llm_interface import LLMInterface
+from src.core.reference_formatter import ReferenceFormatter
 
 class ReportGenerator:
     """报告生成器类"""
     
     def __init__(self, llm=None):
-        """初始化报告生成器"""
         self.llm = llm or LLMInterface()
+        self.reference_formatter = ReferenceFormatter()
         
-        # 定义不同报告类型的模板和配置
         self.report_templates = {
             "standard": {
                 "title": "综合报告",
-                "system_message": "你是一个知识渊博且表达能力优秀的AI助手，擅长整理和归纳信息，为用户生成全面、客观的综合报告。",
+                "system_message": "你是一个知识渊博且表达能力优秀的AI助手，擅长整理和归纳信息，为用户生成全面、客观、详尽的综合报告。",
                 "prompt_template": """
-                请根据以下搜索结果，生成一份结构清晰、信息丰富的综合报告。
-                报告中应该包含对重要信息的提取、归纳总结，并按照逻辑关系组织内容。
-                
+                请基于以下搜索结果，生成一份结构清晰、内容丰富、分析深入的综合报告。
                 ---搜索结果---
                 {context_str}
                 ---搜索结果结束---
-                
-                请确保报告：
-                1. 有明确的结构和标题
-                2. 逻辑清晰，内容连贯
-                3. 提炼关键信息，避免冗余
-                4. 使用Markdown格式进行排版
-                
-                根据用户选择的【{platform_type}】平台特点，请特别关注该领域的最新进展和重要信息。
                 """
             },
             "literature_review": {
                 "title": "文献综述报告",
-                "system_message": "你是一名资深的学术研究员和文献综述撰写专家。请严格按照用户要求的结构和格式生成内容。确保所有输出均为结构良好、干净的Markdown格式，段落间使用双换行符分隔，列表使用标准的Markdown语法。不要在段落中随意插入不必要的换行。用户在Prompt中章节标题后用括号 () 或 （） 包含的文字是对您生成该章节内容的引导和提示，这些括号及其内部的文字绝对不能出现在最终的输出中。您只需要生成这些括号提示之外的、针对该章节的实际内容。所有章节标题和结构由用户在Prompt中指定，请严格遵循。",
-                "prompt_template": """
-                请基于主题 "{original_query}" 和以下提供的相关学术文献信息，撰写一份全面且结构清晰的文献综述报告。
-                报告应包含以下Markdown结构和内容。请直接在每个章节标题下撰写对应的内容，不要重复标题，也不要输出括号中的提示文字。
-                
-                ## 1. 引言
-                (请在此处撰写引言：简要介绍 "{original_query}" 主题的背景和重要性，以及本综述的目的和范围。)
-                
-                ## 2. 主要研究方向和核心概念
-                (请在此处撰写主要研究方向和核心概念：识别并系统总结文献中涉及的核心研究方向、关键理论模型和重要概念。)
-                
-                ## 3. 关键文献回顾与贡献
-                (请在此处撰写关键文献回顾与贡献：挑选几篇（3-5篇）具有里程碑意义或代表性的文献进行重点回顾，阐述其主要研究方法、核心发现和学术贡献。在提及具体文献时，可以使用其标题，例如"在《文献标题》中，作者指出..."。)
-                
-                ## 4. 研究方法的演进与比较
-                (请在此处撰写研究方法的演进与比较：如果文献信息支持，讨论该领域常用的研究方法，它们是如何随时间演变的，并对比不同方法的优缺点。)
-                
-                ## 5. 现有研究的局限性与未来研究空白
-                (请在此处撰写现有研究的局限性与未来研究空白：基于现有文献，批判性地指出当前研究中存在的不足、争议点或尚未解决的关键问题，从而识别潜在的未来研究空白和方向。)
-                
-                ## 6. 结论与展望
-                (请在此处撰写结论与展望：对整个综述进行总结，并对 "{original_query}" 领域的未来发展趋势进行展望。)
-
-                ---\n*重要提示：*\n*- 请勿在综述正文中包含URL或直接的链接地址。参考文献列表将由外部程序在报告末尾单独提供。*\n*- 避免简单罗列文献摘要的堆砌，重点在于进行深入的分析、归纳、综合和批判性评价。*\n*- 报告全文请使用中文撰写。如果原始文献材料是其他语言，请确保核心信息的准确翻译和自然融入。*\n
-
-                ---文献信息参考---\n{context_str}\n---文献信息参考结束---\n
-
-                请严格按照以上Markdown结构和要求生成完整的文献综述内容，每段话之间至多一句换行，标题和下面内容之间不换行，别部分也不要多余的换行。
-                """
-            },
-            "industry_research": {
-                "title": "行业研究报告",
-                "system_message": "你是一位资深的行业分析师，擅长撰写专业的行业研究报告。请基于提供的信息，生成结构严谨、数据支撑充分、洞察深入的行业研究报告。报告应当客观中立，同时提供有价值的见解和预测。",
-                "prompt_template": """
-                请基于以下信息和数据，为主题"{original_query}"撰写一份专业的行业研究报告。
-                
-                ## 行业研究报告: {original_query}
-                
-                报告需包含以下章节结构：
-                
-                ## 1. 行业概况与背景
-                (请提供行业的基本情况，发展历程，当前市场规模和增长率等关键信息)
-                
-                ## 2. 市场结构与竞争格局
-                (分析行业的市场结构，主要参与者及其市场份额，竞争态势等)
-                
-                ## 3. 核心技术与创新趋势
-                (详述行业中的关键技术，最新创新方向，技术演进路线图等)
-                
-                ## 4. 商业模式与价值链分析
-                (剖析行业主要商业模式，价值链构成，以及各环节价值分配情况)
-                
-                ## 5. 规范与政策环境
-                (概述影响行业的主要政策法规，监管框架，以及潜在的政策变化)
-                
-                ## 6. 行业挑战与机遇
-                (指出行业面临的主要挑战，以及未来可能出现的机遇窗口)
-                
-                ## 7. 未来发展预测
-                (基于数据和趋势，对行业未来3-5年的发展做出合理预测)
-                
-                ## 8. 结论与建议
-                (总结报告要点，并为行业参与者提供战略性建议)
-
-                ---信息来源---
-                {context_str}
-                ---信息来源结束---
-                
-                本报告的目标读者是对"{original_query}"相关行业感兴趣的专业人士、投资者和决策者。请确保报告内容专业、客观，数据引用准确，分析见解深入。如信息来源中缺乏某些必要数据，可以适当标注"数据缺失"，但应尽量基于已有信息做出合理分析。
-
-                请使用规范的Markdown格式输出，保证报告结构清晰，便于阅读。
-                """
-            },
-            "popular_science": {
-                "title": "科普知识报告",
-                "system_message": "你是一位优秀的科普作家，擅长将复杂的学术知识转化为通俗易懂、生动有趣的科普内容。请基于提供的研究信息，创作一篇既准确又引人入胜的科普文章，适合大众读者阅读。",
-                "prompt_template": """
-                请基于以下研究信息，为主题"{original_query}"创作一篇科普知识报告。
-                
-                ## 科普知识报告: {original_query}
-                
-                报告应包含以下内容结构：
-                
-                ## 1. 引人入胜的开篇
-                (请创作一个吸引人的开头，可以是一个有趣的问题、一个令人惊讶的事实、一个生动的场景描述，或者与日常生活的联系，目的是激发读者的好奇心和阅读兴趣)
-                
-                ## 2. 核心概念简明解释
-                (用通俗易懂的语言解释主题中的核心概念和基础知识，避免使用过多专业术语，如必须使用，则应当给出清晰解释)
-                
-                ## 3. 最新研究发现与突破
-                (介绍该领域的最新研究成果和突破性进展，强调其意义和潜在影响)
-                
-                ## 4. 实际应用与生活关联
-                (说明这些研究和知识如何应用于实际生活或产业，以及它们如何影响或改变我们的日常生活)
-                
-                ## 5. 趣味知识与小故事
-                (穿插一些与主题相关的趣味事实、轶事或小故事，增加可读性和趣味性)
-                
-                ## 6. 未来展望与思考
-                (探讨该领域未来可能的发展方向，以及它可能带来的社会变化和思考)
-                
-                ## 7. 延伸阅读与资源推荐
-                (为对这一主题感兴趣的读者推荐一些易于理解的延伸阅读资料或资源)
-
-                ---研究信息来源---
-                {context_str}
-                ---研究信息来源结束---
-                
-                本科普报告面向普通大众读者，他们可能没有相关的专业背景。请确保内容：
-                1. 准确传达科学知识，不夸大或误导
-                2. 语言生动有趣，避免枯燥
-                3. 使用贴切的比喻、类比和例子帮助理解
-                4. 适当使用问答形式或对话形式增强互动感
-                5. 整体结构清晰，逻辑流畅
-
-                请使用规范的Markdown格式输出，保证报告结构清晰，便于阅读。
-                """
+                "system_message": "你是一名严格的学术综述撰写者，输出必须是学术风格、信息密度高、避免空洞套话。不要写引导性或总结性套话，不要复述题目，不要写“本节将…”之类的开场。只写本节需要的内容。",
             }
         }
         logging.info("报告生成器初始化完成")
     
-    def _prepare_context_from_search_results(self, search_results: Dict, max_items_per_source: int = 3, max_chars: int = 8000) -> str:
-        """
-        从搜索结果中准备文本上下文给LLM。
-        """
+    def _prepare_context_from_search_results(self, search_results: Dict, max_items_per_source: int = 5, max_chars: int = 12000) -> str:
         context_parts = []
         total_chars = 0
         for source, data in search_results.items():
             if data and isinstance(data, dict) and 'results' in data:
-                items_processed = 0
-                for item in data['results']:
-                    if items_processed >= max_items_per_source:
-                        break
+                items = data['results'][:max_items_per_source]
+                for item in items:
                     title = item.get('title', '')
-                    snippet = item.get('snippet', item.get('abstract', '')) 
-                    if title and snippet:
-                        item_text = f"来源: {source}\n标题: {title}\n摘要: {snippet}\n---\n"
-                        if total_chars + len(item_text) > max_chars:
-                            remaining_chars = max_chars - total_chars
-                            if remaining_chars > 50: 
-                                context_parts.append(item_text[:remaining_chars] + "...")
-                            break 
-                        context_parts.append(item_text)
-                        total_chars += len(item_text)
-                        items_processed += 1
+                    abstract = item.get('abstract', item.get('snippet', ''))
+                    if not title or not abstract:
+                        continue
+                    authors = ", ".join(item.get('authors', []))
+                    published = item.get('published', '')
+                    journal = item.get('journal', '')
+                    citation_count = item.get('citation_count', '')
+                    item_text = f"来源: {source}\n标题: {title}\n"
+                    if authors: item_text += f"作者: {authors}\n"
+                    if published: item_text += f"发表时间: {published}\n"
+                    if journal: item_text += f"期刊/会议: {journal}\n"
+                    if citation_count: item_text += f"引用次数: {citation_count}\n"
+                    item_text += f"摘要: {abstract}\n------\n"
+                    if total_chars + len(item_text) > max_chars:
+                        remaining = max_chars - total_chars
+                        if remaining > 200:
+                            context_parts.append(item_text[:remaining] + "...")
+                        total_chars = max_chars
+                        break
+                    context_parts.append(item_text)
+                    total_chars += len(item_text)
             if total_chars >= max_chars:
                 break
-        
-        context_str = "\n".join(context_parts)
-        if not context_str:
-            return "未从搜索结果中提取到足够的上下文信息。"
-        return context_str
-        
-    async def generate_report(self, search_results: Dict) -> str:
-        """生成标准搜索报告"""
-        logging.info("生成最终的搜索报告...")
-        
-        # 从搜索结果中准备上下文
-        context_str = self._prepare_context_from_search_results(search_results)
-        
-        # 获取报告模板
-        template = self.report_templates["standard"]
-        system_message = template["system_message"]
-        
-        # 构建提示词
-        platform_type = search_results.get('platform_type', '通用平台')
-        prompt = template["prompt_template"].format(context_str=context_str, platform_type=platform_type)
-        
-        # 调用LLM生成报告
-        report = await self.llm.call_llm(prompt, system_message)
-        return report
-        
-    async def generate_report_stream(self, search_results: Dict) -> AsyncIterator[str]:
-        """流式生成标准搜索报告"""
+        return "\n".join(context_parts) or "未从搜索结果中提取到足够的上下文信息。"
+
+    async def generate_report_stream(self, search_results: Dict, user_input: Dict) -> AsyncIterator[str]:
         logging.info("流式生成最终的搜索报告...")
-        platform_type = search_results.get('platform_type', '通用平台')
-        
-        # 从搜索结果中准备上下文
+        platform_type = user_input.get('platform_type') or search_results.get('platform_type', '通用平台')
         context_str = self._prepare_context_from_search_results(search_results)
-        
-        # 获取报告模板
         template = self.report_templates["standard"]
         system_message = template["system_message"]
-        
-        # 构建提示词
         prompt = template["prompt_template"].format(context_str=context_str, platform_type=platform_type)
-        
-        # 先输出标题
         title = f"# 【{platform_type}】{template['title']}\n\n"
         yield title
-        
-        # 流式生成报告内容
         async for chunk in self.llm.call_llm_stream(prompt, system_message):
             yield chunk
-            
-        # 输出结尾
-        yield f"\n\n---\n\n根据您选择的【{platform_type}】平台，近几日的行业内最新进展已整理好，请查收！"
-        
-    async def generate_literature_review(self, search_results: Dict, original_query: str) -> str:
-        """生成文献综述"""
-        logging.info(f"开始为查询 '{original_query}' 生成文献综述...")
-        
-        # 为文献综述提供更多的搜索结果上下文
-        context_str = self._prepare_context_from_search_results(search_results, max_items_per_source=8)
-        
-        # 获取报告模板
-        template = self.report_templates["literature_review"]
-        system_message = template["system_message"]
-        
-        # 构建提示词
-        prompt = template["prompt_template"].format(context_str=context_str, original_query=original_query)
-        
-        # 收集参考文献
-        references_list = []
+        yield f"\n\n---\n\n根据您选择的【{platform_type}】平台搜索结果生成的报告\n\n"
+        references_section = self.reference_formatter.format_references(search_results, "markdown")
+        yield references_section
+
+    # ===== 文献综述（严格章节化、分批并行、去套话合并） =====
+    def _flatten_results(self, search_results: Dict) -> List[Dict[str, Any]]:
+        items: List[Dict[str, Any]] = []
         for source, data in search_results.items():
-            if data and isinstance(data, dict) and 'results' in data and data['results']:
-                for item in data['results']:
-                    if isinstance(item, dict):
-                        title = item.get('title', '未知标题')
-                        link = item.get('link', '#')
-                        if link and link != '#':
-                            references_list.append({"title": title, "link": link, "source": source})
-        
-        # 去重
-        unique_references = []
-        seen_links = set()
-        for ref in references_list:
-            if ref["link"] not in seen_links:
-                unique_references.append(ref)
-                seen_links.add(ref["link"])
-               
-        # 调用LLM生成文献综述内容
-        review_text = await self.llm.call_llm(prompt, system_message)
-        
-        # 添加主标题
-        final_report = f"# 文献综述报告: {original_query}\n\n{review_text}"
-        
-        # 添加参考文献
-        if unique_references:
-            references_section = "\n\n---\n## 参考文献\n\n"
-            for i, ref in enumerate(unique_references):
-                title = ref.get('title', '未知标题')
-                source = ref.get('source', '未知来源')
-                link = ref.get('link', '#')
-                authors = ref.get('authors', [])
-                published = ref.get('published', '')
-                updated = ref.get('updated', '')
-                
-                # 格式化作者列表
-                authors_str = ", ".join(authors[:3])
-                if len(authors) > 3:
-                    authors_str += " 等"
-                
-                # 构建参考文献条目
-                references_section += f"{i+1}. **{title}**\n"
-                references_section += f"   - 作者: {authors_str}\n"
-                if published:
-                    references_section += f"   - 发表时间: {published}\n"
-                if updated and updated != published:
-                    references_section += f"   - 更新时间: {updated}\n"
-                references_section += f"   - 来源: {source}\n"
-                references_section += f"   - 链接: [{link}]({link})\n"
-                
-                # 每两篇论文之间空一行，最后一篇不加空行
-                if i < len(unique_references) - 1:
-                    references_section += "\n"
-                
-            final_report += references_section
+            if isinstance(data, dict) and data.get('results'):
+                for it in data['results']:
+                    e = it.copy()
+                    e['source'] = source
+                    items.append(e)
+        return items
+
+    def _section_prompt(self, original_query: str, section_name: str, context_str: str) -> str:
+        rules = (
+            "禁止写开场白、过渡句、总结性套话；"
+            "禁止复述“本节/本文/该领域/近年来/取得进展”之类的泛化语句；"
+            "不得重复题目或重复上一节内容；"
+            "必须引用具体文献（使用其标题或明确标识），指出方法/数据/发现/结果；"
+            "内容以事实和比较为主，避免空泛描述；"
+            "仅撰写本节要求的内容，不得包含其他节的内容；"
+            "使用中文，段落紧凑；优先使用多段落与要点列表以便阅读；适度使用小标题。"
+        )
+        if section_name == "1. 引言":
+            task = "背景与动机、主题边界、综述目标与读者预期（不写总结语）。建议包含2-4段，必要时使用要点列表；字数≥500。"
+        elif section_name == "2. 主要研究方向和核心概念":
+            task = "列出并定义核心概念；按主题归纳主要研究方向，给出现有代表性工作标题并概括其要点；建议使用小标题分组与项目符号列表；字数≥800。"
+        elif section_name == "3. 关键文献回顾与贡献":
+            task = "选择代表性文献（≥5），逐篇给出：问题、方法、数据/实验、结论、创新点与局限；建议按每篇文献为一个小段或小标题；字数≥1200。"
+        elif section_name == "4. 研究方法的演进与比较":
+            task = "按时间或范式梳理方法演进；给出方法间对比表述（适用场景、复杂度、性能、资源需求），点名具体文献；适度用表格样式的列表；字数≥800。"
+        elif section_name == "5. 现有研究的局限性与未来研究空白":
+            task = "基于文献证据提炼具体局限与未覆盖问题；提出可操作的未来研究问题与可能路径；用条列清晰呈现；字数≥600。"
+        elif section_name == "6. 结论与展望":
+            task = "汇聚关键共识与稳健发现；指出近期可预期的方向与值得复现的结果；不写套话；字数≥500。"
         else:
-            final_report += "\n\n---\n未找到可引用的文献链接。"
-            
-        return final_report
-        
-    async def generate_literature_review_stream(self, search_results: Dict, original_query: str) -> AsyncIterator[str]:
-        """流式生成文献综述"""
-        logging.info(f"流式生成文献综述: {original_query}")
-        
-        # 为文献综述提供更多的搜索结果上下文
-        context_str = self._prepare_context_from_search_results(search_results, max_items_per_source=8)
-        
-        # 先生成标题
-        title = f"# 文献综述报告: {original_query}\n\n"
-        yield title
-        
-        # 使用多模型并行处理生成文献综述的各个章节
-        base_prompt = f"""
-        请基于主题 "{original_query}" 和以下提供的相关学术文献信息，撰写文献综述报告的相应章节。
-        
-        ---文献信息参考---
-        {context_str}
-        ---文献信息参考结束---
-        
-        请确保内容：
-        1. 深入分析文献，而非简单摘要堆砌
-        2. 内容详实充分，字数充足
-        3. 使用专业学术风格，但表述清晰
-        4. 适当引用文献中的关键观点和发现
-        """
-        
-        # 按顺序生成并输出各章节
+            task = "撰写本节内容。"
+        return f"""
+你正在撰写关于“{original_query}”的学术文献综述的“{section_name}”。
+严格遵循以下规则：{rules}
+写作任务：{task}
+可用文献信息：
+{context_str}
+只输出“{section_name}”正文内容，不要输出标题，不要输出分节以外的任何文字。
+"""
+
+    def _merge_prompt(self, original_query: str, section_name: str, drafts: List[str]) -> str:
+        joined = "\n\n---\n\n".join(drafts)
+        return (
+            f"请将以下多段同一章节“{section_name}”的草稿内容进行去重合并：\n"
+            f"- 删除冗余、套话、空洞总结与开场；\n"
+            f"- 保留具体事实、数据、对比与文献指称（标题/标识）；\n"
+            f"- 合并冲突点时给出更精确的表述；\n"
+            f"- 仅输出“{section_name}”的最终正文，不要输出标题或其他说明；\n\n"
+            f"草稿：\n{joined}\n"
+        )
+
+    async def _build_context_for_batch(self, batch: List[Dict[str, Any]]) -> str:
+        temp = { 'batch': { 'results': batch } }
+        return self._prepare_context_from_search_results({'batch': temp['batch']}, max_items_per_source=len(batch), max_chars=10000)
+
+    async def _generate_section(self, original_query: str, section_name: str, all_items: List[Dict[str, Any]]) -> str:
+        batch_size = 10
+        batches = [all_items[i:i+batch_size] for i in range(0, len(all_items), batch_size)]
+        tasks = []
+        for batch in batches:
+            context_str = await self._build_context_for_batch(batch)
+            prompt = self._section_prompt(original_query, section_name, context_str)
+            tasks.append({
+                'task_id': f"{section_name}",
+                'prompt': prompt,
+                'system_message': self.report_templates['literature_review']['system_message'],
+            })
+        results = await self.llm.parallel_process(tasks)
+        drafts = [r.get('result', '') for r in results if r.get('result')]
+        if len(drafts) == 1:
+            return drafts[0]
+        merge_prompt = self._merge_prompt(original_query, section_name, drafts)
+        merged = await self.llm.call_llm(merge_prompt, self.report_templates['literature_review']['system_message'])
+        return merged
+
+    async def generate_literature_review(self, search_results: Dict, original_query: str) -> str:
+        logging.info(f"开始为查询 '{original_query}' 生成文献综述（严格章节版）...")
+        all_items = self._flatten_results(search_results)
+        if not all_items:
+            return f"# 文献综述报告: {original_query}\n\n未找到可用检索结果。"
         ordered_sections = [
             "1. 引言",
             "2. 主要研究方向和核心概念",
             "3. 关键文献回顾与贡献",
             "4. 研究方法的演进与比较",
             "5. 现有研究的局限性与未来研究空白",
-            "6. 结论与展望"
+            "6. 结论与展望",
         ]
+        sections_text = []
+        section_coros = [self._generate_section(original_query, sec, all_items) for sec in ordered_sections]
+        generated = await asyncio.gather(*section_coros)
+        for sec, body in zip(ordered_sections, generated):
+            sections_text.append(f"## {sec}\n\n{body.strip()}\n")
+        final_review = f"# 文献综述报告: {original_query}\n\n" + "\n".join(sections_text)
+        references_section = self.reference_formatter.format_references(search_results, "markdown")
+        final_review += references_section
+        return final_review
+
+    async def generate_literature_review_stream(self, search_results: Dict, original_query: str) -> AsyncIterator[str]:
+        logging.info(f"流式生成文献综述（严格章节版）: {original_query}")
+        all_items = self._flatten_results(search_results)
+        if not all_items:
+            yield f"# 文献综述报告: {original_query}\n\n未找到可用检索结果。"
+            return
+        ordered_sections = [
+            "1. 引言",
+            "2. 主要研究方向和核心概念",
+            "3. 关键文献回顾与贡献",
+            "4. 研究方法的演进与比较",
+            "5. 现有研究的局限性与未来研究空白",
+            "6. 结论与展望",
+        ]
+        yield f"# 文献综述报告: {original_query}\n\n"
+        for sec in ordered_sections:
+            batch_size = 10
+            batches = [all_items[i:i+batch_size] for i in range(0, len(all_items), batch_size)]
+            tasks = []
+            for batch in batches:
+                context_str = await self._build_context_for_batch(batch)
+                prompt = self._section_prompt(original_query, sec, context_str)
+                tasks.append({
+                    'task_id': f"{sec}",
+                    'prompt': prompt,
+                    'system_message': self.report_templates['literature_review']['system_message'],
+                })
+            results = await self.llm.parallel_process(tasks)
+            drafts = [r.get('result', '') for r in results if r.get('result')]
+            merge_prompt = self._merge_prompt(original_query, sec, drafts)
+            yield f"## {sec}\n\n"
+            async for chunk in self.llm.call_llm_stream(merge_prompt, self.report_templates['literature_review']['system_message']):
+                yield chunk
+            yield "\n\n"
+        references_section = self.reference_formatter.format_references(search_results, "markdown")
+        yield references_section
         
-        for section_name in ordered_sections:
-            # 获取该章节对应的模型
-            model_names = self.multi_model_config["section_assignments"].get(section_name, ["主模型"])
-            model = next((m for m in self.multi_model_config["models"] if m["name"] == model_names[0]), None)
-            
-            if model:
-                # 输出章节标题
-                yield f"## {section_name}\n\n"
-                
-                # 构建章节特定的提示词
-                section_prompt = f"""
-                你需要为文献综述报告撰写 "{section_name}" 章节的内容。
-                
-                请基于以下信息，撰写内容丰富、分析深入的章节内容。确保内容专业、全面，并使用学术风格。
-                
-                {base_prompt}
-                
-                请只生成 "{section_name}" 章节的内容，不要包含章节标题，直接开始正文内容。
-                确保内容详尽、充实，字数在800-1200字之间。
-                """
-                
-                # 流式生成章节内容
-                async for chunk in self.llm.call_llm_stream(section_prompt, model["system_message"]):
-                    yield chunk
-                
-                # 章节之间添加换行
-                yield "\n\n"
-        
-        # 收集参考文献
-        references_list = []
-        for source, data in search_results.items():
-            if data and isinstance(data, dict) and 'results' in data and data['results']:
-                for item in data['results']:
-                    if isinstance(item, dict):
-                        title = item.get('title', '未知标题')
-                        link = item.get('link', '#')
-                        authors = item.get('authors', [])
-                        published = item.get('published', '')
-                        updated = item.get('updated', '')
-                        if link and link != '#':
-                            references_list.append({
-                                "title": title, 
-                                "link": link, 
-                                "source": source,
-                                "authors": authors,
-                                "published": published,
-                                "updated": updated
-                            })
-        
-        # 去重
-        unique_references = []
-        seen_links = set()
-        for ref in references_list:
-            if ref["link"] not in seen_links:
-                unique_references.append(ref)
-                seen_links.add(ref["link"])
-        
-        # 输出参考文献
-        if unique_references:
-            references_section = "\n\n---\n## 参考文献\n\n"
-            for i, ref in enumerate(unique_references):
-                title = ref.get('title', '未知标题')
-                source = ref.get('source', '未知来源')
-                link = ref.get('link', '#')
-                authors = ref.get('authors', [])
-                published = ref.get('published', '')
-                updated = ref.get('updated', '')
-                
-                # 格式化作者列表
-                authors_str = ", ".join(authors[:3])
-                if len(authors) > 3:
-                    authors_str += " 等"
-                
-                # 构建参考文献条目
-                references_section += f"{i+1}. **{title}**\n"
-                references_section += f"   - 作者: {authors_str}\n"
-                if published:
-                    references_section += f"   - 发表时间: {published}\n"
-                if updated and updated != published:
-                    references_section += f"   - 更新时间: {updated}\n"
-                references_section += f"   - 来源: {source}\n"
-                references_section += f"   - 链接: [{link}]({link})\n"
-                
-                # 每两篇论文之间空一行，最后一篇不加空行
-                if i < len(unique_references) - 1:
-                    references_section += "\n"
-                
-            yield references_section
-        else:
-            yield "\n\n---\n未找到可引用的文献链接。"
-            
     async def generate_industry_research_report(self, search_results: Dict, user_input: Dict, original_query: str) -> str:
         """生成行业研究报告"""
         logging.info(f"开始生成行业研究报告: {original_query}")
@@ -457,6 +240,9 @@ class ReportGenerator:
         # 添加页眉和页脚
         user_name = user_input.get("user_name", "尊敬的用户")
         report = f"# 行业研究报告: {original_query}\n\n{report}\n\n---\n\n*此报告由KnowlEdge智能引擎为 {user_name} 生成于 {user_input.get('day', 7)} 天内的最新行业数据*"
+        
+        # 添加参考文献
+        report += self.reference_formatter.format_references(search_results, "markdown")
         
         return report
         
@@ -486,6 +272,10 @@ class ReportGenerator:
         user_name = user_input.get("user_name", "尊敬的用户")
         yield f"\n\n---\n\n*此报告由KnowlEdge智能引擎为 {user_name} 生成于 {user_input.get('day', 7)} 天内的最新行业数据*"
         
+        # 添加参考文献
+        references_section = self.reference_formatter.format_references(search_results, "markdown")
+        yield references_section
+        
     async def generate_popular_science_report(self, search_results: Dict, user_input: Dict, original_query: str) -> str:
         """生成科普知识报告"""
         logging.info(f"开始生成科普知识报告: {original_query}")
@@ -506,6 +296,9 @@ class ReportGenerator:
         # 添加页眉和页脚
         user_name = user_input.get("user_name", "读者朋友")
         report = f"# 科普知识报告: {original_query}\n\n{report}\n\n---\n\n*此科普报告由KnowlEdge智能引擎为 {user_name} 精心生成，希望能增长您的知识*"
+        
+        # 添加参考文献
+        report += self.reference_formatter.format_references(search_results, "markdown")
         
         return report
         
@@ -533,4 +326,148 @@ class ReportGenerator:
             
         # 输出页脚
         user_name = user_input.get("user_name", "读者朋友")
-        yield f"\n\n---\n\n*此科普报告由KnowlEdge智能引擎为 {user_name} 精心生成，希望能增长您的知识*" 
+        yield f"\n\n---\n\n*此科普报告由KnowlEdge智能引擎为 {user_name} 精心生成，希望能增长您的知识*"
+        
+        # 添加参考文献
+        references_section = self.reference_formatter.format_references(search_results, "markdown")
+        yield references_section
+    
+    # --- 多模型文献综述生成方法 ---
+    
+    async def _generate_multi_model_literature_review(self, context_str: str, original_query: str) -> str:
+        """使用多模型并行处理生成文献综述"""
+        logging.info(f"使用多模型并行生成文献综述: {original_query}")
+        try:
+            # 按顺序生成各章节内容
+            ordered_sections = [
+                "1. 引言",
+                "2. 主要研究方向和核心概念",
+                "3. 关键文献回顾与贡献",
+                "4. 研究方法的演进与比较",
+                "5. 现有研究的局限性与未来研究空白",
+                "6. 结论与展望"
+            ]
+            
+            # 构建基础上下文提示词
+            base_prompt = f"""
+            请基于主题 "{original_query}" 和以下提供的相关学术文献信息，撰写文献综述报告的相应章节。
+            
+            ---文献信息参考---
+            {context_str}
+            ---文献信息参考结束---
+            
+            请确保内容：
+            1. 深入分析文献，而非简单摘要堆砌
+            2. 内容详实充分，字数充足（800-1200字/章节）
+            3. 使用专业学术风格，但表述清晰
+            4. 适当引用文献中的关键观点和发现
+            5. 提供批判性分析和见解，而不仅是描述性内容
+            """
+            
+            # 准备并行任务列表
+            section_tasks = []
+            for section_name in ordered_sections:
+                # 获取该章节对应的模型
+                model_names = self.multi_model_config["section_assignments"].get(section_name, ["主模型"])
+                model = next((m for m in self.multi_model_config["models"] if m["name"] == model_names[0]), None)
+                
+                if model:
+                    # 构建章节特定的提示词
+                    section_prompt = f"""
+                    你需要为文献综述报告撰写 "## {section_name}" 章节的内容。
+                    
+                    请基于以下信息，撰写内容丰富、分析深入的章节内容。确保内容专业、全面，并使用学术风格。
+                    
+                    {base_prompt}
+                    
+                    请只生成 "{section_name}" 章节的内容，不要包含章节标题，直接开始正文内容。
+                    确保内容详尽、充实，字数在800-1200字之间。
+                    """
+                    
+                    # 添加到任务列表
+                    section_tasks.append({
+                        "prompt": section_prompt,
+                        "system_message": model["system_message"],
+                        "task_id": section_name
+                    })
+            
+            # 并行执行所有章节生成任务
+            sections_results = await self.llm.parallel_process(section_tasks)
+            
+            # 按顺序整合结果
+            full_review = ""
+            for section_name in ordered_sections:
+                section_result = next((r for r in sections_results if r["task_id"] == section_name), None)
+                if section_result and "result" in section_result:
+                    full_review += f"## {section_name}\n\n{section_result['result']}\n\n"
+                else:
+                    logging.warning(f"未能获取章节 '{section_name}' 的生成结果")
+            
+            return full_review
+            
+        except Exception as e:
+            logging.error(f"多模型文献综述生成失败: {e}")
+            return ""  # 返回空字符串，让调用方回退到单模型生成
+    
+    async def _generate_multi_model_literature_review_stream(self, context_str: str, original_query: str) -> AsyncIterator[str]:
+        """使用多模型并行处理流式生成文献综述"""
+        logging.info(f"使用多模型流式生成文献综述: {original_query}")
+        
+        # 按顺序生成各章节内容
+        ordered_sections = [
+            "1. 引言",
+            "2. 主要研究方向和核心概念",
+            "3. 关键文献回顾与贡献",
+            "4. 研究方法的演进与比较",
+            "5. 现有研究的局限性与未来研究空白",
+            "6. 结论与展望"
+        ]
+        
+        # 构建基础上下文提示词
+        base_prompt = f"""
+        请基于主题 "{original_query}" 和以下提供的相关学术文献信息，撰写文献综述报告的相应章节。
+        
+        ---文献信息参考---
+        {context_str}
+        ---文献信息参考结束---
+        
+        请确保内容：
+        1. 深入分析文献，而非简单摘要堆砌
+        2. 内容详实充分，字数充足（800-1200字）
+        3. 使用专业学术风格，但表述清晰
+        4. 适当引用文献中的关键观点和发现
+        5. 提供批判性分析和见解，而不仅是描述性内容
+        """
+        
+        # 按顺序流式生成并输出各章节
+        for section_name in ordered_sections:
+            try:
+                # 获取该章节对应的模型
+                model_names = self.multi_model_config["section_assignments"].get(section_name, ["主模型"])
+                model = next((m for m in self.multi_model_config["models"] if m["name"] == model_names[0]), None)
+                
+                if model:
+                    # 输出章节标题
+                    yield f"## {section_name}\n\n"
+                    
+                    # 构建章节特定的提示词
+                    section_prompt = f"""
+                    你需要为文献综述报告撰写 "## {section_name}" 章节的内容。
+                    
+                    请基于以下信息，撰写内容丰富、分析深入的章节内容。确保内容专业、全面，并使用学术风格。
+                    
+                    {base_prompt}
+                    
+                    请只生成 "{section_name}" 章节的内容，不要包含章节标题，直接开始正文内容。
+                    确保内容详尽、充实，字数在800-1200字之间。
+                    """
+                    
+                    # 流式生成章节内容
+                    async for chunk in self.llm.call_llm_stream(section_prompt, model["system_message"]):
+                        yield chunk
+                    
+                    # 章节之间添加换行
+                    yield "\n\n"
+            except Exception as e:
+                logging.error(f"流式生成章节 '{section_name}' 时出错: {e}")
+                yield f"*生成此章节时出现错误，请见谅。*\n\n" 

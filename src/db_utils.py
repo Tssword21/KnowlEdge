@@ -164,6 +164,19 @@ def get_db_connection():
                 )
                 ''')
                 
+            # 补建 user_profiles 表
+            if 'user_profiles' not in table_names:
+                logger.warning("数据库缺少user_profiles表")
+                conn.execute('''
+                CREATE TABLE IF NOT EXISTS user_profiles (
+                    user_id TEXT PRIMARY KEY,
+                    username TEXT,
+                    profile_data TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+                ''')
+                
             if 'search_history' not in table_names:
                 logger.warning("数据库缺少search_history表")
                 conn.execute('''
@@ -174,6 +187,17 @@ def get_db_connection():
                     platform TEXT,
                     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users (id)
+                )
+                ''')
+                
+            # 补建 interest_categories 表
+            if 'interest_categories' not in table_names:
+                logger.warning("数据库缺少interest_categories表")
+                conn.execute('''
+                CREATE TABLE IF NOT EXISTS interest_categories (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    category TEXT,
+                    subcategories TEXT
                 )
                 ''')
                 
