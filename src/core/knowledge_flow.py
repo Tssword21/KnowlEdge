@@ -68,7 +68,7 @@ class KnowledgeFlow:
         # 初始化各组件
         self.llm = LLMInterface(model_override=llm_model)
         
-        self.profile_manager = UserProfileManager(self.config.user_db_path)
+        self.profile_manager = UserProfileManager()
         self.resume_reader = ResumeReader()
         self.search_engine = SearchEngine(self.config)
         self.report_generator = ReportGenerator(self.llm)
@@ -106,48 +106,86 @@ class KnowledgeFlow:
         logging.info(f"开始为用户 {user_id} 分析简历")
         
         # 读取简历文本
-        resume_text = self.resume_reader.read_file(file_path)
+        resume_text = self.resume_reader.read_resume(file_path)
         if not resume_text:
             return {"success": False, "message": "无法读取简历文件"}
             
         # 使用LLM分析简历，提取关键信息
+        system_msg = (
+            "你是一个严格的JSON生成器。只返回纯JSON，不要任何解释、前后缀或代码块标记。"
+        )
         prompt = f"""
-        请仔细分析下面的简历文本，提取以下关键信息：
-        - 教育背景：学校、专业、学位
-        - 工作经历：公司名称、职位、时间段
-        - 技能标签：技术栈、语言、工具等
-        - 研究兴趣或专业领域：研究方向、感兴趣的学术领域等
-        
-        只提取明确出现在简历中的信息，不要猜测或假设。将分析结果以JSON格式返回，包含以下字段：
-        {{
-            "education": [
-                {{"institution": "大学名称", "major": "专业", "degree": "学位", "time": "时间段"}}
-            ],
-            "work_experience": [
-                {{"company": "公司名称", "position": "职位", "time": "时间段", "description": "简要描述"}}
-            ],
-            "skills": ["技能1", "技能2"...],
-            "research_interests": ["研究领域1", "研究领域2"...],
-            "keywords": ["关键词1", "关键词2"...]
-        }}
-        
-        确保返回格式严格符合JSON规范，可以直接被解析。
-        
-        简历文本:
-        {resume_text}
-        """
-        
+请分析下列简历文本，提取且仅提取明确出现的信息，严禁臆测：
+- 教育背景（institution, major, degree, time）
+- 工作经历（company, position, time, description）
+- 技能（skills，字符串数组）
+- 研究兴趣（research_interests，字符串数组）
+- 关键词（keywords，字符串数组）
+
+严格输出有效JSON：
+{{
+  "education": [
+    {{"institution": "", "major": "", "degree": "", "time": ""}}
+  ],
+  "work_experience": [
+    {{"company": "", "position": "", "time": "", "description": ""}}
+  ],
+  "skills": [],
+  "research_interests": [],
+  "keywords": []
+}}
+
+不要输出```，不要输出多余文字。
+
+简历文本：
+{resume_text}
+"""
+ 
         try:
-            result = await self.llm.call_llm(prompt)
-            parsed_result = json.loads(result)
-            
+            def _strip_fences(s: str) -> str:
+                t = s.strip()
+                if t.startswith("```json"):
+                    t = t[7:]
+                if t.startswith("```"):
+                    t = t[3:]
+                if t.endswith("```"):
+                    t = t[:-3]
+                return t.strip()
+
+            def _extract_json_fragment(s: str) -> Optional[str]:
+                # 粗略提取第一个花括号或方括号包裹的JSON片段
+                import re as _re
+                for pattern in [r"\{[\s\S]*\}", r"\[[\s\S]*\]"]:
+                    m = _re.search(pattern, s)
+                    if m:
+                        return m.group(0)
+                return None
+
+            result = await self.llm.call_llm(prompt, system_message=system_msg)
+            cleaned = _strip_fences(result)
+            try:
+                parsed_result = json.loads(cleaned)
+            except Exception:
+                frag = _extract_json_fragment(cleaned)
+                if not frag:
+                    # 进行一次重试，请求仅返回JSON
+                    retry_prompt = (
+                        "仅返回JSON（无任何解释与前后缀），字段为 education, work_experience, skills, research_interests, keywords。\n"
+                        "若缺失信息请给空数组/空字符串。\n\n"
+                        f"简历文本：\n{resume_text}"
+                    )
+                    retry = await self.llm.call_llm(retry_prompt, system_message=system_msg)
+                    cleaned_retry = _strip_fences(retry)
+                    frag = _extract_json_fragment(cleaned_retry) or cleaned_retry
+                parsed_result = json.loads(frag)
+             
             # 提取兴趣标签
             interests = []
             if "research_interests" in parsed_result:
                 interests.extend(parsed_result["research_interests"])
             if "keywords" in parsed_result:
                 interests.extend(parsed_result["keywords"])
-            
+             
             # 更新用户画像
             self.profile_manager.update_user_profile(
                 user_id,
@@ -155,17 +193,28 @@ class KnowledgeFlow:
                 work_experience=parsed_result.get("work_experience", []),
                 skills=parsed_result.get("skills", [])
             )
-            
+             
             # 更新兴趣标签
             if interests:
-                self.profile_manager.update_user_interests(user_id, interests)
-                
+                # 去重并清洗
+                uniq_interests = []
+                seen = set()
+                for it in interests:
+                    if not isinstance(it, str):
+                        continue
+                    key = it.strip()
+                    if key and key not in seen:
+                        uniq_interests.append(key)
+                        seen.add(key)
+                if uniq_interests:
+                    self.profile_manager.update_user_interests(user_id, uniq_interests)
+                 
             return {
                 "success": True, 
                 "profile": self.profile_manager.get_user_profile(user_id),
                 "message": "简历分析完成并更新用户画像"
             }
-            
+             
         except Exception as e:
             logging.error(f"简历分析失败: {str(e)}")
             return {"success": False, "message": f"简历分析失败: {str(e)}"}

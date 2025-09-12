@@ -129,7 +129,7 @@ def get_step_name(step_id, report_type="standard"):
     return "未知处理阶段"
 
 # --- 核心异步生成器 (用于 SSE 事件流) ---
-async def knowledge_flow_sse_generator(user_input_data: dict, resume_file: UploadFile = None, report_type: str = "standard", original_query: str = ""):
+async def knowledge_flow_sse_generator(user_input_data: dict, resume_file_path: Optional[str] = None, report_type: str = "standard", original_query: str = ""):
     """
     异步生成器，为知识流处理过程生成服务器发送事件 (SSE)。
     支持流式输出报告内容。
@@ -176,24 +176,19 @@ async def knowledge_flow_sse_generator(user_input_data: dict, resume_file: Uploa
         async for sse_event in yield_progress_dict(2):
             yield sse_event
             
-        # 如果有简历文件，处理并分析
-        if resume_file:
+        # 如果有简历文件路径，直接分析；否则创建/获取基本画像
+        if resume_file_path and os.path.exists(resume_file_path):
             try:
-                # 保存上传的文件到临时位置
-                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(resume_file.filename)[1])
-                temp_file_path = temp_file.name
-                temp_file.close()
-                
-                # 写入文件内容
-                content = await resume_file.read()
-                with open(temp_file_path, "wb") as f:
-                    f.write(content)
-                
-                # 分析简历
-                await workflow.analyze_resume(user_id, temp_file_path)
-                logging.info(f"简历分析完成: {resume_file.filename}")
+                temp_file_path = resume_file_path
+                analyze_result = await workflow.analyze_resume(user_id, temp_file_path)
+                if analyze_result and analyze_result.get("success"):
+                    logging.info("简历分析完成（已保存的临时文件）")
+                else:
+                    logging.warning(f"简历分析未成功：{(analyze_result or {}).get('message', '未知原因')}")
+                    await workflow.get_or_create_user_profile(user_id, user_name)
             except Exception as e:
                 logging.error(f"处理简历文件时出错: {str(e)}")
+                await workflow.get_or_create_user_profile(user_id, user_name)
         else:
             # 如果没有简历，只确保用户画像存在
             await workflow.get_or_create_user_profile(user_id, user_name)
@@ -403,13 +398,34 @@ async def handle_process_submission(
             "llm_model": llm_model
         }
         
-        resume_file_info = f", 简历文件: {resume_file.filename}" if resume_file else ", 无简历文件"
+        # 在开始流之前读取保存简历到临时文件，避免流式响应导致上传句柄关闭
+        resume_temp_path = None
+        resume_file_info = ", 无简历文件"
+        try:
+            if resume_file and getattr(resume_file, "filename", None) and str(resume_file.filename).strip():
+                # 读取全部内容
+                try:
+                    await resume_file.seek(0)
+                except Exception:
+                    pass
+                content = await resume_file.read()
+                if content:
+                    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(resume_file.filename)[1])
+                    tmp.write(content)
+                    tmp.flush()
+                    tmp.close()
+                    resume_temp_path = tmp.name
+                    resume_file_info = f", 简历文件: {resume_file.filename}, 大小: {len(content)}B"
+                else:
+                    resume_file_info = f", 简历文件: {resume_file.filename}, 但内容为空"
+        except Exception as e:
+            logging.warning(f"读取上传简历失败：{e}")
         logging.info(f"接收到用户数据: {user_name}, 职业: {occupation}{resume_file_info}, 关注领域: {content_type}, 请求文献数: {num_papers}")
 
         return EventSourceResponse(knowledge_flow_sse_generator(
-            user_input_data, 
-            resume_file, 
-            report_type, 
+            user_input_data,
+            resume_temp_path,
+            report_type,
             content_type
         ))
     except Exception as e:
