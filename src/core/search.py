@@ -203,6 +203,9 @@ def google_search(query: str, max_results: int = 10) -> Dict:
     logging.info(f"执行Google搜索: {query}")
     
     try:
+        if not config.serper_api_key:
+            logging.warning("SERPER_API_KEY 未配置，跳过Google搜索")
+            return {"query": query, "results": [], "result_count": 0, "warning": "SERPER_API_KEY 未配置"}
         # 构建API请求
         url = "https://google.serper.dev/search"
         payload = json.dumps({

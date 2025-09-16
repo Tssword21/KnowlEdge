@@ -19,7 +19,7 @@ def clean_old_data(days=90):
     try:
         # 清理旧的搜索记录
         result = conn.execute(
-            "DELETE FROM user_searches WHERE timestamp < ?",
+            "DELETE FROM search_history WHERE timestamp < ?",
             (cutoff_date,)
         )
         searches_deleted = result.rowcount

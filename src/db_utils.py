@@ -8,9 +8,10 @@ from src.config import Config
 # 初始化配置
 config = Config()
 
-# 配置日志
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+if not logger.handlers:
+    # 遵循全局日志配置，仅微调本模块级别
+    logger.setLevel(logging.INFO)
 
 def get_db_connection():
     """获取数据库连接，如果数据库不存在则创建并初始化表结构"""

@@ -9,34 +9,48 @@ import logging
 import datetime
 from typing import Dict, List
 import sqlite3
-from openai import OpenAI
 from src.db_utils import get_db_connection
-from src.config import CONFIG
+from src.config import Config
+from src.core.llm_interface import LLMInterface
 
 class UserProfileManager:
     """用户画像管理器，负责创建、更新和存储用户画像"""
 
     def __init__(self, client=None):
         """初始化用户画像管理器"""
-        # 检查API密钥
-        api_key = CONFIG["API_KEYS"]["deepseek"]
-        if not api_key or api_key.strip() == "":
+        # 统一配置与LLM接口
+        self.config = Config()
+        if not self.config.llm_api_key or self.config.llm_api_key.strip() == "":
             logging.warning("LLM API密钥未设置，用户画像分析功能将受限。请在.env文件中设置DEEPSEEK_API_KEY")
             self.is_mock_mode = True
-            self.client = client
+            self.llm = None
         else:
             self.is_mock_mode = False
-            self.client = client or OpenAI(
-                api_key=api_key,
-                base_url="https://api.deepseek.com"
-            )
-            
+            self.llm = LLMInterface()
+        
         self.interest_categories = self._load_interest_categories()
         logging.info("用户画像管理器初始化完成")
 
+    def _call_llm_sync(self, prompt: str, system_message: str = None) -> str:
+        """在同步环境中调用异步LLM接口。"""
+        import asyncio
+        if not self.llm:
+            raise RuntimeError("LLM 未初始化")
+        coro = self.llm.call_llm(prompt, system_message=system_message)
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # 在已有事件循环中，使用线程安全方式等待结果
+                fut = asyncio.run_coroutine_threadsafe(coro, loop)
+                return fut.result()
+            return loop.run_until_complete(coro)
+        except RuntimeError:
+            # 无事件循环的环境
+            return asyncio.run(coro)
+
     def _load_interest_categories(self):
         """加载预定义的兴趣分类体系"""
-        categories_file = os.path.join(CONFIG["DATA_DIR"], "interest_categories.json")
+        categories_file = os.path.join(self.config.data_dir, "interest_categories.json")
 
         if os.path.exists(categories_file):
             try:
@@ -63,7 +77,7 @@ class UserProfileManager:
         }
 
         # 保存到文件
-        categories_file = os.path.join(CONFIG["DATA_DIR"], "interest_categories.json")
+        categories_file = os.path.join(self.config.data_dir, "interest_categories.json")
         try:
             with open(categories_file, 'w', encoding='utf-8') as f:
                 json.dump(self.interest_categories, f, ensure_ascii=False, indent=4)
@@ -322,14 +336,6 @@ class UserProfileManager:
     def extract_skills_from_resume(self, user_id: str, resume_text: str, max_skills: int = 8) -> List[Dict]:
         """
         从简历文本中提取技能信息
-
-        Args:
-            user_id: 用户ID
-            resume_text: 简历文本内容
-            max_skills: 最多提取的技能数量
-
-        Returns:
-            技能列表，每个技能包含名称、级别和分类
         """
         print(f"\n开始从简历中提取最重要的{max_skills}项技能...")
 
@@ -341,7 +347,6 @@ class UserProfileManager:
                 {"skill": "数据分析", "level": "中级", "category": "技术技能"},
                 {"skill": "机器学习", "level": "初级", "category": "技术技能"}
             ]
-            
             # 保存到数据库
             conn = get_db_connection()
             try:
@@ -354,7 +359,6 @@ class UserProfileManager:
                 print("模拟技能数据已保存到数据库")
             finally:
                 conn.close()
-                
             return mock_skills
 
         prompt = f"""
@@ -374,19 +378,10 @@ class UserProfileManager:
         简历文本：
         {resume_text}
         """
-
         try:
             print("正在分析简历中的技能...")
-            response = self.client.chat.completions.create(
-                model=CONFIG["MODELS"]["LLM"],
-                messages=[
-                    {"role": "system",
-                     "content": "你是一个专业的简历分析助手，擅长提取简历中的技能信息并进行分类和评估。请只返回JSON格式的结果，不要添加任何其他标记。"},
-                    {"role": "user", "content": prompt}
-                ]
-            )
-
-            skills_text = response.choices[0].message.content
+            system_msg = "你是一个专业的简历分析助手，擅长提取简历中的技能信息并进行分类和评估。请只返回JSON格式的结果，不要添加任何其他标记。"
+            skills_text = self._call_llm_sync(prompt, system_message=system_msg)
 
             # 清理可能的格式标记
             skills_text = skills_text.strip()
@@ -442,14 +437,6 @@ class UserProfileManager:
     def extract_interests_from_resume(self, user_id: str, resume_text: str, max_interests: int = 8) -> List[Dict]:
         """
         从简历文本中提取兴趣信息
-
-        Args:
-            user_id: 用户ID
-            resume_text: 简历文本内容
-            max_interests: 最多提取的兴趣数量
-
-        Returns:
-            兴趣列表，每个兴趣包含名称、分类和置信度
         """
         print(f"\n开始从简历中提取最重要的{max_interests}项兴趣...")
 
@@ -461,14 +448,12 @@ class UserProfileManager:
                 {"topic": "数据科学", "category": "技术", "confidence": 0.90, "reason": "有数据分析经验"},
                 {"topic": "机器学习", "category": "技术", "confidence": 0.85, "reason": "提到了机器学习算法"}
             ]
-            
             # 保存到数据库
             conn = get_db_connection()
             try:
                 for interest in mock_interests:
                     # 计算初始权重（基于置信度）
                     weight = float(interest.get("confidence", 0.5)) * 10
-                    
                     # 保存到user_interests表
                     conn.execute(
                         "INSERT INTO user_interests (user_id, topic, category, weight, reason) VALUES (?, ?, ?, ?, ?)",
@@ -479,7 +464,6 @@ class UserProfileManager:
                 print("模拟兴趣数据已保存到数据库")
             finally:
                 conn.close()
-                
             return mock_interests
 
         # 获取所有可能的兴趣分类和子类别
@@ -512,16 +496,8 @@ class UserProfileManager:
 
         try:
             print("正在分析简历中的兴趣...")
-            response = self.client.chat.completions.create(
-                model=CONFIG["MODELS"]["LLM"],
-                messages=[
-                    {"role": "system",
-                     "content": "你是一个专业的用户兴趣分析师，擅长从个人资料中推断用户的专业兴趣和研究领域。请只返回JSON格式的结果。"},
-                    {"role": "user", "content": prompt}
-                ]
-            )
-
-            interests_text = response.choices[0].message.content
+            system_msg = "你是一个专业的用户兴趣分析师，擅长从个人资料中推断用户的专业兴趣和研究领域。请只返回JSON格式的结果。"
+            interests_text = self._call_llm_sync(prompt, system_message=system_msg)
 
             # 清理可能的格式标记
             interests_text = interests_text.strip()
@@ -817,16 +793,8 @@ class UserProfileManager:
         """
         
         try:
-            response = self.client.chat.completions.create(
-                model=CONFIG["MODELS"]["LLM"],
-                messages=[
-                    {"role": "system", 
-                     "content": "你是一个专业的内容推荐系统，负责根据用户兴趣生成有价值的主题推荐。"},
-                    {"role": "user", "content": prompt}
-                ]
-            )
-            
-            recommendations_text = response.choices[0].message.content
+            system_msg = "你是一个专业的内容推荐系统，负责根据用户兴趣生成有价值的主题推荐。请仅返回JSON。"
+            recommendations_text = self._call_llm_sync(prompt, system_message=system_msg)
             
             # 清理JSON
             recommendations_text = recommendations_text.strip()

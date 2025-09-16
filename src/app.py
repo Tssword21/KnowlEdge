@@ -12,7 +12,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
 sys.path.insert(0, project_root)
 
-# 修复导入路径问题
+# 导入路径问题
 try:
     # 当在项目根目录运行时
     from src.core.knowledge_flow import KnowledgeFlow
@@ -37,6 +37,21 @@ app = FastAPI(title="KnowlEdge 智能引擎", version="1.0.0")
 
 # 获取配置
 config = Config()
+
+# 优雅关闭全局HTTP会话
+try:
+    from src.core.llm_interface import _GLOBAL_SESSION
+except Exception:
+    from core.llm_interface import _GLOBAL_SESSION
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    try:
+        if _GLOBAL_SESSION and not _GLOBAL_SESSION.closed:
+            await _GLOBAL_SESSION.close()
+            logging.info("已关闭全局HTTP会话")
+    except Exception as e:
+        logging.warning(f"关闭全局HTTP会话失败: {e}")
 
 # 启动时自动初始化（数据库与兴趣分类）
 try:
@@ -158,8 +173,6 @@ async def knowledge_flow_sse_generator(user_input_data: dict, resume_file_path: 
                     "message": message
                 })
             }
-            # 取消限速，按模型返回速度推送
-            # await asyncio.sleep(0.05)
 
         # --- 开始处理流程 ---
 
@@ -372,10 +385,23 @@ async def handle_process_submission(
     """处理表单提交并发起 SSE 事件流。"""
     logging.info(f"'/process' POST 路由命中。请求报告类型: {report_type}, 文献数量: {num_papers}。准备流式传输事件。")
     try:
+        # 关键配置校验（早期失败更友好）
+        cfg = Config()
+        missing_keys = []
+        if not (cfg.llm_api_key and cfg.llm_api_key.strip()):
+            missing_keys.append("DEEPSEEK_API_KEY")
+        if not (cfg.serper_api_key and cfg.serper_api_key.strip()):
+            # 仅当选择含 web/google_scholar/全平台/综合资讯/混合搜索时强制
+            needs_serper = platform in ["谷歌学术", "混合搜索", "综合资讯", "全平台"]
+            if needs_serper:
+                missing_keys.append("SERPER_API_KEY")
+        if missing_keys:
+            return JSONResponse(content={"error": f"缺少必要配置: {', '.join(missing_keys)}"}, status_code=400)
+        
         # 处理类别列表
         category_list = None
         if categories and categories.strip():
-            category_list = [cat.strip() for cat in categories.split(',')]
+            category_list = [cat.strip() for cat in categories.split(',') if cat.strip()]
         
         # 处理时间过滤
         time_range = None
@@ -525,6 +551,28 @@ async def get_references(request: Request):
     except Exception as e:
         logging.error(f"获取参考文献时出错: {e}", exc_info=True)
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get("/api/health")
+async def health():
+    try:
+        cfg = Config()
+        ok_llm = bool(cfg.llm_api_key and cfg.llm_api_key.strip())
+        ok_serper = bool(cfg.serper_api_key and cfg.serper_api_key.strip())
+        return JSONResponse(content={
+            "ok": True,
+            "llm": ok_llm,
+            "serper": ok_serper,
+            "platforms": {
+                "arxiv": True,
+                "google_scholar": ok_serper,
+                "web": ok_serper,
+                "news": ok_serper,
+                "patent": ok_serper
+            }
+        })
+    except Exception as e:
+        logging.error(f"健康检查失败: {e}")
+        return JSONResponse(content={"ok": False, "error": str(e)}, status_code=500)
 
 # --- Uvicorn 运行说明 ---
 # 要运行此 FastAPI 应用:

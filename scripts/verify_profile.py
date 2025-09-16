@@ -32,8 +32,8 @@ def check_database_tables():
         return False
     
     try:
-        # 检查表是否存在
-        tables = ["users", "user_interests", "user_searches", "user_interactions", "user_skills"]
+        # 检查表是否存在（修正 user_searches -> search_history）
+        tables = ["users", "user_interests", "search_history", "user_interactions", "user_skills"]
         all_tables_exist = True
         
         for table in tables:
@@ -84,9 +84,9 @@ def check_database_tables():
                 else:
                     print("  未找到技能数据")
                 
-                # 检查搜索历史
+                # 检查搜索历史（修正表名）
                 searches = conn.execute(
-                    "SELECT query, platform, timestamp FROM user_searches WHERE user_id = ? ORDER BY timestamp DESC LIMIT 3", 
+                    "SELECT query, platform, timestamp FROM search_history WHERE user_id = ? ORDER BY timestamp DESC LIMIT 3", 
                     (user['id'],)
                 ).fetchall()
                 

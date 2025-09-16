@@ -95,13 +95,19 @@ class ResumeReader:
 
     def read_pdf(self, file_path):
         """读取PDF文件"""
-        text = ""
+        text_parts = []
         with open(file_path, 'rb') as f:
             pdf_reader = PyPDF2.PdfReader(f)
             for page_num in range(len(pdf_reader.pages)):
-                page = pdf_reader.pages[page_num]
-                text += page.extract_text() + "\n"
-        return text
+                try:
+                    page = pdf_reader.pages[page_num]
+                    page_text = page.extract_text()
+                    if page_text:
+                        text_parts.append(page_text)
+                except Exception as e:
+                    logging.warning(f"PDF第{page_num}页解析失败: {e}")
+                    continue
+        return ("\n".join(text_parts)).strip()
 
     def read_docx(self, file_path):
         """读取Word docx文件"""

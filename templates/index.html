@@ -720,6 +720,39 @@
     // 页面加载时设置默认日期
     document.addEventListener('DOMContentLoaded', setDefaultDates);
 
+    // 健康检查并调整平台可用性
+    async function healthCheck() {
+      try {
+        const resp = await fetch('/api/health');
+        const data = await resp.json();
+        if (!data.ok) return;
+        const platformSelect = form.querySelector('select[name="platform"]');
+        const options = platformSelect.options;
+        const serperOk = !!data.serper;
+        // 定义需要 Serper 的平台值
+        const needSerper = new Set(['谷歌学术','混合搜索','综合资讯','全平台']);
+        let changed = false;
+        for (let i = 0; i < options.length; i++) {
+          const opt = options[i];
+          if (needSerper.has(opt.value)) {
+            opt.disabled = !serperOk;
+          }
+        }
+        if (!serperOk && needSerper.has(platformSelect.value)) {
+          platformSelect.value = 'arXiv论文';
+          changed = true;
+        }
+        if (!serperOk) {
+          showToast('检测到缺少 SERPER_API_KEY，已禁用谷歌相关平台，默认使用 arXiv。', 'error');
+        } else if (changed) {
+          showToast('平台已切换为 arXiv。', 'info');
+        }
+      } catch (e) {
+        // 忽略健康检查失败
+      }
+    }
+    healthCheck();
+
     // 渲染Markdown内容
     function renderMarkdown(markdownText) {
       try {

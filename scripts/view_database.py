@@ -91,9 +91,9 @@ def view_user_by_id(user_id):
     for interest in interests:
         print(f"  - {interest['topic']} ({interest['category']}): {interest['weight']}")
     
-    # 查看搜索历史
+    # 查看搜索历史（修正表名）
     searches = conn.execute(
-        "SELECT query, platform, timestamp FROM user_searches WHERE user_id = ? ORDER BY timestamp DESC LIMIT 5",
+        "SELECT query, platform, timestamp FROM search_history WHERE user_id = ? ORDER BY timestamp DESC LIMIT 5",
         (user_id,)
     ).fetchall()
     
@@ -108,7 +108,7 @@ def view_database_stats():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     
-    tables = ["users", "user_skills", "user_interests", "user_searches", "user_interactions"]
+    tables = ["users", "user_skills", "user_interests", "search_history", "user_interactions"]
     
     print("\n数据库统计信息:")
     for table in tables:
@@ -163,9 +163,9 @@ def export_user_data(user_id, output_file=None):
         for interest in interests:
             f.write(f"  - {interest['topic']} ({interest['category']}): {interest['weight']}\n")
         
-        # 导出搜索历史
+        # 导出搜索历史（修正表名）
         searches = conn.execute(
-            "SELECT query, platform, timestamp FROM user_searches WHERE user_id = ? ORDER BY timestamp DESC",
+            "SELECT query, platform, timestamp FROM search_history WHERE user_id = ? ORDER BY timestamp DESC",
             (user_id,)
         ).fetchall()
         

@@ -7,6 +7,25 @@ import asyncio
 from typing import Dict, AsyncIterator, List, Any, Optional
 from src.core.llm_interface import LLMInterface
 from src.core.reference_formatter import ReferenceFormatter
+import hashlib
+from collections import OrderedDict
+
+# 简单LRU缓存用于合并结果，减少重复LLM调用
+_MERGE_CACHE_MAX_ITEMS = 64
+_MERGE_CACHE: OrderedDict[str, str] = OrderedDict()
+
+def _merge_cache_get(key: str) -> Optional[str]:
+    try:
+        val = _MERGE_CACHE.pop(key)
+        _MERGE_CACHE[key] = val
+        return val
+    except KeyError:
+        return None
+
+def _merge_cache_set(key: str, value: str) -> None:
+    _MERGE_CACHE[key] = value
+    if len(_MERGE_CACHE) > _MERGE_CACHE_MAX_ITEMS:
+        _MERGE_CACHE.popitem(last=False)
 
 class ReportGenerator:
     """报告生成器类"""
@@ -141,7 +160,7 @@ class ReportGenerator:
         return self._prepare_context_from_search_results({'batch': temp['batch']}, max_items_per_source=len(batch), max_chars=10000)
 
     async def _generate_section(self, original_query: str, section_name: str, all_items: List[Dict[str, Any]]) -> str:
-        batch_size = 10
+        batch_size = 10 if len(all_items) > 10 else max(1, len(all_items))
         batches = [all_items[i:i+batch_size] for i in range(0, len(all_items), batch_size)]
         tasks = []
         for batch in batches:
@@ -156,8 +175,16 @@ class ReportGenerator:
         drafts = [r.get('result', '') for r in results if r.get('result')]
         if len(drafts) == 1:
             return drafts[0]
+        # 尝试使用缓存
+        key_src = section_name + "\n" + "\n\n---\n\n".join(drafts)
+        cache_key = hashlib.sha256(key_src.encode('utf-8')).hexdigest()
+        cached = _merge_cache_get(cache_key)
+        if cached:
+            return cached
         merge_prompt = self._merge_prompt(original_query, section_name, drafts)
         merged = await self.llm.call_llm(merge_prompt, self.report_templates['literature_review']['system_message'])
+        if merged:
+            _merge_cache_set(cache_key, merged)
         return merged
 
     async def generate_literature_review(self, search_results: Dict, original_query: str) -> str:
@@ -199,7 +226,7 @@ class ReportGenerator:
         ]
         yield f"# 文献综述报告: {original_query}\n\n"
         for sec in ordered_sections:
-            batch_size = 10
+            batch_size = 10 if len(all_items) > 10 else max(1, len(all_items))
             batches = [all_items[i:i+batch_size] for i in range(0, len(all_items), batch_size)]
             tasks = []
             for batch in batches:
@@ -212,10 +239,24 @@ class ReportGenerator:
                 })
             results = await self.llm.parallel_process(tasks)
             drafts = [r.get('result', '') for r in results if r.get('result')]
-            merge_prompt = self._merge_prompt(original_query, sec, drafts)
             yield f"## {sec}\n\n"
+            if len(drafts) == 1:
+                yield drafts[0] + "\n\n"
+                continue
+            key_src = sec + "\n" + "\n\n---\n\n".join(drafts)
+            cache_key = hashlib.sha256(key_src.encode('utf-8')).hexdigest()
+            cached = _merge_cache_get(cache_key)
+            if cached:
+                yield cached + "\n\n"
+                continue
+            merge_prompt = self._merge_prompt(original_query, sec, drafts)
+            acc: List[str] = []
             async for chunk in self.llm.call_llm_stream(merge_prompt, self.report_templates['literature_review']['system_message']):
+                acc.append(chunk)
                 yield chunk
+            merged_text = "".join(acc)
+            if merged_text:
+                _merge_cache_set(cache_key, merged_text)
             yield "\n\n"
         references_section = self.reference_formatter.format_references(search_results, "markdown")
         yield references_section
