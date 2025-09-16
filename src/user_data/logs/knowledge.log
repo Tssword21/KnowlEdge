@@ -1,0 +1,113 @@
+2025-09-16 11:15:57,973 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-16 11:15:58,440 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-16 11:15:58,449 - INFO - [db_utils.py:335] - 数据库初始化完成
+2025-09-16 11:15:58,449 - INFO - [app.py:81] - 数据库初始化/校验完成。
+2025-09-16 11:15:58,452 - INFO - [db_utils.py:335] - 数据库初始化完成
+2025-09-16 11:15:58,455 - INFO - [app.py:108] - 数据目录 './user_data' 已确保存在。
+2025-09-16 11:16:29,742 - INFO - [app.py:410] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 10。准备流式传输事件。
+2025-09-16 11:16:29,745 - INFO - [app.py:473] - 接收到用户数据: Tssword4, 职业: 算法工程师, 无简历文件, 关注领域: cursor, 请求文献数: 10
+2025-09-16 11:16:29,763 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-16 11:16:29,767 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-16 11:16:29,769 - INFO - [user_profile.py:59] - 已加载兴趣分类体系，共 6 个类别
+2025-09-16 11:16:29,769 - INFO - [user_profile.py:32] - 用户画像管理器初始化完成
+2025-09-16 11:16:29,769 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
+2025-09-16 11:16:29,770 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-16 11:16:29,770 - INFO - [generators.py:53] - 报告生成器初始化完成
+2025-09-16 11:16:29,774 - INFO - [search.py:300] - 搜索管理器初始化完成
+2025-09-16 11:16:29,775 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-16 11:16:29,775 - INFO - [knowledge_flow.py:89] - KnowledgeFlow初始化完成
+2025-09-16 11:16:29,776 - INFO - [app.py:190] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
+2025-09-16 11:16:29,777 - INFO - [app.py:209] - 处理用户: Tssword4, ID: tssword4
+2025-09-16 11:16:29,777 - INFO - [app.py:190] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
+2025-09-16 11:16:29,781 - INFO - [app.py:231] - 无简历文件，已创建或获取基本用户画像。
+2025-09-16 11:16:29,782 - INFO - [app.py:190] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
+2025-09-16 11:16:29,782 - INFO - [app.py:253] - 搜索平台: ['google_scholar', 'arxiv', 'patent', 'web', 'news'], 查询内容: cursor
+2025-09-16 11:16:29,783 - INFO - [app.py:190] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
+2025-09-16 11:16:29,783 - INFO - [knowledge_flow.py:336] - 记录用户 tssword4 的搜索: cursor
+2025-09-16 11:16:29,787 - INFO - [knowledge_flow.py:344] - 在平台 google_scholar, arxiv, patent, web, news 上搜索(已优化): 'cursor'
+2025-09-16 11:16:29,790 - INFO - [search.py:132] - 执行Google Scholar搜索: cursor
+2025-09-16 11:16:29,795 - INFO - [search.py:153] - 执行Google搜索: cursor academic research paper
+2025-09-16 11:16:29,795 - INFO - [search.py:91] - 使用ArxivSearcher搜索: cursor, 排序方式: relevance, 时间范围: {'days': 90}, 类别: None
+2025-09-16 11:16:29,796 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=10
+2025-09-16 11:16:29,800 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: cursor, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 90}, 类别: None
+2025-09-16 11:16:29,800 - INFO - [search.py:140] - 执行专利搜索: cursor
+2025-09-16 11:16:29,802 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"cursor" OR abs:"cursor" OR all:"cursor")'
+2025-09-16 11:16:29,804 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22cursor%22+OR+abs%3A%22cursor%22+OR+all%3A%22cursor%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
+2025-09-16 11:16:29,804 - INFO - [search.py:153] - 执行Google搜索: cursor patent
+2025-09-16 11:16:29,805 - INFO - [search.py:153] - 执行Google搜索: cursor
+2025-09-16 11:16:29,806 - INFO - [search.py:148] - 执行新闻搜索: cursor
+2025-09-16 11:16:29,810 - INFO - [search.py:153] - 执行Google搜索: cursor news recent
+2025-09-16 11:16:31,030 - INFO - [knowledge_flow.py:252] - web 搜索完成，找到 10 条结果
+2025-09-16 11:16:31,247 - INFO - [__init__.py:606] - Got first page: 100 of 170 total results
+2025-09-16 11:16:31,250 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 10 篇论文
+2025-09-16 11:16:31,250 - INFO - [knowledge_flow.py:252] - arxiv 搜索完成，找到 10 条结果
+2025-09-16 11:16:31,522 - INFO - [knowledge_flow.py:252] - google_scholar 搜索完成，找到 10 条结果
+2025-09-16 11:16:31,523 - INFO - [knowledge_flow.py:252] - news 搜索完成，找到 10 条结果
+2025-09-16 11:16:31,523 - INFO - [knowledge_flow.py:252] - patent 搜索完成，找到 10 条结果
+2025-09-16 11:16:31,536 - INFO - [user_profile.py:567] - 记录用户 tssword4 的搜索: cursor
+2025-09-16 11:16:31,538 - INFO - [app.py:298] - 搜索执行完成。查询: cursor -> cursor. 平台: ['google_scholar', 'arxiv', 'patent', 'web', 'news']
+2025-09-16 11:16:31,538 - INFO - [app.py:190] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
+2025-09-16 11:16:31,539 - INFO - [knowledge_flow.py:302] - 流式生成报告类型: standard
+2025-09-16 11:16:31,539 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
+2025-09-16 11:17:31,645 - ERROR - [llm_interface.py:123] - 流式调用LLM时出错: 
+2025-09-16 11:17:31,648 - INFO - [app.py:190] - SSE 进度 (standard): 第 6/6 步 - 处理完成
+2025-09-16 11:17:31,851 - INFO - [app.py:355] - 所有步骤完成。standard 流式输出完毕。
+2025-09-16 11:17:55,410 - ERROR - [base_events.py:1758] - Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x000001B1D80C7610>
+2025-09-16 11:20:41,309 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-16 11:20:41,777 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-16 11:20:41,783 - INFO - [db_utils.py:335] - 数据库初始化完成
+2025-09-16 11:20:41,783 - INFO - [app.py:81] - 数据库初始化/校验完成。
+2025-09-16 11:20:41,786 - INFO - [db_utils.py:335] - 数据库初始化完成
+2025-09-16 11:20:41,789 - INFO - [app.py:108] - 数据目录 './user_data' 已确保存在。
+2025-09-16 11:22:46,564 - INFO - [app.py:410] - '/process' POST 路由命中。请求报告类型: literature_review, 文献数量: 10。准备流式传输事件。
+2025-09-16 11:22:46,575 - INFO - [app.py:473] - 接收到用户数据: YKB1, 职业: 未知职业, 简历文件: 颜可滨.pdf, 大小: 702210B, 关注领域: FastAPI, 请求文献数: 10
+2025-09-16 11:22:46,592 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-16 11:22:46,600 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-16 11:22:46,601 - INFO - [user_profile.py:59] - 已加载兴趣分类体系，共 6 个类别
+2025-09-16 11:22:46,603 - INFO - [user_profile.py:32] - 用户画像管理器初始化完成
+2025-09-16 11:22:46,603 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
+2025-09-16 11:22:46,603 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-16 11:22:46,604 - INFO - [generators.py:53] - 报告生成器初始化完成
+2025-09-16 11:22:46,606 - INFO - [search.py:300] - 搜索管理器初始化完成
+2025-09-16 11:22:46,607 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-16 11:22:46,607 - INFO - [knowledge_flow.py:89] - KnowledgeFlow初始化完成
+2025-09-16 11:22:46,607 - INFO - [app.py:190] - SSE 进度 (literature_review): 第 1/6 步 - 正在初始化处理流程...
+2025-09-16 11:22:46,608 - INFO - [app.py:209] - 处理用户: YKB1, ID: ykb1
+2025-09-16 11:22:46,608 - INFO - [app.py:190] - SSE 进度 (literature_review): 第 2/6 步 - 用户画像分析
+2025-09-16 11:22:46,610 - INFO - [knowledge_flow.py:106] - 开始为用户 ykb1 分析简历
+2025-09-16 11:22:46,611 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmpjkueqssr.pdf
+2025-09-16 11:22:46,712 - INFO - [resume_reader.py:60] - 成功读取简历，共 2463 个字符
+2025-09-16 11:23:25,651 - ERROR - [user_profile.py:159] - 尝试更新不存在的用户: ykb1
+2025-09-16 11:23:25,652 - INFO - [user_profile.py:238] - 更新用户 ykb1 的兴趣标签: ['云服务与云计算', 'python程序设计', '机器学习', 'Python数据分析', '大数据原理与技术', '高等代数', '统计思想', '数学分析', 'C语言程序编程', '数据结构', 'Java面向对象程序设计', '数据库技术与应用', '线性代数', '自然语言处理', '数据科学与大数据技术', '审计', '财务数据穿透分析', '税务咨询', '产品经理', '需求分析', '功能设计', '市场调研', '竞品分析', 'Axure', '原型设计', '数仓工程师', '数据中台', '数据源整理', '数据库架构', '数据质量检查', '运维管理', '个性化知识引擎', 'FastAPI', '大语言模型', 'LLM', 'API', 'Google', 'ArXiv', '用户画像', '智能报告生成', '内容创作', '工作流引擎', '多平台搜索策略', 'LLM微调', '文献综述', '行业研究', '科普文章', '结构化报告', 'Uvicorn', 'SQLite', 'SSE', '爬虫', 'API集成', 'NLP', 'MCP', '多LLM内容优化技术', '数据检索', '分析', '报告输出', 'MySQL', 'Linux', '算法', '数学建模', '退火算法', 'Bp神经网络', 'SVM算法', '遗传算法', 'LSTM时间序列预测', 'Python', 'Java', 'Lingo', 'SQL', '运筹学', '高等数学']
+2025-09-16 11:23:25,653 - ERROR - [user_profile.py:245] - 尝试更新不存在的用户: ykb1
+2025-09-16 11:23:25,655 - INFO - [app.py:221] - 简历分析完成（已保存的临时文件）
+2025-09-16 11:23:25,655 - INFO - [app.py:190] - SSE 进度 (literature_review): 第 3/6 步 - 构建搜索参数
+2025-09-16 11:23:25,655 - INFO - [app.py:253] - 搜索平台: ['arxiv'], 查询内容: FastAPI
+2025-09-16 11:23:25,655 - INFO - [app.py:190] - SSE 进度 (literature_review): 第 4/6 步 - 执行搜索
+2025-09-16 11:23:25,655 - INFO - [knowledge_flow.py:336] - 记录用户 ykb1 的搜索: FastAPI
+2025-09-16 11:23:25,659 - INFO - [knowledge_flow.py:344] - 在平台 arxiv 上搜索(已优化): 'FastAPI'
+2025-09-16 11:23:25,659 - INFO - [search.py:91] - 使用ArxivSearcher搜索: FastAPI, 排序方式: relevance, 时间范围: {'days': 90}, 类别: None
+2025-09-16 11:23:25,659 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=10
+2025-09-16 11:23:25,659 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: FastAPI, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 90}, 类别: None
+2025-09-16 11:23:25,660 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"FastAPI" OR abs:"FastAPI" OR all:"FastAPI")'
+2025-09-16 11:23:25,661 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22FastAPI%22+OR+abs%3A%22FastAPI%22+OR+all%3A%22FastAPI%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
+2025-09-16 11:23:26,750 - INFO - [__init__.py:606] - Got first page: 9 of 9 total results
+2025-09-16 11:23:26,751 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 1 篇论文
+2025-09-16 11:23:26,752 - INFO - [knowledge_flow.py:252] - arxiv 搜索完成，找到 1 条结果
+2025-09-16 11:23:26,761 - INFO - [user_profile.py:567] - 记录用户 ykb1 的搜索: FastAPI
+2025-09-16 11:23:26,761 - INFO - [app.py:298] - 搜索执行完成。查询: FastAPI -> FastAPI. 平台: ['arxiv']
+2025-09-16 11:23:26,761 - INFO - [app.py:190] - SSE 进度 (literature_review): 第 5/6 步 - 整合结果并生成文献综述
+2025-09-16 11:23:26,762 - INFO - [knowledge_flow.py:474] - 流式生成文献综述: FastAPI
+2025-09-16 11:23:26,762 - INFO - [generators.py:214] - 流式生成文献综述（严格章节版）: FastAPI
+2025-09-16 11:26:48,965 - INFO - [app.py:190] - SSE 进度 (literature_review): 第 6/6 步 - 处理完成
+2025-09-16 11:26:49,165 - INFO - [app.py:355] - 所有步骤完成。literature_review 流式输出完毕。
+2025-09-16 11:26:49,167 - INFO - [app.py:379] - 临时文件已删除: C:\Users\12595\AppData\Local\Temp\tmpjkueqssr.pdf
+2025-09-16 12:17:58,395 - ERROR - [base_events.py:1758] - Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x0000021455CFF6D0>
+2025-09-16 12:18:04,383 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-16 12:18:05,272 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-16 12:18:05,280 - INFO - [db_utils.py:335] - 数据库初始化完成
+2025-09-16 12:18:05,280 - INFO - [app.py:81] - 数据库初始化/校验完成。
+2025-09-16 12:18:05,284 - INFO - [db_utils.py:335] - 数据库初始化完成
+2025-09-16 12:18:05,288 - INFO - [app.py:108] - 数据目录 './user_data' 已确保存在。

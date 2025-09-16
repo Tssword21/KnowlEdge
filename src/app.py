@@ -53,6 +53,21 @@ async def shutdown_event():
     except Exception as e:
         logging.warning(f"关闭全局HTTP会话失败: {e}")
 
+# 启动时做关键配置自检与提示
+@app.on_event("startup")
+async def startup_event():
+    try:
+        cfg = Config()
+        missing = []
+        if not (cfg.llm_api_key and cfg.llm_api_key.strip()):
+            missing.append("DEEPSEEK_API_KEY")
+        if not (cfg.serper_api_key and cfg.serper_api_key.strip()):
+            logging.warning("SERPER_API_KEY 未设置：谷歌相关平台将不可用。")
+        if missing:
+            logging.warning(f"缺少必要配置: {', '.join(missing)}")
+    except Exception as e:
+        logging.warning(f"启动配置自检失败: {e}")
+
 # 启动时自动初始化（数据库与兴趣分类）
 try:
     # 数据目录
@@ -154,6 +169,14 @@ async def knowledge_flow_sse_generator(user_input_data: dict, resume_file_path: 
     
     # 规范化报告类型
     normalized_report_type = REPORT_TYPE_MAP.get(report_type, "standard")
+    
+    # 轻量清洗SSE分片，避免非UTF字符
+    def _sanitize_chunk(text: Any) -> str:
+        try:
+            s = text if isinstance(text, str) else str(text)
+        except Exception:
+            s = ""
+        return s.replace("\x00", "").replace("\r\n", "\n")
     
     try:
         # 初始化KnowledgeFlow
@@ -301,26 +324,26 @@ async def knowledge_flow_sse_generator(user_input_data: dict, resume_file_path: 
             async for chunk in workflow.generate_literature_review_stream(search_results, original_query):
                 yield {
                     "event": "report_chunk",
-                    "data": chunk
+                    "data": _sanitize_chunk(chunk)
                 }
         elif normalized_report_type == "industry_research":
             async for chunk in workflow.generate_industry_research_report_stream(search_results, user_report_input, original_query):
                 yield {
                     "event": "report_chunk",
-                    "data": chunk
+                    "data": _sanitize_chunk(chunk)
                 }
         elif normalized_report_type == "popular_science":
             async for chunk in workflow.generate_popular_science_report_stream(search_results, user_report_input, original_query):
                 yield {
                     "event": "report_chunk",
-                    "data": chunk
+                    "data": _sanitize_chunk(chunk)
                 }
         else:
             # 默认使用标准报告生成器
             async for chunk in workflow.generate_report_stream(search_results, user_report_input):
                 yield {
                     "event": "report_chunk",
-                    "data": chunk
+                    "data": _sanitize_chunk(chunk)
                 }
 
         # 步骤 6: 完成处理
@@ -343,6 +366,7 @@ async def knowledge_flow_sse_generator(user_input_data: dict, resume_file_path: 
             "event": "error",
             "data": json.dumps({
                 "message": error_message,
+                "code": "INTERNAL_ERROR",
                 "step": current_step_id,
                 "total_steps": TOTAL_STEPS
             })
@@ -396,7 +420,7 @@ async def handle_process_submission(
             if needs_serper:
                 missing_keys.append("SERPER_API_KEY")
         if missing_keys:
-            return JSONResponse(content={"error": f"缺少必要配置: {', '.join(missing_keys)}"}, status_code=400)
+            return JSONResponse(content={"error": f"缺少必要配置: {', '.join(missing_keys)}", "code": "MISSING_CONFIG"}, status_code=400)
         
         # 处理类别列表
         category_list = None
@@ -558,10 +582,16 @@ async def health():
         cfg = Config()
         ok_llm = bool(cfg.llm_api_key and cfg.llm_api_key.strip())
         ok_serper = bool(cfg.serper_api_key and cfg.serper_api_key.strip())
+        missing = []
+        if not ok_llm:
+            missing.append("DEEPSEEK_API_KEY")
+        if not ok_serper:
+            missing.append("SERPER_API_KEY")
         return JSONResponse(content={
             "ok": True,
             "llm": ok_llm,
             "serper": ok_serper,
+            "missing": missing,
             "platforms": {
                 "arxiv": True,
                 "google_scholar": ok_serper,

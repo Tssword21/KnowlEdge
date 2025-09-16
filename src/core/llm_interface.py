@@ -14,6 +14,9 @@ from src.config import Config
 # 进程级session（避免未关闭连接）
 _GLOBAL_SESSION: Optional[aiohttp.ClientSession] = None
 
+_DEFAULT_TIMEOUT = aiohttp.ClientTimeout(total=60)
+_MAX_RETRIES = 2
+
 class LLMInterface:
     """LLM接口类，用于与大型语言模型进行交互"""
     
@@ -26,17 +29,14 @@ class LLMInterface:
         self.api_base = config.llm_api_base
         self.model = model_override or config.llm_model
         self.temperature = float(os.getenv("LLM_TEMPERATURE", "0.7"))
-        # 限幅，避免超过服务端允许范围
         raw_max_tokens = int(os.getenv("LLM_MAX_TOKENS", "4096"))
         self.max_tokens = max(1, min(raw_max_tokens, 8192))
-        
-        self.session = None
         logging.info(f"LLM接口初始化完成，使用模型: {self.model}, API基础URL: {self.api_base}")
-        
+    
     async def get_session(self) -> aiohttp.ClientSession:
         global _GLOBAL_SESSION
         if _GLOBAL_SESSION is None or _GLOBAL_SESSION.closed:
-            _GLOBAL_SESSION = aiohttp.ClientSession()
+            _GLOBAL_SESSION = aiohttp.ClientSession(timeout=_DEFAULT_TIMEOUT)
         return _GLOBAL_SESSION
         
     async def close(self):
@@ -45,70 +45,65 @@ class LLMInterface:
             await _GLOBAL_SESSION.close()
             _GLOBAL_SESSION = None
             
+    async def _post_json(self, path: str, payload: dict) -> aiohttp.ClientResponse:
+        session = await self.get_session()
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}"
+        }
+        return await session.post(f"{self.api_base}{path}", headers=headers, json=payload)
+
     async def call_llm(self, prompt: str, system_message: str = None, model: str = None) -> str:
-        try:
-            use_model = model or self.model
-            messages = []
-            if system_message:
-                messages.append({"role": "system", "content": system_message})
-            messages.append({"role": "user", "content": prompt})
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.api_key}"
-            }
-            payload = {
-                "model": use_model,
-                "messages": messages,
-                "temperature": self.temperature,
-                "max_tokens": self.max_tokens,
-                "stream": False
-            }
-            session = await self.get_session()
-            async with session.post(
-                f"{self.api_base}/v1/chat/completions",
-                headers=headers,
-                json=payload
-            ) as response:
-                if response.status != 200:
-                    error_text = await response.text()
-                    raise Exception(f"API返回错误: {response.status}, {error_text}")
-                result = await response.json()
-                if "choices" in result and len(result["choices"]) > 0:
-                    return result["choices"][0]["message"]["content"]
-                raise Exception(f"API响应格式错误: {result}")
-        except Exception as e:
-            logging.error(f"调用LLM时出错: {e}")
-            return f"调用LLM时出错: {str(e)}"
+        use_model = model or self.model
+        messages = []
+        if system_message:
+            messages.append({"role": "system", "content": system_message})
+        messages.append({"role": "user", "content": prompt})
+        payload = {
+            "model": use_model,
+            "messages": messages,
+            "temperature": self.temperature,
+            "max_tokens": self.max_tokens,
+            "stream": False
+        }
+        last_err = None
+        for attempt in range(_MAX_RETRIES + 1):
+            try:
+                async with (await self._post_json("/v1/chat/completions", payload)) as response:
+                    if response.status != 200:
+                        error_text = await response.text()
+                        raise Exception(f"API返回错误: {response.status}, {error_text}")
+                    result = await response.json()
+                    if "choices" in result and len(result["choices"]) > 0:
+                        return result["choices"][0]["message"]["content"]
+                    raise Exception(f"API响应格式错误: {result}")
+            except Exception as e:
+                last_err = e
+                logging.warning(f"LLM调用失败(第{attempt+1}次): {e}")
+                await asyncio.sleep(min(1 + attempt, 3))
+        logging.error(f"调用LLM时出错: {last_err}")
+        return f"调用LLM时出错: {str(last_err)}"
             
     async def call_llm_stream(self, prompt: str, system_message: str = None, model: str = None) -> AsyncIterator[str]:
+        use_model = model or self.model
+        messages = []
+        if system_message:
+            messages.append({"role": "system", "content": system_message})
+        messages.append({"role": "user", "content": prompt})
+        payload = {
+            "model": use_model,
+            "messages": messages,
+            "temperature": self.temperature,
+            "max_tokens": self.max_tokens,
+            "stream": True
+        }
         try:
-            use_model = model or self.model
-            messages = []
-            if system_message:
-                messages.append({"role": "system", "content": system_message})
-            messages.append({"role": "user", "content": prompt})
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.api_key}"
-            }
-            payload = {
-                "model": use_model,
-                "messages": messages,
-                "temperature": self.temperature,
-                "max_tokens": self.max_tokens,
-                "stream": True
-            }
-            session = await self.get_session()
-            async with session.post(
-                f"{self.api_base}/v1/chat/completions",
-                headers=headers,
-                json=payload
-            ) as response:
+            async with (await self._post_json("/v1/chat/completions", payload)) as response:
                 if response.status != 200:
                     error_text = await response.text()
                     raise Exception(f"API返回错误: {response.status}, {error_text}")
                 async for line in response.content:
-                    line = line.decode('utf-8').strip()
+                    line = line.decode('utf-8', errors='ignore').strip()
                     if not line.startswith('data: '):
                         continue
                     data = line[6:]

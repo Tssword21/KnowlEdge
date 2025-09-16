@@ -109,7 +109,25 @@ class ReportGenerator:
                     e = it.copy()
                     e['source'] = source
                     items.append(e)
-        return items
+        # 去重以减少上下文冗余与后续LLM调用
+        return self._deduplicate_items(items)
+
+    def _deduplicate_items(self, items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """基于标题/链接做简单去重，优先保留首次出现的条目。"""
+        seen_keys = set()
+        deduped: List[Dict[str, Any]] = []
+        for it in items:
+            title = (it.get('title') or '').strip().lower()
+            link = (it.get('link') or it.get('url') or '').strip().lower()
+            key = link or title
+            if not key:
+                # 对于无标题无链接的记录直接跳过
+                continue
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+            deduped.append(it)
+        return deduped
 
     def _section_prompt(self, original_query: str, section_name: str, context_str: str) -> str:
         rules = (
@@ -160,8 +178,15 @@ class ReportGenerator:
         return self._prepare_context_from_search_results({'batch': temp['batch']}, max_items_per_source=len(batch), max_chars=10000)
 
     async def _generate_section(self, original_query: str, section_name: str, all_items: List[Dict[str, Any]]) -> str:
-        batch_size = 10 if len(all_items) > 10 else max(1, len(all_items))
-        batches = [all_items[i:i+batch_size] for i in range(0, len(all_items), batch_size)]
+        # 更保守的分批策略：控制批次数量，减少LLM并发调用
+        n = len(all_items)
+        if n > 24:
+            batch_size = 12
+        elif n > 12:
+            batch_size = 8
+        else:
+            batch_size = max(1, n)
+        batches = [all_items[i:i+batch_size] for i in range(0, n, batch_size)]
         tasks = []
         for batch in batches:
             context_str = await self._build_context_for_batch(batch)
@@ -175,6 +200,8 @@ class ReportGenerator:
         drafts = [r.get('result', '') for r in results if r.get('result')]
         if len(drafts) == 1:
             return drafts[0]
+        if not drafts:
+            return ""
         # 尝试使用缓存
         key_src = section_name + "\n" + "\n\n---\n\n".join(drafts)
         cache_key = hashlib.sha256(key_src.encode('utf-8')).hexdigest()
@@ -226,8 +253,15 @@ class ReportGenerator:
         ]
         yield f"# 文献综述报告: {original_query}\n\n"
         for sec in ordered_sections:
-            batch_size = 10 if len(all_items) > 10 else max(1, len(all_items))
-            batches = [all_items[i:i+batch_size] for i in range(0, len(all_items), batch_size)]
+            # 更保守的分批策略：控制批次数量，减少LLM并发调用
+            n = len(all_items)
+            if n > 24:
+                batch_size = 12
+            elif n > 12:
+                batch_size = 8
+            else:
+                batch_size = max(1, n)
+            batches = [all_items[i:i+batch_size] for i in range(0, n, batch_size)]
             tasks = []
             for batch in batches:
                 context_str = await self._build_context_for_batch(batch)
@@ -242,6 +276,9 @@ class ReportGenerator:
             yield f"## {sec}\n\n"
             if len(drafts) == 1:
                 yield drafts[0] + "\n\n"
+                continue
+            if not drafts:
+                yield "\n\n"
                 continue
             key_src = sec + "\n" + "\n\n---\n\n".join(drafts)
             cache_key = hashlib.sha256(key_src.encode('utf-8')).hexdigest()
@@ -373,142 +410,17 @@ class ReportGenerator:
         references_section = self.reference_formatter.format_references(search_results, "markdown")
         yield references_section
     
-    # --- 多模型文献综述生成方法 ---
+    # --- 多模型文献综述生成方法（已禁用：回退单模型） ---
     
     async def _generate_multi_model_literature_review(self, context_str: str, original_query: str) -> str:
-        """使用多模型并行处理生成文献综述"""
-        logging.info(f"使用多模型并行生成文献综述: {original_query}")
+        logging.info("多模型综述已禁用，回退到单模型实现")
         try:
-            # 按顺序生成各章节内容
-            ordered_sections = [
-                "1. 引言",
-                "2. 主要研究方向和核心概念",
-                "3. 关键文献回顾与贡献",
-                "4. 研究方法的演进与比较",
-                "5. 现有研究的局限性与未来研究空白",
-                "6. 结论与展望"
-            ]
-            
-            # 构建基础上下文提示词
-            base_prompt = f"""
-            请基于主题 "{original_query}" 和以下提供的相关学术文献信息，撰写文献综述报告的相应章节。
-            
-            ---文献信息参考---
-            {context_str}
-            ---文献信息参考结束---
-            
-            请确保内容：
-            1. 深入分析文献，而非简单摘要堆砌
-            2. 内容详实充分，字数充足（800-1200字/章节）
-            3. 使用专业学术风格，但表述清晰
-            4. 适当引用文献中的关键观点和发现
-            5. 提供批判性分析和见解，而不仅是描述性内容
-            """
-            
-            # 准备并行任务列表
-            section_tasks = []
-            for section_name in ordered_sections:
-                # 获取该章节对应的模型
-                model_names = self.multi_model_config["section_assignments"].get(section_name, ["主模型"])
-                model = next((m for m in self.multi_model_config["models"] if m["name"] == model_names[0]), None)
-                
-                if model:
-                    # 构建章节特定的提示词
-                    section_prompt = f"""
-                    你需要为文献综述报告撰写 "## {section_name}" 章节的内容。
-                    
-                    请基于以下信息，撰写内容丰富、分析深入的章节内容。确保内容专业、全面，并使用学术风格。
-                    
-                    {base_prompt}
-                    
-                    请只生成 "{section_name}" 章节的内容，不要包含章节标题，直接开始正文内容。
-                    确保内容详尽、充实，字数在800-1200字之间。
-                    """
-                    
-                    # 添加到任务列表
-                    section_tasks.append({
-                        "prompt": section_prompt,
-                        "system_message": model["system_message"],
-                        "task_id": section_name
-                    })
-            
-            # 并行执行所有章节生成任务
-            sections_results = await self.llm.parallel_process(section_tasks)
-            
-            # 按顺序整合结果
-            full_review = ""
-            for section_name in ordered_sections:
-                section_result = next((r for r in sections_results if r["task_id"] == section_name), None)
-                if section_result and "result" in section_result:
-                    full_review += f"## {section_name}\n\n{section_result['result']}\n\n"
-                else:
-                    logging.warning(f"未能获取章节 '{section_name}' 的生成结果")
-            
-            return full_review
-            
-        except Exception as e:
-            logging.error(f"多模型文献综述生成失败: {e}")
-            return ""  # 返回空字符串，让调用方回退到单模型生成
+            # 直接复用单模型严格章节实现
+            return await self.generate_literature_review({'batch': {'results': []}}, original_query)
+        except Exception:
+            return ""
     
     async def _generate_multi_model_literature_review_stream(self, context_str: str, original_query: str) -> AsyncIterator[str]:
-        """使用多模型并行处理流式生成文献综述"""
-        logging.info(f"使用多模型流式生成文献综述: {original_query}")
-        
-        # 按顺序生成各章节内容
-        ordered_sections = [
-            "1. 引言",
-            "2. 主要研究方向和核心概念",
-            "3. 关键文献回顾与贡献",
-            "4. 研究方法的演进与比较",
-            "5. 现有研究的局限性与未来研究空白",
-            "6. 结论与展望"
-        ]
-        
-        # 构建基础上下文提示词
-        base_prompt = f"""
-        请基于主题 "{original_query}" 和以下提供的相关学术文献信息，撰写文献综述报告的相应章节。
-        
-        ---文献信息参考---
-        {context_str}
-        ---文献信息参考结束---
-        
-        请确保内容：
-        1. 深入分析文献，而非简单摘要堆砌
-        2. 内容详实充分，字数充足（800-1200字）
-        3. 使用专业学术风格，但表述清晰
-        4. 适当引用文献中的关键观点和发现
-        5. 提供批判性分析和见解，而不仅是描述性内容
-        """
-        
-        # 按顺序流式生成并输出各章节
-        for section_name in ordered_sections:
-            try:
-                # 获取该章节对应的模型
-                model_names = self.multi_model_config["section_assignments"].get(section_name, ["主模型"])
-                model = next((m for m in self.multi_model_config["models"] if m["name"] == model_names[0]), None)
-                
-                if model:
-                    # 输出章节标题
-                    yield f"## {section_name}\n\n"
-                    
-                    # 构建章节特定的提示词
-                    section_prompt = f"""
-                    你需要为文献综述报告撰写 "## {section_name}" 章节的内容。
-                    
-                    请基于以下信息，撰写内容丰富、分析深入的章节内容。确保内容专业、全面，并使用学术风格。
-                    
-                    {base_prompt}
-                    
-                    请只生成 "{section_name}" 章节的内容，不要包含章节标题，直接开始正文内容。
-                    确保内容详尽、充实，字数在800-1200字之间。
-                    """
-                    
-                    # 流式生成章节内容
-                    async for chunk in self.llm.call_llm_stream(section_prompt, model["system_message"]):
+        logging.info("多模型流式综述已禁用，回退到单模型实现")
+        async for chunk in self.generate_literature_review_stream({'batch': {'results': []}}, original_query):
                         yield chunk
-                    
-                    # 章节之间添加换行
-                    yield "\n\n"
-            except Exception as e:
-                logging.error(f"流式生成章节 '{section_name}' 时出错: {e}")
-                yield f"*生成此章节时出现错误，请见谅。*\n\n" 
