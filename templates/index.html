@@ -404,9 +404,13 @@
         </div>
         <h1 class="text-2xl font-bold text-white">KnowlEdge</h1>
       </div>
-      <div class="text-white/70 text-sm flex items-center">
-        <i class="fas fa-lightbulb mr-2"></i>
-        个性化知识引擎
+      <div class="text-white/70 text-sm flex items-center space-x-4">
+        <span id="guestBadge" class="hidden px-2 py-1 rounded bg-white/10 text-white/80 text-xs">游客模式</span>
+        <span id="userNameLabel" class="hidden text-white/90"></span>
+        <i id="adminBadge" class="hidden fas fa-shield-alt text-yellow-400" title="管理员"></i>
+        <a id="authLink" href="/auth" class="hover:text-white">登录/注册</a>
+        <a id="adminEntry" href="/admin" class="hidden hover:text-white">管理后台</a>
+        <button id="logoutBtn" class="hidden hover:text-white">退出登录</button>
       </div>
     </div>
   </nav>
@@ -427,19 +431,19 @@
         <!-- 基本信息行 -->
         <div class="grid md:grid-cols-2 gap-6">
           <div>
-            <label class="block text-white/80 text-sm font-medium mb-2">您的姓名</label>
-            <input name="user_name" placeholder="请输入您的姓名" class="glass-input" />
+            <label class="block text-white/80 text-sm font-medium mb-2">职业领域（选填）</label>
+            <input name="occupation" placeholder="如：软件工程师、研究员等（选填）" class="glass-input" />
           </div>
           <div>
-            <label class="block text-white/80 text-sm font-medium mb-2">职业领域</label>
-            <input name="occupation" placeholder="如：软件工程师、研究员等" class="glass-input" />
+            <label class="block text-white/80 text-sm font-medium mb-2">邮箱（选填）</label>
+            <input name="email" type="email" placeholder="用于后续知识更新（选填）" class="glass-input" />
           </div>
         </div>
 
         <!-- 关注领域 -->
         <div>
           <label class="block text-white/80 text-sm font-medium mb-2">研究关注领域</label>
-          <input name="content_type" placeholder="请输入您感兴趣的领域，如：自然语言处理、机器学习、深度学习等" class="glass-input" />
+          <input name="content_type" placeholder="请输入您感兴趣的领域，如：自然语言处理、机器学习、深度学习等" class="glass-input" required />
         </div>
 
         <!-- 报告类型 -->
@@ -455,7 +459,7 @@
 
         <!-- 模型选择 -->
         <div>
-          <label class="block text-white/80 text-sm font-medium mb-2">模型选择</label>
+          <label class="block text-white/80 text-sm font-medium mb-2">模型选择（选填）</label>
           <select name="llm_model" class="glass-select">
             <option value="deepseek-chat">DeepSeek Chat</option>
             <option value="deepseek-reasoner">DeepSeek Reasoner</option>
@@ -464,13 +468,13 @@
 
         <!-- 简历上传（可选） -->
         <div>
-          <label class="block text-white/80 text-sm font-medium mb-2">上传简历（可选）</label>
+          <label class="block text-white/80 text-sm font-medium mb-2">上传简历（选填）</label>
           <input type="file" name="resume_file" accept=".txt,.pdf,.doc,.docx,.xlsx,.xls,.jpg,.jpeg,.png" class="glass-input" />
         </div>
 
         <!-- 排序方式 -->
         <div>
-          <label class="block text-white/80 text-sm font-medium mb-2">排序方式</label>
+          <label class="block text-white/80 text-sm font-medium mb-2">排序方式（选填）</label>
           <select name="sort_by" class="glass-select">
             <option value="relevance">按相关性排序</option>
             <option value="submittedDate">按提交日期排序</option>
@@ -480,7 +484,7 @@
 
         <!-- 时间过滤 -->
         <div>
-          <label class="block text-white/80 text-sm font-medium mb-2">时间过滤</label>
+          <label class="block text-white/80 text-sm font-medium mb-2">时间过滤（选填）</label>
           <div class="flex items-center space-x-4 mb-2">
             <div class="flex items-center">
               <input type="radio" id="time_recent" name="time_filter" value="recent" checked class="mr-2">
@@ -518,16 +522,16 @@
 
         <!-- 论文类别 -->
         <div>
-          <label class="block text-white/80 text-sm font-medium mb-2">论文类别（可选，多个类别用逗号分隔）</label>
-          <input name="categories" placeholder="例如：cs.AI,cs.CL,cs.CV" class="glass-input" />
+          <label class="block text-white/80 text-sm font-medium mb-2">论文类别（选填，多个类别用逗号分隔）</label>
+          <input name="categories" placeholder="例如：cs.AI,cs.CL,cs.CV（选填）" class="glass-input" />
           <p class="text-white/60 text-xs mt-1">常见类别: cs.AI (人工智能), cs.CL (计算语言学), cs.CV (计算机视觉), cs.LG (机器学习), cs.RO (机器人)</p>
         </div>
 
         <!-- 文献数量 -->
         <div>
-          <label class="block text-white/80 text-sm font-medium mb-2">参考文献数量</label>
+          <label class="block text-white/80 text-sm font-medium mb-2">参考文献数量（选填）</label>
           <input type="number" name="num_papers" value="15" min="1" max="30" 
-                 class="glass-input" placeholder="建议 5-20 篇" />
+                 class="glass-input" placeholder="建议 5-20 篇（选填）" />
         </div>
 
         <!-- 平台选择 -->
@@ -756,7 +760,28 @@
     // 渲染Markdown内容
     function renderMarkdown(markdownText) {
       try {
-        reportEl.innerHTML = marked.parse(markdownText);
+        let safeMarkdown = (markdownText || '')
+          .replace(/<script/gi, '&lt;script')
+          .replace(/<\/script>/gi, '&lt;/script&gt;')
+          .replace(/<iframe/gi, '&lt;iframe')
+          .replace(/<\/iframe>/gi, '&lt;/iframe&gt;')
+          // 移除可能误注入的页面辅助函数与变量片段
+          .replace(/function\s+getCurrentUser\s*\([^)]*\)\s*\{[\s\S]{0,2000}?\}/gi, '')
+          .replace(/const\s+currentUser\s*=\s*getCurrentUser\(\);[\s\S]{0,2000}?$/gmi, '');
+        // 基于关键词行过滤，避免UI脚本片段渲染
+        const blockedTokens = [
+          'function getCurrentUser', 'const currentUser', 'current-user-json',
+          'guestBadge', 'logoutBtn', 'authLink', 'userNameLabel',
+          "form.querySelector('input[name=\"email\"]')",
+          'getElementById(', 'logout', 'applyUserUI'
+        ];
+        safeMarkdown = safeMarkdown
+          .split('\n')
+          .filter(line => !blockedTokens.some(t => line.includes(t)))
+          .filter(line => !/getElementById\s*\(/.test(line))
+          .filter(line => !/applyUserUI\s*\(/.test(line))
+          .join('\n');
+        reportEl.innerHTML = marked.parse(safeMarkdown);
         
         // 运行代码块高亮和图表渲染
         setTimeout(() => {
@@ -951,6 +976,43 @@
       `;
     }
     
+    // 注入当前用户（通过 JSON 脚本，避免模板插值导致的JS解析报错）
+    // 见页面底部的 <script id="current-user-json" type="application/json"> ... </script>
+    function getCurrentUser(){
+      try { const el = document.getElementById('current-user-json');
+        return el ? JSON.parse(el.textContent) : null; } catch(e){ return null; }
+    }
+    function applyUserUI(){
+      try {
+        const currentUser = getCurrentUser();
+        const guestBadge = document.getElementById('guestBadge');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const authLink = document.getElementById('authLink');
+        const userNameLabel = document.getElementById('userNameLabel');
+        const adminEntry = document.getElementById('adminEntry');
+        const adminBadge = document.getElementById('adminBadge');
+        if (currentUser){
+          const emailInput = document.querySelector('#knowledgeForm input[name="email"]');
+          if (currentUser.email && emailInput) emailInput.value = currentUser.email;
+          if (logoutBtn) logoutBtn.classList.remove('hidden');
+          if (guestBadge) guestBadge.classList.add('hidden');
+          if (authLink) authLink.classList.add('hidden');
+          if (userNameLabel){ userNameLabel.textContent = currentUser.username; userNameLabel.classList.remove('hidden'); }
+          if (currentUser.is_admin){ if (adminEntry) adminEntry.classList.remove('hidden'); if (adminBadge) adminBadge.classList.remove('hidden'); }
+          if (logoutBtn) logoutBtn.onclick = async ()=>{ await fetch('/auth/logout', { method:'POST' }); location.reload(); };
+        } else {
+          if (guestBadge) guestBadge.classList.remove('hidden');
+          if (authLink) authLink.classList.remove('hidden');
+          if (userNameLabel) userNameLabel.classList.add('hidden');
+          if (logoutBtn) logoutBtn.classList.add('hidden');
+          if (adminEntry) adminEntry.classList.add('hidden');
+          if (adminBadge) adminBadge.classList.add('hidden');
+        }
+      } catch(e){}
+    }
+    document.addEventListener('DOMContentLoaded', applyUserUI);
+    
   </script>
+  <script id="current-user-json" type="application/json">{{ current_user | tojson | safe if current_user else '' }}</script>
 </body>
 </html>

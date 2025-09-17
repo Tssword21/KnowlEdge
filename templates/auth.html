@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KnowlEdge 用户登录 / 注册</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    body { background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%); background-attachment: fixed; }
+    .glass-card { background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+    .glass-input { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; color: white; padding: 14px 16px; width: 100%; font-size: 15px; transition: all .3s ease; }
+    .glass-input:focus { outline: none; background: rgba(255,255,255,0.15); border-color: rgba(139,92,246,.5); box-shadow: 0 0 0 3px rgba(139,92,246,.2); transform: translateY(-2px); }
+    .primary-btn { background: linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%); border: none; border-radius: 12px; color: white; padding: 12px 16px; width: 100%; font-weight: 600; transition: all .3s ease; }
+    .primary-btn:hover { transform: translateY(-2px); box-shadow: 0 20px 40px rgba(102,126,234,.4); }
+    .nav-glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .tab-btn { padding: 10px 16px; border-radius: 10px; color: #fff; border: 1px solid transparent; }
+    .tab-btn.active { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); }
+    .hidden { display: none; }
+    .toast { position: fixed; top:20px; right:20px; padding:12px 18px; border-radius:12px; color:#fff; z-index:1000; backdrop-filter: blur(20px); border:1px solid rgba(255,255,255,.2); transform: translateX(400px); transition: transform .3s ease; }
+    .toast.show { transform: translateX(0); }
+    .toast.success { background: rgba(16,185,129,.9); }
+    .toast.error { background: rgba(239,68,68,.9); }
+  </style>
+</head>
+<body>
+  <nav class="nav-glass p-4 sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+          <i class="fas fa-brain text-white text-lg"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-white">KnowlEdge</h1>
+      </div>
+      <a href="/" class="text-white/80 hover:text-white text-sm">返回首页</a>
+    </div>
+  </nav>
+
+  <div class="max-w-md mx-auto px-4 py-10">
+    <div class="glass-card p-6">
+              <div class="flex items-center justify-center space-x-2 mb-6">
+        <button id="tabLogin" class="tab-btn active">登录</button>
+        <button id="tabRegister" class="tab-btn">注册</button>
+        <button id="tabAdminRegister" class="tab-btn">管理员注册</button>
+      </div>
+
+      <div id="panelLogin">
+        <h2 class="text-lg text-white font-semibold mb-4 flex items-center"><i class="fas fa-sign-in-alt mr-2 text-blue-400"></i> 登录</h2>
+        <form id="loginForm" class="space-y-4">
+          <div>
+            <label class="block text-white/80 text-sm mb-2">用户名</label>
+            <input name="username" class="glass-input" placeholder="请输入用户名" required />
+          </div>
+          <div>
+            <label class="block text-white/80 text-sm mb-2">密码</label>
+            <input name="password" type="password" class="glass-input" placeholder="请输入密码" required />
+          </div>
+          <button type="submit" class="primary-btn">登录</button>
+        </form>
+      </div>
+
+      <div id="panelRegister" class="hidden">
+        <h2 class="text-lg text-white font-semibold mb-4 flex items-center"><i class="fas fa-user-plus mr-2 text-purple-400"></i> 注册</h2>
+        <form id="registerForm" class="space-y-4">
+          <div>
+            <label class="block text-white/80 text-sm mb-2">用户名</label>
+            <input name="username" class="glass-input" placeholder="用于登录和识别" required />
+          </div>
+          <div>
+            <label class="block text-white/80 text-sm mb-2">密码</label>
+            <input name="password" type="password" class="glass-input" placeholder="至少6位" required />
+          </div>
+          <div>
+            <label class="block text-white/80 text-sm mb-2">职业（选填）</label>
+            <input name="occupation" class="glass-input" placeholder="如：算法工程师（选填）" />
+          </div>
+          <div>
+            <label class="block text-white/80 text-sm mb-2">邮箱（选填）</label>
+            <input name="email" type="email" class="glass-input" placeholder="用于后续知识更新（选填）" />
+          </div>
+          <div>
+            <label class="block text-white/80 text-sm mb-2">管理员邀请码（选填）</label>
+            <input name="admin_code" class="glass-input" placeholder="有邀请码可填，成为管理员" />
+          </div>
+          <button type="submit" class="primary-btn">注册并登录</button>
+        </form>
+      </div>
+      <div id="panelAdminRegister" class="hidden">
+        <h2 class="text-lg text-white font-semibold mb-4 flex items-center"><i class="fas fa-user-shield mr-2 text-yellow-400"></i> 管理员注册</h2>
+        <form id="adminRegisterForm" class="space-y-4">
+          <div>
+            <label class="block text-white/80 text-sm mb-2">用户名</label>
+            <input name="username" class="glass-input" placeholder="用于登录和识别" required />
+          </div>
+          <div>
+            <label class="block text-white/80 text-sm mb-2">密码</label>
+            <input name="password" type="password" class="glass-input" placeholder="至少6位" required />
+          </div>
+          <div>
+            <label class="block text-white/80 text-sm mb-2">邮箱（选填）</label>
+            <input name="email" type="email" class="glass-input" placeholder="用于后续通知（选填）" />
+          </div>
+          <div>
+            <label class="block text-white/80 text-sm mb-2">管理员授权码</label>
+            <input name="admin_code" class="glass-input" placeholder="请输入授权码：123456" required />
+          </div>
+          <button type="submit" class="primary-btn">管理员注册并登录</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(location.search);
+    const nextUrlRaw = urlParams.get('next') || '/';
+    const nextUrl = (nextUrlRaw.startsWith('/') ? nextUrlRaw : '/');
+    const tabLogin = document.getElementById('tabLogin');
+    const tabRegister = document.getElementById('tabRegister');
+    const tabAdminRegister = document.getElementById('tabAdminRegister');
+    const panelLogin = document.getElementById('panelLogin');
+    const panelRegister = document.getElementById('panelRegister');
+    const panelAdminRegister = document.getElementById('panelAdminRegister');
+
+    function activate(tab){
+      [tabLogin, tabRegister, tabAdminRegister].forEach(btn=> btn.classList.remove('active'));
+      tab.classList.add('active');
+    }
+    tabLogin.addEventListener('click', ()=>{ activate(tabLogin); panelLogin.classList.remove('hidden'); panelRegister.classList.add('hidden'); panelAdminRegister.classList.add('hidden'); });
+    tabRegister.addEventListener('click', ()=>{ activate(tabRegister); panelLogin.classList.add('hidden'); panelRegister.classList.remove('hidden'); panelAdminRegister.classList.add('hidden'); });
+    tabAdminRegister.addEventListener('click', ()=>{ activate(tabAdminRegister); panelLogin.classList.add('hidden'); panelRegister.classList.add('hidden'); panelAdminRegister.classList.remove('hidden'); });
+
+    function toast(message, type='success'){
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.innerHTML = message;
+      document.body.appendChild(t);
+      setTimeout(()=>t.classList.add('show'), 50);
+      setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(), 300); }, 3000);
+    }
+
+    async function postForm(url, form){
+      const fd = new FormData(form);
+      const resp = await fetch(url, { method: 'POST', body: fd });
+      const isJson = resp.headers.get('content-type')?.includes('application/json');
+      const data = isJson ? await resp.json() : {};
+      if (!resp.ok || data.error){ throw new Error(data.error || '请求失败'); }
+      return data;
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      try {
+        const res = await postForm('/auth/login', e.target);
+        toast('登录成功');
+        const wantAdmin = nextUrl === '/admin';
+        const go = wantAdmin && !res?.is_admin ? '/' : nextUrl;
+        setTimeout(()=> location.href = go, 500);
+      }
+      catch(err){ toast(err.message || '登录失败', 'error'); }
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      try {
+        const res = await postForm('/auth/register', e.target);
+        toast('注册成功，已自动登录');
+        const wantAdmin = nextUrl === '/admin';
+        const go = wantAdmin && !res?.is_admin ? '/' : nextUrl;
+        setTimeout(()=> location.href = go, 500);
+      }
+      catch(err){ toast(err.message || '注册失败', 'error'); }
+    });
+
+    document.getElementById('adminRegisterForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      try{
+        const code = e.target.querySelector('input[name="admin_code"]').value.trim();
+        if (code !== '123456'){ throw new Error('授权码错误'); }
+        const res = await postForm('/auth/register', e.target);
+        // 必须是管理员才允许直接进入后台
+        const go = res?.is_admin ? '/admin' : '/';
+        location.href = go;
+      }catch(err){
+        const t = document.createElement('div'); t.className = 'toast error'; t.innerText = err.message || '管理员注册失败';
+        document.body.appendChild(t); setTimeout(()=>t.classList.add('show'), 50);
+        setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(), 300); }, 3000);
+      }
+    });
+  </script>
+</body>
+</html> 

@@ -44,6 +44,20 @@ def get_db_connection():
             )
             ''')
             
+            # 认证表
+            conn.execute('''
+            CREATE TABLE IF NOT EXISTS user_auth (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id TEXT,
+                username TEXT UNIQUE,
+                email TEXT,
+                password_hash TEXT,
+                is_admin INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+            ''')
+            
             # 创建用户画像表（向后兼容）
             conn.execute('''
             CREATE TABLE IF NOT EXISTS user_profiles (
@@ -147,11 +161,9 @@ def get_db_connection():
             logger.info("数据库表结构已创建")
         else:
             # 检查必要的表是否存在，如果不存在则创建
-            # 获取所有表名
             tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
             table_names = [table['name'] for table in tables]
             
-            # 检查各个表是否存在
             if 'users' not in table_names:
                 logger.warning("数据库缺少users表")
                 conn.execute('''
@@ -164,6 +176,29 @@ def get_db_connection():
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
                 ''')
+            
+            if 'user_auth' not in table_names:
+                logger.warning("数据库缺少user_auth表")
+                conn.execute('''
+                CREATE TABLE IF NOT EXISTS user_auth (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id TEXT,
+                    username TEXT UNIQUE,
+                    email TEXT,
+                    password_hash TEXT,
+                    is_admin INTEGER DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users (id)
+                )
+                ''')
+            # 确保 user_auth 存在 is_admin 列
+            try:
+                cols = [r['name'] for r in conn.execute("PRAGMA table_info(user_auth)").fetchall()]
+                if 'is_admin' not in cols:
+                    conn.execute("ALTER TABLE user_auth ADD COLUMN is_admin INTEGER DEFAULT 0")
+                    logger.info("已为 user_auth 表增加 is_admin 列")
+            except Exception as e:
+                logger.debug(f"检查/添加 is_admin 列失败: {e}")
                 
             # 补建 user_profiles 表
             if 'user_profiles' not in table_names:

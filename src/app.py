@@ -24,16 +24,21 @@ except ImportError:
     from config import Config
     from utils import setup_logging, verify_database, get_user_data_path
 
-from fastapi import FastAPI, Request, Form, File, UploadFile, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import FastAPI, Request, Form, File, UploadFile, HTTPException, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from sse_starlette.sse import EventSourceResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 import tempfile
+from starlette.middleware.sessions import SessionMiddleware
+import bcrypt
 
 # --- 应用配置和初始化 ---
 setup_logging()
 app = FastAPI(title="KnowlEdge 智能引擎", version="1.0.0")
+
+# 会话中间件（用于登录态）
+app.add_middleware(SessionMiddleware, secret_key=os.getenv("SESSION_SECRET", "change-me"))
 
 # 获取配置
 config = Config()
@@ -380,12 +385,36 @@ async def knowledge_flow_sse_generator(user_input_data: dict, resume_file_path: 
             except Exception as e:
                 logging.warning(f"删除临时文件失败: {temp_file_path}, 错误: {str(e)}")
 
+def _is_admin(request: Request) -> bool:
+    """简单管理员判定：优先会话 is_admin，其次用户名在 ADMIN_USERS 或 user_auth 表。"""
+    try:
+        user = request.session.get("user")
+        if user and isinstance(user, dict) and user.get("is_admin"):
+            return True
+        if not (user and isinstance(user, dict) and user.get("username")):
+            return False
+        admins_env = os.getenv("ADMIN_USERS", "admin")
+        admin_list = [u.strip() for u in admins_env.split(',') if u.strip()]
+        if user["username"] in admin_list:
+            return True
+        # 数据库兜底
+        try:
+            from src.db_utils import get_db_connection
+        except Exception:
+            from db_utils import get_db_connection
+        conn = get_db_connection()
+        row = conn.execute("SELECT is_admin FROM user_auth WHERE user_id=?", (user.get("user_id"),)).fetchone()
+        return bool(row and (row[0] == 1 or row[0] == '1'))
+    except Exception:
+        return False
+
 # --- FastAPI 路径操作 ---
 
 @app.get("/", response_class=HTMLResponse)
 async def get_index_page(request: Request):
     """提供主 HTML 页面。"""
-    return templates.TemplateResponse("index.html", {"request": request})
+    user = request.session.get("user")
+    return templates.TemplateResponse("index.html", {"request": request, "current_user": user})
 
 @app.post("/process")
 async def handle_process_submission(
@@ -409,6 +438,16 @@ async def handle_process_submission(
     """处理表单提交并发起 SSE 事件流。"""
     logging.info(f"'/process' POST 路由命中。请求报告类型: {report_type}, 文献数量: {num_papers}。准备流式传输事件。")
     try:
+        # 会话用户覆盖用户名/邮箱（若已登录）
+        try:
+            sess_user = request.session.get("user")
+            if sess_user and isinstance(sess_user, dict):
+                if sess_user.get("username"):
+                    user_name = sess_user["username"]
+                if not email and sess_user.get("email"):
+                    email = sess_user["email"]
+        except Exception:
+            pass
         # 关键配置校验（早期失败更友好）
         cfg = Config()
         missing_keys = []
@@ -603,6 +642,275 @@ async def health():
     except Exception as e:
         logging.error(f"健康检查失败: {e}")
         return JSONResponse(content={"ok": False, "error": str(e)}, status_code=500)
+
+# --- 认证相关接口 ---
+
+@app.get("/auth", response_class=HTMLResponse)
+async def get_auth_page(request: Request):
+    return templates.TemplateResponse("auth.html", {"request": request})
+
+@app.post("/auth/register")
+async def register(request: Request, username: str = Form(...), password: str = Form(...), email: str = Form(None), occupation: str = Form(None), admin_code: str = Form(None)):
+    try:
+        from src.db_utils import get_db_connection
+    except Exception:
+        from db_utils import get_db_connection
+    conn = get_db_connection()
+    try:
+        # 检查是否存在
+        exists = conn.execute("SELECT username FROM user_auth WHERE username=?", (username,)).fetchone()
+        if exists:
+            return JSONResponse(content={"error": "用户名已存在", "code": "USERNAME_TAKEN"}, status_code=400)
+        # 创建基础 user 记录
+        user_id = username.lower()
+        conn.execute("INSERT OR IGNORE INTO users (id, name, occupation, email) VALUES (?, ?, ?, ?)", (user_id, username, occupation or "", email or ""))
+        # 判断管理员（邀请码优先，其次 ADMIN_USERS 列表）
+        admins_env = os.getenv("ADMIN_USERS", "admin")
+        invite = os.getenv("ADMIN_SETUP_CODE", "123456")
+        is_admin = 1 if (admin_code and invite and admin_code == invite) else 0
+        if not is_admin:
+            if username in [u.strip() for u in admins_env.split(',') if u.strip()]:
+                is_admin = 1
+        # 写入 auth
+        pwd_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        conn.execute("INSERT INTO user_auth (user_id, username, email, password_hash, is_admin) VALUES (?, ?, ?, ?, ?)", (user_id, username, email or "", pwd_hash, is_admin))
+        conn.commit()
+        request.session["user"] = {"user_id": user_id, "username": username, "email": email or "", "is_admin": bool(is_admin)}
+        return JSONResponse(content={"ok": True, "is_admin": bool(is_admin)})
+    except Exception as e:
+        logging.error(f"注册失败: {e}")
+        return JSONResponse(content={"error": "注册失败", "code": "REGISTER_FAILED"}, status_code=500)
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+@app.post("/auth/login")
+async def login(request: Request, username: str = Form(...), password: str = Form(...)):
+    try:
+        from src.db_utils import get_db_connection
+    except Exception:
+        from db_utils import get_db_connection
+    conn = get_db_connection()
+    try:
+        row = conn.execute("SELECT user_id, password_hash, email, is_admin FROM user_auth WHERE username=?", (username,)).fetchone()
+        if not row:
+            return JSONResponse(content={"error": "用户不存在", "code": "USER_NOT_FOUND"}, status_code=400)
+        ok = bcrypt.checkpw(password.encode("utf-8"), row["password_hash"].encode("utf-8"))
+        if not ok:
+            return JSONResponse(content={"error": "密码错误", "code": "INVALID_CREDENTIALS"}, status_code=400)
+        request.session["user"] = {"user_id": row["user_id"], "username": username, "email": row["email"] or "", "is_admin": bool(row["is_admin"])}
+        return JSONResponse(content={"ok": True, "is_admin": bool(row["is_admin"])})
+    except Exception as e:
+        logging.error(f"登录失败: {e}")
+        return JSONResponse(content={"error": "登录失败", "code": "LOGIN_FAILED"}, status_code=500)
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+@app.post("/auth/logout")
+async def logout(request: Request):
+    request.session.pop("user", None)
+    return JSONResponse(content={"ok": True})
+
+@app.get("/admin", response_class=HTMLResponse)
+async def get_admin_page(request: Request):
+    """管理员界面。"""
+    if not _is_admin(request):
+        return RedirectResponse(url="/auth?next=/admin", status_code=302)
+    user = request.session.get("user")
+    return templates.TemplateResponse("admin.html", {"request": request, "current_user": user})
+
+@app.get("/api/admin/users")
+async def admin_list_users(request: Request, q: Optional[str] = None, limit: int = 50, offset: int = 0):
+    if not _is_admin(request):
+        return JSONResponse(content={"error": "FORBIDDEN"}, status_code=403)
+    try:
+        try:
+            from src.db_utils import get_db_connection
+        except Exception:
+            from db_utils import get_db_connection
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        where = ""
+        params: List[Any] = []
+        if q and q.strip():
+            where = "WHERE (u.id LIKE ? OR u.name LIKE ? OR u.email LIKE ?)"
+            like = f"%{q.strip()}%"
+            params.extend([like, like, like])
+        sql = f"""
+            SELECT
+              u.id, u.name, u.occupation, u.email, u.created_at,
+              (SELECT COUNT(1) FROM user_interests ui WHERE ui.user_id = u.id) AS interests_count,
+              (SELECT COUNT(1) FROM user_skills us WHERE us.user_id = u.id) AS skills_count,
+              (SELECT COUNT(1) FROM search_history sh WHERE sh.user_id = u.id) AS searches_count,
+              (SELECT is_admin FROM user_auth ua WHERE ua.user_id = u.id LIMIT 1) AS is_admin
+            FROM users u
+            {where}
+            ORDER BY u.created_at DESC
+            LIMIT ? OFFSET ?
+        """
+        params.extend([max(1, min(limit, 200)), max(0, offset)])
+        rows = cursor.execute(sql, params).fetchall()
+        users = []
+        for r in rows:
+            users.append({
+                "id": r[0],
+                "name": r[1],
+                "occupation": r[2],
+                "email": r[3],
+                "created_at": r[4],
+                "is_admin": bool(r[8]) if len(r) > 8 else False,
+                "counts": {
+                    "interests": r[5],
+                    "skills": r[6],
+                    "searches": r[7]
+                }
+            })
+        return JSONResponse(content={"items": users, "limit": limit, "offset": offset, "q": q or ""})
+    except Exception as e:
+        logging.error(f"admin_list_users 失败: {e}", exc_info=True)
+        return JSONResponse(content={"error": "INTERNAL_ERROR"}, status_code=500)
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+@app.get("/api/admin/users/{user_id}")
+async def admin_user_detail(request: Request, user_id: str):
+    if not _is_admin(request):
+        return JSONResponse(content={"error": "FORBIDDEN"}, status_code=403)
+    try:
+        try:
+            from src.db_utils import get_db_connection
+        except Exception:
+            from db_utils import get_db_connection
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # 基本信息
+        user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
+        if not user_row:
+            return JSONResponse(content={"error": "NOT_FOUND"}, status_code=404)
+        # is_admin
+        admin_row = cursor.execute("SELECT is_admin FROM user_auth WHERE user_id=?", (user_id,)).fetchone()
+        # 画像概要（如存在）
+        profile_row = cursor.execute(
+            "SELECT username, profile_data, created_at, updated_at FROM user_profiles WHERE user_id=?",
+            (user_id,)
+        ).fetchone()
+        # 兴趣（按权重）
+        interests = cursor.execute(
+            """
+            SELECT topic, category, weight, reason, last_updated
+            FROM user_interests
+            WHERE user_id=?
+            ORDER BY weight DESC, last_updated DESC
+            LIMIT 200
+            """,
+            (user_id,)
+        ).fetchall()
+        # 技能
+        skills = cursor.execute(
+            """
+            SELECT skill, level, category, timestamp
+            FROM user_skills
+            WHERE user_id=?
+            ORDER BY timestamp DESC
+            LIMIT 200
+            """,
+            (user_id,)
+        ).fetchall()
+        # 教育与工作
+        education = cursor.execute(
+            "SELECT institution, major, degree, time_period, timestamp FROM user_education WHERE user_id=? ORDER BY timestamp DESC",
+            (user_id,)
+        ).fetchall()
+        work = cursor.execute(
+            "SELECT company, position, time_period, description, timestamp FROM user_work_experience WHERE user_id=? ORDER BY timestamp DESC",
+            (user_id,)
+        ).fetchall()
+        # 最近搜索
+        searches = cursor.execute(
+            "SELECT query, platform, timestamp FROM search_history WHERE user_id=? ORDER BY timestamp DESC LIMIT 50",
+            (user_id,)
+        ).fetchall()
+        # 交互统计
+        interactions = cursor.execute(
+            "SELECT COUNT(1) FROM user_interactions WHERE user_id=?",
+            (user_id,)
+        ).fetchone()
+        def row_to_dict(row):
+            try:
+                return {k: row[k] for k in row.keys()}
+            except Exception:
+                return dict(row) if isinstance(row, dict) else {}
+        user_dict = row_to_dict(user_row)
+        user_dict["is_admin"] = bool(admin_row[0]) if admin_row else False
+        profile_data = None
+        if profile_row:
+            try:
+                # 尝试解析 JSON
+                import json as _json
+                profile_data = {
+                    "username": profile_row[0],
+                    "profile": _json.loads(profile_row[1]) if profile_row[1] else {},
+                    "created_at": profile_row[2],
+                    "updated_at": profile_row[3]
+                }
+            except Exception:
+                profile_data = {
+                    "username": profile_row[0],
+                    "profile_raw": profile_row[1],
+                    "created_at": profile_row[2],
+                    "updated_at": profile_row[3]
+                }
+        resp = {
+            "user": user_dict,
+            "profile": profile_data,
+            "interests": [row_to_dict(r) for r in interests],
+            "skills": [row_to_dict(r) for r in skills],
+            "education": [row_to_dict(r) for r in education],
+            "work": [row_to_dict(r) for r in work],
+            "recent_searches": [row_to_dict(r) for r in searches],
+            "interactions_count": interactions[0] if interactions else 0
+        }
+        return JSONResponse(content=resp)
+    except Exception as e:
+        logging.error(f"admin_user_detail 失败: {e}", exc_info=True)
+        return JSONResponse(content={"error": "INTERNAL_ERROR"}, status_code=500)
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+@app.post("/api/admin/users/{user_id}/role")
+async def admin_set_role(request: Request, user_id: str):
+    if not _is_admin(request):
+        return JSONResponse(content={"error": "FORBIDDEN"}, status_code=403)
+    try:
+        body = await request.json()
+        is_admin = 1 if (body.get("is_admin") in (True, 1, "1", "true", "True")) else 0
+        try:
+            from src.db_utils import get_db_connection
+        except Exception:
+            from db_utils import get_db_connection
+        conn = get_db_connection()
+        conn.execute("UPDATE user_auth SET is_admin=? WHERE user_id=?", (is_admin, user_id))
+        conn.commit()
+        return JSONResponse(content={"ok": True, "is_admin": bool(is_admin)})
+    except Exception as e:
+        logging.error(f"admin_set_role 失败: {e}", exc_info=True)
+        return JSONResponse(content={"error": "INTERNAL_ERROR"}, status_code=500)
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
 
 # --- Uvicorn 运行说明 ---
 # 要运行此 FastAPI 应用:

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KnowlEdge 管理员后台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    body { background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%); background-attachment: fixed; }
+    .nav-glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .glass-card { background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+    .glass-input { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; color: white; padding: 12px 14px; width: 100%; font-size: 14px; transition: all .3s ease; }
+    .glass-input::placeholder { color: rgba(255,255,255,0.6); }
+    .primary-btn { background: linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%); border: none; border-radius: 12px; color: white; padding: 10px 14px; font-weight: 600; transition: all .3s ease; }
+    .primary-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(102,126,234,.35); }
+    .badge { background: rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:2px 8px; border-radius: 999px; font-size: 12px; }
+    .table { width: 100%; border-collapse: collapse; }
+    .table th, .table td { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 10px; color: #e2e8f0; text-align: left; }
+    .table th { color: #fff; font-weight: 600; background: rgba(102,126,234,0.15); }
+  </style>
+</head>
+<body>
+  <nav class="nav-glass p-4 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+          <i class="fas fa-shield-alt text-white text-lg"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-white">管理员后台</h1>
+      </div>
+      <div class="text-white/80 text-sm flex items-center space-x-4">
+        <a href="/" class="hover:text-white">返回首页</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- 左侧：用户列表 -->
+      <div class="lg:col-span-1 glass-card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-white text-lg font-semibold"><i class="fas fa-users mr-2 text-blue-400"></i> 用户列表</h2>
+        </div>
+        <div class="mb-4 flex space-x-2">
+          <input id="q" class="glass-input" placeholder="搜索用户ID/姓名/邮箱" />
+          <button id="searchBtn" class="primary-btn"><i class="fas fa-search"></i></button>
+        </div>
+        <div id="usersPanel" class="overflow-auto max-h-[70vh]">
+          <table class="table text-sm">
+            <thead>
+              <tr><th>ID</th><th>姓名</th><th>兴趣</th><th>技能</th><th>搜索</th></tr>
+            </thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <!-- 右侧：详情 -->
+      <div class="lg:col-span-2 glass-card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-white text-lg font-semibold"><i class="fas fa-id-card mr-2 text-purple-400"></i> 用户详情</h2>
+          <div id="currentUserId" class="badge">未选择</div>
+        </div>
+        <div id="detailPanel" class="space-y-6">
+          <div class="glass-card p-4">
+            <h3 class="text-white font-semibold mb-2">基本信息</h3>
+            <div id="basicInfo" class="text-white/80 text-sm">请选择左侧用户查看详情</div>
+            <div class="mt-3 hidden" id="adminToggleRow">
+              <label class="text-white/80 text-sm mr-2">管理员</label>
+              <input id="adminToggle" type="checkbox" />
+              <button id="saveRoleBtn" class="ml-3 primary-btn px-3 py-1">保存</button>
+            </div>
+          </div>
+          <div class="glass-card p-4">
+            <h3 class="text-white font-semibold mb-2">兴趣（按权重）</h3>
+            <div id="interests" class="text-white/80 text-sm"></div>
+          </div>
+          <div class="glass-card p-4">
+            <h3 class="text-white font-semibold mb-2">技能</h3>
+            <div id="skills" class="text-white/80 text-sm"></div>
+          </div>
+          <div class="glass-card p-4">
+            <h3 class="text-white font-semibold mb-2">教育经历</h3>
+            <div id="education" class="text-white/80 text-sm"></div>
+          </div>
+          <div class="glass-card p-4">
+            <h3 class="text-white font-semibold mb-2">工作经历</h3>
+            <div id="work" class="text-white/80 text-sm"></div>
+          </div>
+          <div class="glass-card p-4">
+            <h3 class="text-white font-semibold mb-2">最近搜索</h3>
+            <div id="searches" class="text-white/80 text-sm"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const usersBody = document.getElementById('usersBody');
+    const currentUserIdEl = document.getElementById('currentUserId');
+    const qInput = document.getElementById('q');
+
+    function htmlesc(s){ return (s ?? '').toString().replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+
+    async function fetchUsers(){
+      const q = encodeURIComponent(qInput.value || '');
+      const resp = await fetch(`/api/admin/users?q=${q}`);
+      if (!resp.ok) { usersBody.innerHTML = `<tr><td colspan="5" class="text-red-400">加载失败</td></tr>`; return; }
+      const data = await resp.json();
+      const rows = (data.items || []).map(u=>{
+        const name = htmlesc(u.name || '');
+        const admin = u.is_admin ? ' <i class=\'fas fa-shield-alt text-yellow-400\' title=\'管理员\'></i>' : '';
+        return `<tr class="hover:bg-white/5 cursor-pointer" data-uid="${htmlesc(u.id)}">
+          <td>${htmlesc(u.id)}</td>
+          <td>${name}${admin}</td>
+          <td><span class="badge">${u.counts?.interests ?? 0}</span></td>
+          <td><span class="badge">${u.counts?.skills ?? 0}</span></td>
+          <td><span class="badge">${u.counts?.searches ?? 0}</span></td>
+        </tr>`;
+      }).join('');
+      usersBody.innerHTML = rows || `<tr><td colspan="5" class="text-white/70">无数据</td></tr>`;
+      document.querySelectorAll('[data-uid]')?.forEach(tr=>{
+        tr.onclick = ()=> loadDetail(tr.getAttribute('data-uid'));
+      });
+    }
+
+    async function loadDetail(userId){
+      currentUserIdEl.textContent = userId;
+      const resp = await fetch(`/api/admin/users/${encodeURIComponent(userId)}`);
+      if (!resp.ok) { setDetailError('加载详情失败'); return; }
+      const d = await resp.json();
+      setBasic(d.user);
+      const toggleRow = document.getElementById('adminToggleRow');
+      const toggle = document.getElementById('adminToggle');
+      const saveBtn = document.getElementById('saveRoleBtn');
+      toggleRow.classList.remove('hidden');
+      toggle.checked = !!d.user?.is_admin;
+      saveBtn.onclick = async ()=>{
+        try{
+          const r = await fetch(`/api/admin/users/${encodeURIComponent(userId)}/role`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ is_admin: toggle.checked }) });
+          if (!r.ok) throw new Error('保存失败');
+          await loadDetail(userId);
+        }catch(e){ alert('保存失败'); }
+      };
+      setBasic(d.user);
+      // 显示画像概要（若有）
+      const basic = document.getElementById('basicInfo');
+      if (d.profile && d.profile.profile){
+        const p = d.profile.profile;
+        const extras = [];
+        if (p.keywords) extras.push(`<div>关键词：<span class='text-white'>${htmlesc(p.keywords.join?.(', ') || '')}</span></div>`);
+        if (p.research_interests) extras.push(`<div>研究兴趣：<span class='text-white'>${htmlesc(p.research_interests.join?.(', ') || '')}</span></div>`);
+        if (extras.length) basic.insertAdjacentHTML('beforeend', `<div class='mt-2 space-y-1'>${extras.join('')}</div>`);
+      }
+      setList('interests', d.interests, x=> `${htmlesc(x.topic)} <span class="badge ml-2">${x.weight?.toFixed?.(2) ?? x.weight ?? ''}</span> <span class="text-white/50 ml-2">${htmlesc(x.category||'')}</span>`);
+      setList('skills', d.skills, x=> `${htmlesc(x.skill)} <span class="text-white/50 ml-2">${htmlesc(x.level||'')}</span> <span class="text-white/50 ml-2">${htmlesc(x.category||'')}</span>`);
+      setList('education', d.education, x=> `${htmlesc(x.institution)} · ${htmlesc(x.major||'')} · ${htmlesc(x.degree||'')} <span class="text-white/50 ml-2">${htmlesc(x.time_period||'')}</span>`);
+      setList('work', d.work, x=> `${htmlesc(x.company)} · ${htmlesc(x.position||'')} <span class="text-white/50 ml-2">${htmlesc(x.time_period||'')}</span><div class="text-white/60">${htmlesc(x.description||'')}</div>`);
+      setList('searches', d.recent_searches, x=> `${htmlesc(x.timestamp)} · ${htmlesc(x.platform)} · ${htmlesc(x.query)}`);
+    }
+
+    function setDetailError(msg){
+      document.getElementById('basicInfo').innerHTML = `<span class="text-red-400">${htmlesc(msg)}</span>`;
+      ['interests','skills','education','work','searches'].forEach(id=> document.getElementById(id).innerHTML='');
+    }
+
+    function setBasic(u){
+      const dom = document.getElementById('basicInfo');
+      if (!u){ dom.textContent = '未找到'; return; }
+      dom.innerHTML = `
+        <div>用户ID：<span class="text-white">${htmlesc(u.id)}</span></div>
+        <div>姓名：<span class="text-white">${htmlesc(u.name||'')}</span></div>
+        <div>职业：<span class="text-white">${htmlesc(u.occupation||'')}</span></div>
+        <div>邮箱：<span class="text-white">${htmlesc(u.email||'')}</span></div>
+        <div>创建时间：<span class="text-white">${htmlesc(u.created_at||'')}</span></div>
+        <div>更新时间：<span class="text-white">${htmlesc(u.updated_at||'')}</span></div>
+      `;
+    }
+
+    function setList(id, arr, render){
+      const el = document.getElementById(id);
+      if (!arr || !arr.length){ el.innerHTML = '<span class="text-white/60">无</span>'; return; }
+      el.innerHTML = `<ul class="list-disc ml-5 space-y-1">${arr.map(render).map(x=>`<li>${x}</li>`).join('')}</ul>`;
+    }
+
+    document.getElementById('searchBtn').onclick = fetchUsers;
+    qInput.addEventListener('keydown', (e)=>{ if (e.key === 'Enter'){ e.preventDefault(); fetchUsers(); }});
+    fetchUsers();
+  </script>
+</body>
+</html> 
