@@ -32,6 +32,7 @@
         <h1 class="text-2xl font-bold text-white">管理员后台</h1>
       </div>
       <div class="text-white/80 text-sm flex items-center space-x-4">
+        <span id="adminStatus" class="text-white/60 text-xs"></span>
         <a href="/" class="hover:text-white">返回首页</a>
       </div>
     </div>
@@ -107,59 +108,97 @@
 
     async function fetchUsers(){
       const q = encodeURIComponent(qInput.value || '');
-      const resp = await fetch(`/api/admin/users?q=${q}`);
-      if (!resp.ok) { usersBody.innerHTML = `<tr><td colspan="5" class="text-red-400">加载失败</td></tr>`; return; }
-      const data = await resp.json();
-      const rows = (data.items || []).map(u=>{
-        const name = htmlesc(u.name || '');
-        const admin = u.is_admin ? ' <i class=\'fas fa-shield-alt text-yellow-400\' title=\'管理员\'></i>' : '';
-        return `<tr class="hover:bg-white/5 cursor-pointer" data-uid="${htmlesc(u.id)}">
-          <td>${htmlesc(u.id)}</td>
-          <td>${name}${admin}</td>
-          <td><span class="badge">${u.counts?.interests ?? 0}</span></td>
-          <td><span class="badge">${u.counts?.skills ?? 0}</span></td>
-          <td><span class="badge">${u.counts?.searches ?? 0}</span></td>
-        </tr>`;
-      }).join('');
-      usersBody.innerHTML = rows || `<tr><td colspan="5" class="text-white/70">无数据</td></tr>`;
-      document.querySelectorAll('[data-uid]')?.forEach(tr=>{
-        tr.onclick = ()=> loadDetail(tr.getAttribute('data-uid'));
-      });
+      try {
+        const resp = await fetch(`/api/admin/users?q=${q}`);
+        if (!resp.ok) { 
+          const errorText = await resp.text();
+          console.error('获取用户列表失败:', resp.status, errorText);
+          usersBody.innerHTML = `<tr><td colspan="5" class="text-red-400">加载失败: ${resp.status}</td></tr>`; 
+          return; 
+        }
+        const data = await resp.json();
+        console.log('用户数据:', data);
+        const rows = (data.items || []).map(u=>{
+          const name = htmlesc(u.name || u.id);
+          const admin = u.is_admin ? ' <i class=\'fas fa-shield-alt text-yellow-400\' title=\'管理员\'></i>' : '';
+          return `<tr class="hover:bg-white/5 cursor-pointer" data-uid="${htmlesc(u.id)}">
+            <td class="text-xs">${htmlesc(u.id)}</td>
+            <td>${name}${admin}</td>
+            <td><span class="badge">${u.counts?.interests ?? 0}</span></td>
+            <td><span class="badge">${u.counts?.skills ?? 0}</span></td>
+            <td><span class="badge">${u.counts?.searches ?? 0}</span></td>
+          </tr>`;
+        }).join('');
+        usersBody.innerHTML = rows || `<tr><td colspan="5" class="text-white/70">暂无用户数据</td></tr>`;
+        document.querySelectorAll('[data-uid]')?.forEach(tr=>{
+          tr.onclick = ()=> loadDetail(tr.getAttribute('data-uid'));
+        });
+      } catch(e) {
+        console.error('获取用户列表异常:', e);
+        usersBody.innerHTML = `<tr><td colspan="5" class="text-red-400">网络错误</td></tr>`;
+      }
     }
 
     async function loadDetail(userId){
       currentUserIdEl.textContent = userId;
-      const resp = await fetch(`/api/admin/users/${encodeURIComponent(userId)}`);
-      if (!resp.ok) { setDetailError('加载详情失败'); return; }
-      const d = await resp.json();
-      setBasic(d.user);
-      const toggleRow = document.getElementById('adminToggleRow');
-      const toggle = document.getElementById('adminToggle');
-      const saveBtn = document.getElementById('saveRoleBtn');
-      toggleRow.classList.remove('hidden');
-      toggle.checked = !!d.user?.is_admin;
-      saveBtn.onclick = async ()=>{
-        try{
-          const r = await fetch(`/api/admin/users/${encodeURIComponent(userId)}/role`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ is_admin: toggle.checked }) });
-          if (!r.ok) throw new Error('保存失败');
-          await loadDetail(userId);
-        }catch(e){ alert('保存失败'); }
-      };
-      setBasic(d.user);
-      // 显示画像概要（若有）
-      const basic = document.getElementById('basicInfo');
-      if (d.profile && d.profile.profile){
-        const p = d.profile.profile;
-        const extras = [];
-        if (p.keywords) extras.push(`<div>关键词：<span class='text-white'>${htmlesc(p.keywords.join?.(', ') || '')}</span></div>`);
-        if (p.research_interests) extras.push(`<div>研究兴趣：<span class='text-white'>${htmlesc(p.research_interests.join?.(', ') || '')}</span></div>`);
-        if (extras.length) basic.insertAdjacentHTML('beforeend', `<div class='mt-2 space-y-1'>${extras.join('')}</div>`);
+      try {
+        const resp = await fetch(`/api/admin/users/${encodeURIComponent(userId)}`);
+        if (!resp.ok) { 
+          console.error('获取用户详情失败:', resp.status);
+          setDetailError(`加载详情失败: ${resp.status}`); 
+          return; 
+        }
+        const d = await resp.json();
+        console.log('用户详情:', d);
+        
+        // 管理员权限控制
+        const toggleRow = document.getElementById('adminToggleRow');
+        const toggle = document.getElementById('adminToggle');
+        const saveBtn = document.getElementById('saveRoleBtn');
+        toggleRow.classList.remove('hidden');
+        toggle.checked = !!d.user?.is_admin;
+        saveBtn.onclick = async ()=>{
+          try{
+            const r = await fetch(`/api/admin/users/${encodeURIComponent(userId)}/role`, { 
+              method:'POST', 
+              headers:{'Content-Type':'application/json'}, 
+              body: JSON.stringify({ is_admin: toggle.checked }) 
+            });
+            if (!r.ok) throw new Error('保存失败');
+            alert('权限更新成功');
+            await loadDetail(userId);
+            // 刷新用户列表以更新管理员标识
+            await fetchUsers();
+          }catch(e){ 
+            console.error('保存权限失败:', e);
+            alert('保存失败: ' + e.message); 
+          }
+        };
+        
+        // 基本信息
+        setBasic(d.user);
+        
+        // 显示画像概要（若有）
+        const basic = document.getElementById('basicInfo');
+        if (d.profile && d.profile.profile){
+          const p = d.profile.profile;
+          const extras = [];
+          if (p.keywords) extras.push(`<div>关键词：<span class='text-white'>${htmlesc(p.keywords.join?.(', ') || '')}</span></div>`);
+          if (p.research_interests) extras.push(`<div>研究兴趣：<span class='text-white'>${htmlesc(p.research_interests.join?.(', ') || '')}</span></div>`);
+          if (extras.length) basic.insertAdjacentHTML('beforeend', `<div class='mt-2 space-y-1 border-t border-white/10 pt-2'>${extras.join('')}</div>`);
+        }
+        
+        // 详细数据
+        setList('interests', d.interests, x=> `${htmlesc(x.topic)} <span class="badge ml-2">权重: ${x.weight?.toFixed?.(2) ?? x.weight ?? '0'}</span> <span class="text-white/50 ml-2">${htmlesc(x.category||'')}</span>`);
+        setList('skills', d.skills, x=> `${htmlesc(x.skill)} <span class="text-white/50 ml-2">等级: ${htmlesc(x.level||'')}</span> <span class="text-white/50 ml-2">类别: ${htmlesc(x.category||'')}</span>`);
+        setList('education', d.education, x=> `${htmlesc(x.institution||'未知')} · ${htmlesc(x.major||'')} · ${htmlesc(x.degree||'')} <span class="text-white/50 ml-2">${htmlesc(x.time_period||'')}</span>`);
+        setList('work', d.work, x=> `${htmlesc(x.company||'未知')} · ${htmlesc(x.position||'')} <span class="text-white/50 ml-2">${htmlesc(x.time_period||'')}</span>${x.description ? `<div class="text-white/60 text-sm mt-1">${htmlesc(x.description)}</div>` : ''}`);
+        setList('searches', d.recent_searches, x=> `<span class="text-white/50">${htmlesc(x.timestamp?.split('T')[0] || x.timestamp || '')}</span> · <span class="badge">${htmlesc(x.platform||'')}</span> · ${htmlesc(x.query||'')}`);
+        
+      } catch(e) {
+        console.error('加载用户详情异常:', e);
+        setDetailError('网络错误: ' + e.message);
       }
-      setList('interests', d.interests, x=> `${htmlesc(x.topic)} <span class="badge ml-2">${x.weight?.toFixed?.(2) ?? x.weight ?? ''}</span> <span class="text-white/50 ml-2">${htmlesc(x.category||'')}</span>`);
-      setList('skills', d.skills, x=> `${htmlesc(x.skill)} <span class="text-white/50 ml-2">${htmlesc(x.level||'')}</span> <span class="text-white/50 ml-2">${htmlesc(x.category||'')}</span>`);
-      setList('education', d.education, x=> `${htmlesc(x.institution)} · ${htmlesc(x.major||'')} · ${htmlesc(x.degree||'')} <span class="text-white/50 ml-2">${htmlesc(x.time_period||'')}</span>`);
-      setList('work', d.work, x=> `${htmlesc(x.company)} · ${htmlesc(x.position||'')} <span class="text-white/50 ml-2">${htmlesc(x.time_period||'')}</span><div class="text-white/60">${htmlesc(x.description||'')}</div>`);
-      setList('searches', d.recent_searches, x=> `${htmlesc(x.timestamp)} · ${htmlesc(x.platform)} · ${htmlesc(x.query)}`);
     }
 
     function setDetailError(msg){
@@ -186,9 +225,20 @@
       el.innerHTML = `<ul class="list-disc ml-5 space-y-1">${arr.map(render).map(x=>`<li>${x}</li>`).join('')}</ul>`;
     }
 
+    // 初始化
     document.getElementById('searchBtn').onclick = fetchUsers;
     qInput.addEventListener('keydown', (e)=>{ if (e.key === 'Enter'){ e.preventDefault(); fetchUsers(); }});
-    fetchUsers();
+    
+    // 显示管理员状态
+    document.getElementById('adminStatus').textContent = '正在加载...';
+    
+    // 启动时获取用户列表
+    fetchUsers().then(() => {
+      document.getElementById('adminStatus').textContent = '管理员后台已就绪';
+    }).catch(e => {
+      document.getElementById('adminStatus').textContent = '加载失败';
+      console.error('初始化失败:', e);
+    });
   </script>
 </body>
 </html> 

@@ -409,7 +409,9 @@
         <span id="userNameLabel" class="hidden text-white/90"></span>
         <i id="adminBadge" class="hidden fas fa-shield-alt text-yellow-400" title="管理员"></i>
         <a id="authLink" href="/auth" class="hover:text-white">登录/注册</a>
-        <a id="adminEntry" href="/admin" class="hidden hover:text-white">管理后台</a>
+        <a id="adminEntry" href="/admin" class="hidden px-3 py-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-all duration-200">
+          <i class="fas fa-cog mr-1"></i>管理后台
+        </a>
         <button id="logoutBtn" class="hidden hover:text-white">退出登录</button>
       </div>
     </div>
@@ -976,12 +978,16 @@
       `;
     }
     
-    // 注入当前用户（通过 JSON 脚本，避免模板插值导致的JS解析报错）
-    // 见页面底部的 <script id="current-user-json" type="application/json"> ... </script>
+    // 用户界面状态管理
     function getCurrentUser(){
-      try { const el = document.getElementById('current-user-json');
-        return el ? JSON.parse(el.textContent) : null; } catch(e){ return null; }
+      try { 
+        const el = document.getElementById('current-user-json');
+        return el ? JSON.parse(el.textContent) : null; 
+      } catch(e){ 
+        return null; 
+      }
     }
+    
     function applyUserUI(){
       try {
         const currentUser = getCurrentUser();
@@ -991,16 +997,41 @@
         const userNameLabel = document.getElementById('userNameLabel');
         const adminEntry = document.getElementById('adminEntry');
         const adminBadge = document.getElementById('adminBadge');
-        if (currentUser){
+        
+        if (currentUser && currentUser.username){
+          // 已登录用户
           const emailInput = document.querySelector('#knowledgeForm input[name="email"]');
           if (currentUser.email && emailInput) emailInput.value = currentUser.email;
-          if (logoutBtn) logoutBtn.classList.remove('hidden');
+          
+          // 显示用户信息，隐藏游客相关
           if (guestBadge) guestBadge.classList.add('hidden');
           if (authLink) authLink.classList.add('hidden');
-          if (userNameLabel){ userNameLabel.textContent = currentUser.username; userNameLabel.classList.remove('hidden'); }
-          if (currentUser.is_admin){ if (adminEntry) adminEntry.classList.remove('hidden'); if (adminBadge) adminBadge.classList.remove('hidden'); }
-          if (logoutBtn) logoutBtn.onclick = async ()=>{ await fetch('/auth/logout', { method:'POST' }); location.reload(); };
+          if (userNameLabel) {
+            userNameLabel.textContent = currentUser.username;
+            userNameLabel.classList.remove('hidden');
+          }
+          if (logoutBtn) {
+            logoutBtn.classList.remove('hidden');
+            logoutBtn.onclick = async () => {
+              try {
+                await fetch('/auth/logout', { method: 'POST' });
+                location.reload();
+              } catch(e) {
+                console.error('退出登录失败:', e);
+              }
+            };
+          }
+          
+          // 管理员相关
+          if (currentUser.is_admin) {
+            if (adminEntry) adminEntry.classList.remove('hidden');
+            if (adminBadge) adminBadge.classList.remove('hidden');
+          } else {
+            if (adminEntry) adminEntry.classList.add('hidden');
+            if (adminBadge) adminBadge.classList.add('hidden');
+          }
         } else {
+          // 未登录用户 - 显示游客模式
           if (guestBadge) guestBadge.classList.remove('hidden');
           if (authLink) authLink.classList.remove('hidden');
           if (userNameLabel) userNameLabel.classList.add('hidden');
@@ -1008,11 +1039,15 @@
           if (adminEntry) adminEntry.classList.add('hidden');
           if (adminBadge) adminBadge.classList.add('hidden');
         }
-      } catch(e){}
+      } catch(e){
+        console.error('应用用户界面失败:', e);
+      }
     }
+    
     document.addEventListener('DOMContentLoaded', applyUserUI);
     
   </script>
-  <script id="current-user-json" type="application/json">{{ current_user | tojson | safe if current_user else '' }}</script>
+  <!-- 用户数据注入（隐藏） -->
+  <script id="current-user-json" type="application/json" style="display: none;">{{ current_user | tojson | safe if current_user else '' }}</script>
 </body>
 </html>
