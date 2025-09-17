@@ -231,8 +231,78 @@
         }
         
         // 详细数据
-        setList('interests', d.interests, x=> `${htmlesc(x.topic)} <span class="badge ml-2">权重: ${x.weight?.toFixed?.(2) ?? x.weight ?? '0'}</span> <span class="text-white/50 ml-2">${htmlesc(x.category||'')}</span> ${x.reason ? `<div class="text-white/60 text-sm mt-1">原因: ${htmlesc(x.reason)}</div>` : ''} <span class="text-xs text-white/40 ml-2">${htmlesc(x.last_updated?.split('T')[0] || '')}</span>`);
-        setList('skills', d.skills, x=> `${htmlesc(x.skill)} <span class="text-white/50 ml-2">等级: ${htmlesc(x.level||'')}</span> <span class="text-white/50 ml-2">类别: ${htmlesc(x.category||'')}</span>`);
+        // 按来源分组显示兴趣
+        const resumeInterests = d.interests?.filter(x => x.source_type === 'resume') || [];
+        const searchInterests = d.interests?.filter(x => x.source_type === 'search') || [];
+        
+        let interestHtml = '';
+        if (resumeInterests.length > 0) {
+          interestHtml += '<div class="mb-4"><h4 class="text-yellow-400 font-semibold mb-2">📄 简历提取兴趣</h4>';
+          resumeInterests.forEach(x => {
+            interestHtml += `<div class="mb-2">
+              ${htmlesc(x.topic)} 
+              <span class="badge ml-2">权重: ${x.weight?.toFixed?.(2) ?? x.weight ?? '0'}</span> 
+              ${x.interest_level ? `<span class="badge ml-2 bg-blue-500">等级: ${x.interest_level}/10</span>` : ''}
+              <span class="badge ml-2 bg-yellow-500">简历提取</span>
+              <span class="text-white/50 ml-2">${htmlesc(x.category||'')}</span> 
+              ${x.reason ? `<div class="text-white/60 text-sm mt-1">原因: ${htmlesc(x.reason)}</div>` : ''} 
+            </div>`;
+          });
+          interestHtml += '</div>';
+        }
+        
+        if (searchInterests.length > 0) {
+          interestHtml += '<div class="mb-4"><h4 class="text-green-400 font-semibold mb-2">🔍 搜索行为兴趣</h4>';
+          searchInterests.forEach(x => {
+            interestHtml += `<div class="mb-2">
+              ${htmlesc(x.topic)} 
+              <span class="badge ml-2">权重: ${x.weight?.toFixed?.(2) ?? x.weight ?? '0'}</span> 
+              ${x.interest_level ? `<span class="badge ml-2 bg-blue-500">等级: ${x.interest_level}/10</span>` : ''}
+              ${x.search_count ? `<span class="badge ml-2 bg-green-500">搜索: ${x.search_count}次</span>` : ''}
+              <span class="text-white/50 ml-2">${htmlesc(x.category||'')}</span> 
+              ${x.reason ? `<div class="text-white/60 text-sm mt-1">原因: ${htmlesc(x.reason)}</div>` : ''} 
+            </div>`;
+          });
+          interestHtml += '</div>';
+        }
+        
+        document.getElementById('interests').innerHTML = interestHtml || '<div class="text-white/60">暂无兴趣数据</div>';
+        // 按来源分组显示技能
+        const resumeSkills = d.skills?.filter(x => x.source_type === 'resume') || [];
+        const searchSkills = d.skills?.filter(x => x.source_type === 'search') || [];
+        
+        let skillHtml = '';
+        if (resumeSkills.length > 0) {
+          skillHtml += '<div class="mb-4"><h4 class="text-yellow-400 font-semibold mb-2">📄 简历提取技能</h4>';
+          resumeSkills.forEach(x => {
+            skillHtml += `<div class="mb-2">
+              ${htmlesc(x.skill)} 
+              <span class="text-white/50 ml-2">等级: ${htmlesc(x.level||'')}</span> 
+              ${x.skill_level ? `<span class="badge ml-2 bg-purple-500">评分: ${x.skill_level}/10</span>` : ''}
+              <span class="badge ml-2 bg-yellow-500">简历提取</span>
+              <span class="text-white/50 ml-2">类别: ${htmlesc(x.category||'')}</span>
+              ${x.skill_category ? `<span class="badge ml-2 bg-cyan-500">${x.skill_category}</span>` : ''}
+            </div>`;
+          });
+          skillHtml += '</div>';
+        }
+        
+        if (searchSkills.length > 0) {
+          skillHtml += '<div class="mb-4"><h4 class="text-green-400 font-semibold mb-2">🔍 搜索推断技能</h4>';
+          searchSkills.forEach(x => {
+            skillHtml += `<div class="mb-2">
+              ${htmlesc(x.skill)} 
+              <span class="text-white/50 ml-2">等级: ${htmlesc(x.level||'')}</span> 
+              ${x.skill_level ? `<span class="badge ml-2 bg-purple-500">评分: ${x.skill_level}/10</span>` : ''}
+              <span class="badge ml-2 bg-green-500">搜索推断</span>
+              <span class="text-white/50 ml-2">类别: ${htmlesc(x.category||'')}</span>
+              ${x.skill_category ? `<span class="badge ml-2 bg-cyan-500">${x.skill_category}</span>` : ''}
+            </div>`;
+          });
+          skillHtml += '</div>';
+        }
+        
+        document.getElementById('skills').innerHTML = skillHtml || '<div class="text-white/60">暂无技能数据</div>';
         setList('education', d.education, x=> `${htmlesc(x.institution||'未知')} · ${htmlesc(x.major||'')} · ${htmlesc(x.degree||'')} <span class="text-white/50 ml-2">${htmlesc(x.time_period||'')}</span>`);
         setList('work', d.work, x=> `${htmlesc(x.company||'未知')} · ${htmlesc(x.position||'')} <span class="text-white/50 ml-2">${htmlesc(x.time_period||'')}</span>${x.description ? `<div class="text-white/60 text-sm mt-1">${htmlesc(x.description)}</div>` : ''}`);
         setList('searches', d.recent_searches, x=> `<span class="text-white/50">${htmlesc(x.timestamp?.split('T')[0] || x.timestamp || '')}</span> · <span class="badge">${htmlesc(x.platform||'')}</span> · ${htmlesc(x.query||'')}`);

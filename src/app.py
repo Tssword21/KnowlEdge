@@ -164,7 +164,7 @@ def get_step_name(step_id, report_type="standard"):
     return "未知处理阶段"
 
 # --- 核心异步生成器 (用于 SSE 事件流) ---
-async def knowledge_flow_sse_generator(user_input_data: dict, resume_file_path: Optional[str] = None, report_type: str = "standard", original_query: str = ""):
+async def knowledge_flow_sse_generator(user_input_data: dict, request: Request, resume_file_path: Optional[str] = None, report_type: str = "standard", original_query: str = ""):
     """
     异步生成器，为知识流处理过程生成服务器发送事件 (SSE)。
     支持流式输出报告内容。
@@ -208,9 +208,15 @@ async def knowledge_flow_sse_generator(user_input_data: dict, resume_file_path: 
         async for sse_event in yield_progress_dict(1, "正在初始化处理流程..."):
             yield sse_event
         
-        # 生成用户ID，这里简单使用用户名
-        user_id = user_input_data.get("user_name", "anonymous").lower().replace(" ", "_")
-        user_name = user_input_data.get("user_name", "未知用户")
+        # 获取真实的用户ID（如果已登录）
+        current_user = request.session.get("user")
+        if current_user and current_user.get("user_id"):
+            user_id = current_user.get("user_id")
+            user_name = current_user.get("username", "已登录用户")
+        else:
+            # 未登录用户，使用临时ID
+            user_id = user_input_data.get("user_name", "anonymous").lower().replace(" ", "_")
+            user_name = user_input_data.get("user_name", "游客用户")
         logging.info(f"处理用户: {user_name}, ID: {user_id}")
 
         # 步骤 2: 用户画像分析
@@ -513,6 +519,7 @@ async def handle_process_submission(
 
         return EventSourceResponse(knowledge_flow_sse_generator(
             user_input_data,
+            request,
             resume_temp_path,
             report_type,
             content_type
@@ -821,17 +828,33 @@ async def admin_user_detail(request: Request, user_id: str):
             cursor.execute("PRAGMA table_info(user_interests)")
             interest_columns = [row[1] for row in cursor.fetchall()]
             
-            # 动态构建查询
-            base_columns = ["topic", "category", "weight", "last_updated"]
+            # 动态构建查询，使用实际存在的列名
+            base_columns = ["topic", "category", "weight"]
+            
+            # 使用timestamp列而不是last_updated
+            if "timestamp" in interest_columns:
+                base_columns.append("timestamp")
+            elif "last_updated" in interest_columns:
+                base_columns.append("last_updated")
+            
             if "reason" in interest_columns:
-                base_columns.insert(-1, "reason")  # 在last_updated前插入reason
+                base_columns.insert(-1, "reason")  # 在时间列前插入reason
+            if "interest_level" in interest_columns:
+                base_columns.insert(-1, "interest_level")  
+            if "search_count" in interest_columns:
+                base_columns.insert(-1, "search_count")
+            if "source_type" in interest_columns:
+                base_columns.insert(-1, "source_type")
+            
+            # 动态选择排序列
+            time_column = "timestamp" if "timestamp" in interest_columns else "last_updated"
             
             interests = cursor.execute(
                 f"""
                 SELECT {', '.join(base_columns)}
                 FROM user_interests
                 WHERE user_id=?
-                ORDER BY weight DESC, last_updated DESC
+                ORDER BY weight DESC, {time_column} DESC
                 LIMIT 200
                 """,
                 (user_id,)
@@ -839,17 +862,32 @@ async def admin_user_detail(request: Request, user_id: str):
         except Exception as e:
             logging.error(f"查询用户兴趣失败: {e}")
             interests = []
-        # 技能
-        skills = cursor.execute(
-            """
-            SELECT skill, level, category, timestamp
-            FROM user_skills
-            WHERE user_id=?
-            ORDER BY timestamp DESC
-            LIMIT 200
-            """,
-            (user_id,)
-        ).fetchall()
+        # 技能（动态查询列）
+        try:
+            cursor.execute("PRAGMA table_info(user_skills)")
+            skill_columns = [row[1] for row in cursor.fetchall()]
+            
+            skill_base_columns = ["skill", "level", "category", "timestamp"]
+            if "skill_level" in skill_columns:
+                skill_base_columns.insert(-1, "skill_level")
+            if "skill_category" in skill_columns:
+                skill_base_columns.insert(-1, "skill_category")
+            if "source_type" in skill_columns:
+                skill_base_columns.insert(-1, "source_type")
+            
+            skills = cursor.execute(
+                f"""
+                SELECT {', '.join(skill_base_columns)}
+                FROM user_skills
+                WHERE user_id=?
+                ORDER BY timestamp DESC
+                LIMIT 200
+                """,
+                (user_id,)
+            ).fetchall()
+        except Exception as e:
+            logging.error(f"查询用户技能失败: {e}")
+            skills = []
         # 教育与工作
         education = cursor.execute(
             "SELECT institution, major, degree, time_period, timestamp FROM user_education WHERE user_id=? ORDER BY timestamp DESC",
@@ -1023,20 +1061,47 @@ async def admin_fix_database(request: Request):
             cursor.execute("PRAGMA table_info(users)")
             user_columns = [row[1] for row in cursor.fetchall()]
             if 'updated_at' not in user_columns:
-                cursor.execute("ALTER TABLE users ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+                # SQLite不支持CURRENT_TIMESTAMP作为ALTER TABLE的默认值
+                cursor.execute("ALTER TABLE users ADD COLUMN updated_at TIMESTAMP")
+                cursor.execute("UPDATE users SET updated_at = datetime('now') WHERE updated_at IS NULL")
                 fixes_applied.append("users.updated_at")
         except Exception as e:
             logging.warning(f"修复users.updated_at失败: {e}")
         
-        # 修复user_interests表的reason列
+        # 修复user_interests表的列
         try:
             cursor.execute("PRAGMA table_info(user_interests)")
             interest_columns = [row[1] for row in cursor.fetchall()]
             if 'reason' not in interest_columns:
                 cursor.execute("ALTER TABLE user_interests ADD COLUMN reason TEXT")
                 fixes_applied.append("user_interests.reason")
+            if 'interest_level' not in interest_columns:
+                cursor.execute("ALTER TABLE user_interests ADD COLUMN interest_level INTEGER DEFAULT 1")
+                fixes_applied.append("user_interests.interest_level")
+            if 'search_count' not in interest_columns:
+                cursor.execute("ALTER TABLE user_interests ADD COLUMN search_count INTEGER DEFAULT 1")
+                fixes_applied.append("user_interests.search_count")
+            if 'source_type' not in interest_columns:
+                cursor.execute("ALTER TABLE user_interests ADD COLUMN source_type TEXT DEFAULT 'search'")
+                fixes_applied.append("user_interests.source_type")
         except Exception as e:
-            logging.warning(f"修复user_interests.reason失败: {e}")
+            logging.warning(f"修复user_interests表失败: {e}")
+        
+        # 修复user_skills表的列
+        try:
+            cursor.execute("PRAGMA table_info(user_skills)")
+            skill_columns = [row[1] for row in cursor.fetchall()]
+            if 'skill_level' not in skill_columns:
+                cursor.execute("ALTER TABLE user_skills ADD COLUMN skill_level INTEGER DEFAULT 1")
+                fixes_applied.append("user_skills.skill_level")
+            if 'skill_category' not in skill_columns:
+                cursor.execute("ALTER TABLE user_skills ADD COLUMN skill_category TEXT DEFAULT 'general'")
+                fixes_applied.append("user_skills.skill_category")
+            if 'source_type' not in skill_columns:
+                cursor.execute("ALTER TABLE user_skills ADD COLUMN source_type TEXT DEFAULT 'resume'")
+                fixes_applied.append("user_skills.source_type")
+        except Exception as e:
+            logging.warning(f"修复user_skills表失败: {e}")
         
         # 确保user_auth表存在且有is_admin列
         try:

@@ -1,0 +1,25 @@
+2025-09-17 15:52:02,693 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 15:52:02,702 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 15:52:02,737 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: <src.config.Config object at 0x00000261BA725EA0>, API基础URL: https://api.deepseek.com
+2025-09-17 15:52:02,755 - INFO - [user_profile.py:143] - 已更新用户 test_user_001 的兴趣: ['人工智能', '自然语言处理']
+2025-09-17 15:52:02,772 - INFO - [user_profile.py:143] - 已更新用户 test_user_001 的兴趣: ['人工智能']
+2025-09-17 15:52:02,785 - INFO - [user_profile.py:143] - 已更新用户 test_user_001 的兴趣: ['区块链']
+2025-09-17 15:52:02,803 - INFO - [user_profile.py:143] - 已更新用户 test_user_001 的兴趣: ['云计算']
+2025-09-17 15:52:02,819 - INFO - [user_profile.py:143] - 已更新用户 test_user_001 的兴趣: ['数据科学']
+2025-09-17 16:14:31,940 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 16:14:31,945 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 16:14:31,964 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: <src.config.Config object at 0x00000198B754FA90>, API基础URL: https://api.deepseek.com
+2025-09-17 16:14:31,975 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-17 16:14:31,975 - INFO - [user_profile.py:309] - 已加载兴趣分类体系，共 6 个类别
+2025-09-17 16:14:31,975 - INFO - [user_profile.py:282] - 用户画像管理器初始化完成
+2025-09-17 16:14:31,996 - INFO - [user_profile.py:143] - 已更新用户 test_user_comprehensive 的兴趣: ['人工智能']
+2025-09-17 16:14:32,008 - INFO - [user_profile.py:143] - 已更新用户 test_user_comprehensive 的兴趣: ['前端开发']
+2025-09-17 16:14:32,021 - INFO - [user_profile.py:143] - 已更新用户 test_user_comprehensive 的兴趣: ['云计算']
+2025-09-17 16:14:32,022 - ERROR - [user_profile.py:263] - 简历分析失败: 'LLMInterface' object has no attribute 'chat_async'
+2025-09-17 16:14:32,033 - INFO - [user_profile.py:143] - 已更新用户 test_user_comprehensive 的兴趣: ['人工智能', '云计算', '前端开发']
+2025-09-17 16:20:26,429 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 16:20:26,434 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-17 16:20:59,693 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 16:20:59,696 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 16:20:59,711 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-17 16:21:21,537 - WARNING - [user_profile.py:253] - LLM返回的不是有效JSON，使用默认结构

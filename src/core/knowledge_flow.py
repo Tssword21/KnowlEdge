@@ -21,7 +21,7 @@ try:
     # 当在项目根目录运行时
     from src.config import Config
     from src.utils import setup_logging
-    from src.models.user_profile import UserProfileManager
+    from src.models.user_profile import UserProfileManager, EnhancedUserProfileExtractor
     from src.models.resume_reader import ResumeReader
     from src.core.search import (
         SearchEngine, 
@@ -39,7 +39,7 @@ except ImportError:
     # 当在src目录下运行时
     from config import Config
     from utils import setup_logging
-    from models.user_profile import UserProfileManager
+    from models.user_profile import UserProfileManager, EnhancedUserProfileExtractor
     from models.resume_reader import ResumeReader
     from core.search import (
         SearchEngine, 
@@ -69,6 +69,7 @@ class KnowledgeFlow:
         self.llm = LLMInterface(model_override=llm_model)
         
         self.profile_manager = UserProfileManager()
+        self.enhanced_profile_extractor = EnhancedUserProfileExtractor(self.llm)
         self.resume_reader = ResumeReader()
         self.search_engine = SearchEngine(self.config)
         self.report_generator = ReportGenerator(self.llm)
@@ -102,7 +103,7 @@ class KnowledgeFlow:
         return self.profile_manager.update_user_interests(user_id, interests)
         
     async def analyze_resume(self, user_id: str, file_path: str) -> Dict:
-        """分析简历文件更新用户画像"""
+        """分析简历文件更新用户画像（使用增强的提取器）"""
         logging.info(f"开始为用户 {user_id} 分析简历")
         
         # 读取简历文本
@@ -110,19 +111,32 @@ class KnowledgeFlow:
         if not resume_text:
             return {"success": False, "message": "无法读取简历文件"}
             
-        # 使用LLM分析简历，提取关键信息
+        # 使用增强的简历分析
+        try:
+            enhanced_profile = await self.enhanced_profile_extractor.extract_from_resume_with_enhancement(resume_text, user_id)
+            if enhanced_profile:
+                logging.info(f"增强简历分析完成，提取到技能数量: {len(enhanced_profile.get('enhanced_skills', []))}")
+                return {"success": True, "message": "简历分析完成", "profile": enhanced_profile}
+        except Exception as e:
+            logging.error(f"增强简历分析失败: {e}")
+            
+        # 回退到原始LLM分析
         system_msg = (
-            "你是一个严格的JSON生成器。只返回纯JSON，不要任何解释、前后缀或代码块标记。"
+            "你是专业的简历分析师。请分析简历内容，提取技能信息时需要评估技能等级。"
         )
         prompt = f"""
-请分析下列简历文本，提取且仅提取明确出现的信息，严禁臆测：
-- 教育背景（institution, major, degree, time）
-- 工作经历（company, position, time, description）
-- 技能（skills，字符串数组）
-- 研究兴趣（research_interests，字符串数组）
-- 关键词（keywords，字符串数组）
+请分析下列简历文本，提取信息并评估技能等级（1-10分，保守评分）：
 
-严格输出有效JSON：
+简历文本：
+{resume_text}
+
+请返回JSON格式，包含：
+1. 教育背景
+2. 工作经历  
+3. 技能列表（包含技能名称、等级描述、数值等级1-10）
+4. 研究兴趣
+
+JSON格式：
 {{
   "education": [
     {{"institution": "", "major": "", "degree": "", "time": ""}}
@@ -130,15 +144,12 @@ class KnowledgeFlow:
   "work_experience": [
     {{"company": "", "position": "", "time": "", "description": ""}}
   ],
-  "skills": [],
+  "skills": [
+    {{"skill": "技能名称", "level": "等级描述", "skill_level": 数值, "category": "类别"}}
+  ],
   "research_interests": [],
   "keywords": []
 }}
-
-不要输出```，不要输出多余文字。
-
-简历文本：
-{resume_text}
 """
  
         try:
@@ -334,6 +345,21 @@ class KnowledgeFlow:
     ) -> Dict:
         """个性化搜索：优化查询并执行搜索"""
         logging.info(f"记录用户 {user_id} 的搜索: {query}")
+        
+        # 基于搜索内容分析和更新用户兴趣和技能
+        try:
+            if user_id and query:
+                # 提取兴趣
+                interests = self.enhanced_profile_extractor.extract_interests_from_search(query, user_id)
+                if interests:
+                    logging.info(f"为用户 {user_id} 提取到 {len(interests)} 个搜索兴趣: {[i.topic for i in interests]}")
+                
+                # 提取技能
+                skills = self.enhanced_profile_extractor.extract_skills_from_search(query, user_id)
+                if skills:
+                    logging.info(f"为用户 {user_id} 提取到 {len(skills)} 个搜索技能: {[s.skill for s in skills]}")
+        except Exception as e:
+            logging.error(f"用户画像分析失败: {e}")
         
         profile = self.profile_manager.get_user_profile(user_id)
         

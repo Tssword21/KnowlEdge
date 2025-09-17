@@ -7,11 +7,392 @@ import json
 import hashlib
 import logging
 import datetime
-from typing import Dict, List
+from typing import Dict, List, Optional, Tuple
 import sqlite3
 from src.db_utils import get_db_connection
 from src.config import Config
 from src.core.llm_interface import LLMInterface
+from dataclasses import dataclass
+from datetime import datetime
+import re
+
+@dataclass
+class InterestItem:
+    """兴趣项数据结构"""
+    topic: str
+    category: str
+    weight: float
+    interest_level: int  # 0-10级
+    search_count: int    # 搜索次数
+    reason: Optional[str] = None
+    last_updated: Optional[str] = None
+
+@dataclass  
+class SkillItem:
+    """技能项数据结构"""
+    skill: str
+    level: str
+    category: str
+    skill_level: int      # 0-10级数值
+    skill_category: str   # 技能分类
+
+class EnhancedUserProfileExtractor:
+    """增强的用户画像提取器"""
+    
+    def __init__(self, llm_interface):
+        self.llm = llm_interface
+        
+        # 兴趣关键词映射和权重
+        self.interest_keywords = {
+            '人工智能': {'keywords': ['ai', 'artificial intelligence', '人工智能', '机器学习', 'ml', 'deep learning', '深度学习'], 'category': 'AI技术', 'base_level': 3},
+            '自然语言处理': {'keywords': ['nlp', 'natural language', '自然语言', 'language model', '语言模型'], 'category': 'AI技术', 'base_level': 4},
+            '计算机视觉': {'keywords': ['cv', 'computer vision', '计算机视觉', 'image', '图像', 'vision'], 'category': 'AI技术', 'base_level': 4},
+            '数据科学': {'keywords': ['data science', '数据科学', 'analytics', '数据分析', 'statistics'], 'category': '数据分析', 'base_level': 3},
+            '区块链': {'keywords': ['blockchain', '区块链', 'crypto', '加密货币', 'bitcoin'], 'category': '新兴技术', 'base_level': 2},
+            '云计算': {'keywords': ['cloud', '云计算', 'aws', 'azure', 'docker', 'kubernetes'], 'category': '基础设施', 'base_level': 3},
+            '网络安全': {'keywords': ['security', '安全', 'cyber', '网络安全', 'encryption'], 'category': '安全技术', 'base_level': 4},
+            '前端开发': {'keywords': ['frontend', '前端', 'react', 'vue', 'javascript', 'css'], 'category': '软件开发', 'base_level': 2},
+            '后端开发': {'keywords': ['backend', '后端', 'api', 'server', 'database'], 'category': '软件开发', 'base_level': 3},
+            '移动开发': {'keywords': ['mobile', '移动', 'android', 'ios', 'flutter', 'react native'], 'category': '软件开发', 'base_level': 3},
+        }
+        
+        # 技能等级评估关键词
+        self.skill_level_indicators = {
+            'expert': 8,    # 专家级
+            'senior': 7,    # 高级
+            'advanced': 6,  # 进阶
+            'intermediate': 4,  # 中级
+            'beginner': 2,  # 初级
+            'basic': 1,     # 基础
+            '专家': 8, '高级': 7, '资深': 7, '进阶': 6, '中级': 4, '初级': 2, '基础': 1
+        }
+        
+        # 技能分类
+        self.skill_categories = {
+            'programming': ['python', 'java', 'javascript', 'c++', 'go', 'rust', 'php'],
+            'framework': ['react', 'vue', 'angular', 'django', 'flask', 'spring'],
+            'database': ['mysql', 'postgresql', 'mongodb', 'redis', 'elasticsearch'],
+            'cloud': ['aws', 'azure', 'gcp', 'docker', 'kubernetes'],
+            'ai_ml': ['tensorflow', 'pytorch', 'scikit-learn', 'opencv'],
+            'tools': ['git', 'linux', 'docker', 'jenkins', 'nginx'],
+        }
+        
+        # 搜索行为技能关键词映射
+        self.search_skill_keywords = {
+            'Python': {'keywords': ['python', 'django', 'flask', 'fastapi'], 'category': 'programming', 'base_level': 2},
+            'JavaScript': {'keywords': ['javascript', 'js', 'node.js', 'nodejs'], 'category': 'programming', 'base_level': 2},
+            'React': {'keywords': ['react', 'reactjs', 'jsx'], 'category': 'framework', 'base_level': 2},
+            'Vue': {'keywords': ['vue', 'vuejs'], 'category': 'framework', 'base_level': 2},
+            'Docker': {'keywords': ['docker', 'container', '容器'], 'category': 'cloud', 'base_level': 3},
+            'Kubernetes': {'keywords': ['kubernetes', 'k8s'], 'category': 'cloud', 'base_level': 4},
+            'TensorFlow': {'keywords': ['tensorflow', 'tf'], 'category': 'ai_ml', 'base_level': 3},
+            'PyTorch': {'keywords': ['pytorch', 'torch'], 'category': 'ai_ml', 'base_level': 3},
+            'MySQL': {'keywords': ['mysql', 'sql'], 'category': 'database', 'base_level': 2},
+            'MongoDB': {'keywords': ['mongodb', 'mongo', 'nosql'], 'category': 'database', 'base_level': 3},
+        }
+
+    def extract_interests_from_search(self, search_content: str, user_id: str) -> List[InterestItem]:
+        """基于搜索内容提取兴趣并更新等级"""
+        interests = []
+        search_lower = search_content.lower()
+        
+        for topic, config in self.interest_keywords.items():
+            # 检查是否匹配关键词
+            match_count = sum(1 for keyword in config['keywords'] if keyword.lower() in search_lower)
+            
+            if match_count > 0:
+                # 基础兴趣等级 + 匹配程度加成
+                interest_level = min(10, config['base_level'] + match_count)
+                
+                interest = InterestItem(
+                    topic=topic,
+                    category=config['category'],
+                    weight=0.5 + (match_count * 0.2),  # 基础权重 + 匹配加成
+                    interest_level=interest_level,
+                    search_count=1,
+                    reason=f"基于搜索内容'{search_content[:50]}...'分析得出",
+                    last_updated=datetime.now().isoformat()
+                )
+                interests.append(interest)
+        
+        # 更新数据库中的兴趣（默认为搜索来源）
+        self._update_user_interests(user_id, interests, "search")
+        return interests
+
+    def extract_interests_from_resume(self, resume_content: str, user_id: str) -> List[InterestItem]:
+        """基于简历内容提取兴趣（静态，不累加）"""
+        interests = []
+        resume_lower = resume_content.lower()
+        
+        for topic, config in self.interest_keywords.items():
+            # 检查是否匹配关键词
+            match_count = sum(1 for keyword in config['keywords'] if keyword.lower() in resume_lower)
+            
+            if match_count > 0:
+                # 简历兴趣等级基于匹配程度，但相对保守
+                interest_level = min(8, config['base_level'] + match_count)  # 最高8级
+                
+                interest = InterestItem(
+                    topic=topic,
+                    category=config['category'],
+                    weight=0.8 + (match_count * 0.1),  # 简历权重稍高但不会过高
+                    interest_level=interest_level,
+                    search_count=0,  # 简历兴趣不计搜索次数
+                    reason=f"基于简历内容分析得出，匹配度: {match_count}",
+                    last_updated=datetime.now().isoformat()
+                )
+                interests.append(interest)
+        
+        # 更新数据库中的兴趣（标记为简历来源）
+        self._update_user_interests(user_id, interests, "resume")
+        return interests
+
+    def extract_skills_from_search(self, search_content: str, user_id: str) -> List[SkillItem]:
+        """基于搜索内容提取技能"""
+        skills = []
+        search_lower = search_content.lower()
+        
+        for skill_name, config in self.search_skill_keywords.items():
+            # 检查是否匹配关键词
+            match_count = sum(1 for keyword in config['keywords'] if keyword.lower() in search_lower)
+            
+            if match_count > 0:
+                # 基于搜索内容推断的技能等级（保守）
+                skill_level = min(6, config['base_level'] + match_count)  # 搜索推断最高6级
+                
+                skill = SkillItem(
+                    skill=skill_name,
+                    level="搜索推断",
+                    category="搜索发现",
+                    skill_level=skill_level,
+                    skill_category=config['category']
+                )
+                skills.append(skill)
+        
+        # 更新数据库中的技能（标记为搜索来源）
+        self._update_user_skills(user_id, skills, "search")
+        return skills
+
+    def _update_user_skills(self, user_id: str, new_skills: List[SkillItem], source_type: str = "resume"):
+        """更新用户技能到数据库，支持区分来源"""
+        try:
+            from src.db_utils import get_db_connection
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            
+            for skill in new_skills:
+                if source_type == "search":
+                    # 搜索来源：检查是否已存在，不存在才插入
+                    existing = cursor.execute(
+                        "SELECT id FROM user_skills WHERE user_id=? AND skill=? AND source_type='search'",
+                        (user_id, skill.skill)
+                    ).fetchone()
+                    
+                    if not existing:
+                        cursor.execute("""
+                            INSERT INTO user_skills 
+                            (user_id, skill, level, category, skill_level, skill_category, source_type)
+                            VALUES (?, ?, ?, ?, ?, ?, 'search')
+                        """, (user_id, skill.skill, skill.level, skill.category, 
+                              skill.skill_level, skill.skill_category))
+                
+                elif source_type == "resume":
+                    # 简历来源：检查是否已存在，不存在才插入
+                    existing = cursor.execute(
+                        "SELECT id FROM user_skills WHERE user_id=? AND skill=? AND source_type='resume'",
+                        (user_id, skill.skill)
+                    ).fetchone()
+                    
+                    if not existing:
+                        cursor.execute("""
+                            INSERT INTO user_skills 
+                            (user_id, skill, level, category, skill_level, skill_category, source_type)
+                            VALUES (?, ?, ?, ?, ?, ?, 'resume')
+                        """, (user_id, skill.skill, skill.level, skill.category, 
+                              skill.skill_level, skill.skill_category))
+            
+            conn.commit()
+            conn.close()
+            logging.info(f"已更新用户 {user_id} 的{source_type}技能: {[s.skill for s in new_skills]}")
+            
+        except Exception as e:
+            logging.error(f"更新用户技能失败: {e}")
+
+    def _update_user_interests(self, user_id: str, new_interests: List[InterestItem], source_type: str = "search"):
+        """更新用户兴趣到数据库，支持区分来源和累加搜索次数"""
+        try:
+            from src.db_utils import get_db_connection
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            
+            for interest in new_interests:
+                if source_type == "search":
+                    # 搜索来源：只更新搜索类型的兴趣，支持累加
+                    existing = cursor.execute(
+                        "SELECT interest_level, search_count FROM user_interests WHERE user_id=? AND topic=? AND source_type='search'",
+                        (user_id, interest.topic)
+                    ).fetchone()
+                    
+                    if existing:
+                        # 累加搜索次数，提升兴趣等级
+                        new_search_count = existing[1] + 1 if existing[1] else 1
+                        new_level = min(10, (existing[0] or 1) + 1)  # 每次搜索提升1级，最高10级
+                        
+                        cursor.execute("""
+                            UPDATE user_interests 
+                            SET interest_level=?, search_count=?, weight=?, timestamp=?
+                            WHERE user_id=? AND topic=? AND source_type='search'
+                        """, (new_level, new_search_count, interest.weight, interest.last_updated, user_id, interest.topic))
+                    else:
+                        # 插入新的搜索兴趣
+                        cursor.execute("""
+                            INSERT INTO user_interests 
+                            (user_id, topic, category, weight, interest_level, search_count, reason, timestamp, source_type)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'search')
+                        """, (user_id, interest.topic, interest.category, interest.weight, 
+                              interest.interest_level, interest.search_count, interest.reason, interest.last_updated))
+                
+                elif source_type == "resume":
+                    # 简历来源：检查是否已存在，不存在才插入，不累加
+                    existing = cursor.execute(
+                        "SELECT id FROM user_interests WHERE user_id=? AND topic=? AND source_type='resume'",
+                        (user_id, interest.topic)
+                    ).fetchone()
+                    
+                    if not existing:
+                        # 插入新的简历兴趣（搜索次数设为0）
+                        cursor.execute("""
+                            INSERT INTO user_interests 
+                            (user_id, topic, category, weight, interest_level, search_count, reason, timestamp, source_type)
+                            VALUES (?, ?, ?, ?, ?, 0, ?, ?, 'resume')
+                        """, (user_id, interest.topic, interest.category, interest.weight, 
+                              interest.interest_level, interest.reason, interest.last_updated))
+            
+            conn.commit()
+            conn.close()
+            logging.info(f"已更新用户 {user_id} 的{source_type}兴趣: {[i.topic for i in new_interests]}")
+            
+        except Exception as e:
+            logging.error(f"更新用户兴趣失败: {e}")
+
+    def assess_skill_level(self, skill_text: str) -> Tuple[int, str]:
+        """评估技能等级 (0-10) 和类别"""
+        skill_lower = skill_text.lower()
+        
+        # 根据描述中的关键词判断等级
+        level = 1  # 默认基础等级
+        for indicator, score in self.skill_level_indicators.items():
+            if indicator in skill_lower:
+                level = max(level, score)
+        
+        # 保守评分策略：降低1-2级
+        conservative_level = max(1, level - 1)
+        
+        # 判断技能类别
+        category = 'general'
+        for cat, skills in self.skill_categories.items():
+            if any(skill in skill_lower for skill in skills):
+                category = cat
+                break
+        
+        return conservative_level, category
+
+    def enhance_extracted_skills(self, skills: List[Dict]) -> List[SkillItem]:
+        """增强技能提取，添加等级和类别评估"""
+        enhanced_skills = []
+        
+        for skill_dict in skills:
+            skill_name = skill_dict.get('skill', '')
+            original_level = skill_dict.get('level', '')
+            
+            # 评估数值等级和类别
+            skill_level, skill_category = self.assess_skill_level(f"{skill_name} {original_level}")
+            
+            enhanced_skill = SkillItem(
+                skill=skill_name,
+                level=original_level,
+                category=skill_dict.get('category', ''),
+                skill_level=skill_level,
+                skill_category=skill_category
+            )
+            enhanced_skills.append(enhanced_skill)
+        
+        return enhanced_skills
+
+    async def extract_from_resume_with_enhancement(self, resume_content: str, user_id: str) -> Dict:
+        """增强的简历解析，包含兴趣和技能等级评估"""
+        # 原有的简历解析逻辑
+        profile_data = await self.extract_user_profile(resume_content)
+        
+        # 增强技能评估
+        if 'skills' in profile_data:
+            enhanced_skills = self.enhance_extracted_skills(profile_data['skills'])
+            profile_data['enhanced_skills'] = [
+                {
+                    'skill': s.skill,
+                    'level': s.level,
+                    'category': s.category,
+                    'skill_level': s.skill_level,
+                    'skill_category': s.skill_category
+                }
+                for s in enhanced_skills
+            ]
+        
+        # 基于简历内容提取潜在兴趣（标记为简历来源）
+        potential_interests = self.extract_interests_from_resume(resume_content, user_id)
+        profile_data['extracted_interests'] = [
+            {
+                'topic': i.topic,
+                'category': i.category,
+                'interest_level': i.interest_level,
+                'reason': i.reason,
+                'source_type': 'resume'
+            }
+            for i in potential_interests
+        ]
+        
+        return profile_data
+
+    async def extract_user_profile(self, resume_content: str) -> Dict:
+        """基础的用户画像提取方法"""
+        try:
+            # 使用LLM分析简历内容
+            system_msg = "你是一个专业的简历分析助手。请分析简历内容并提取关键信息。"
+            prompt = f"""
+请分析以下简历内容，提取并返回JSON格式的信息：
+
+{resume_content}
+
+请提取：
+1. 基本信息：姓名、职业、联系方式
+2. 技能列表：技能名称、熟练程度、所属类别
+3. 工作经历：公司、职位、时间、描述
+4. 教育背景：学校、专业、学位、时间
+
+返回JSON格式，确保数据结构清晰。
+"""
+            
+            response = await self.llm.call_llm(prompt, system_msg)
+            
+            # 解析LLM返回的JSON
+            import json
+            try:
+                profile_data = json.loads(response)
+                return profile_data
+            except json.JSONDecodeError:
+                # 如果LLM返回的不是有效JSON，尝试提取
+                logging.warning("LLM返回的不是有效JSON，使用默认结构")
+                return {
+                    "name": "未知",
+                    "occupation": "未知",
+                    "skills": [],
+                    "education": [],
+                    "work_experience": []
+                }
+                
+        except Exception as e:
+            logging.error(f"简历分析失败: {e}")
+            return {}
 
 class UserProfileManager:
     """用户画像管理器，负责创建、更新和存储用户画像"""
@@ -203,14 +584,31 @@ class UserProfileManager:
                             (user_id, skill)
                         )
                     elif isinstance(skill, dict):
-                        # 如果技能是字典，提取相关字段
-                        conn.execute(
-                            """INSERT INTO user_skills 
-                               (user_id, skill, level, category)
-                               VALUES (?, ?, ?, ?)""",
-                            (user_id, skill.get("skill", ""), skill.get("level", ""), 
-                             skill.get("category", ""))
-                        )
+                        # 如果技能是字典，提取相关字段（包括新的等级字段）
+                        # 检查表结构，动态插入字段
+                        cursor = conn.cursor()
+                        cursor.execute("PRAGMA table_info(user_skills)")
+                        columns = [row[1] for row in cursor.fetchall()]
+                        
+                        if "skill_level" in columns and "skill_category" in columns:
+                            # 新表结构，包含增强字段
+                            conn.execute(
+                                """INSERT INTO user_skills 
+                                   (user_id, skill, level, category, skill_level, skill_category)
+                                   VALUES (?, ?, ?, ?, ?, ?)""",
+                                (user_id, skill.get("skill", ""), skill.get("level", ""), 
+                                 skill.get("category", ""), skill.get("skill_level", 1), 
+                                 skill.get("skill_category", "general"))
+                            )
+                        else:
+                            # 旧表结构
+                            conn.execute(
+                                """INSERT INTO user_skills 
+                                   (user_id, skill, level, category)
+                                   VALUES (?, ?, ?, ?)""",
+                                (user_id, skill.get("skill", ""), skill.get("level", ""), 
+                                 skill.get("category", ""))
+                            )
                         
             conn.commit()
             logging.info(f"用户画像更新成功: {user_id}")
@@ -632,12 +1030,12 @@ class UserProfileManager:
                 (user_id,)
             ).fetchall()
 
-            current_time = datetime.datetime.now()
+            current_time = datetime.now()
 
             for topic, weight, last_updated_str in interests:
                 if last_updated_str:
                     # 解析上次更新时间
-                    last_updated = datetime.datetime.strptime(last_updated_str, "%Y-%m-%d %H:%M:%S")
+                    last_updated = datetime.strptime(last_updated_str, "%Y-%m-%d %H:%M:%S")
                     
                     # 计算天数差
                     days_diff = (current_time - last_updated).days
@@ -721,7 +1119,7 @@ class UserProfileManager:
                         keywords[word] = keywords.get(word, 0) + 1
 
                 # 解析时间用于时间模式分析
-                search_time = datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+                search_time = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
                 search_times.append(search_time)
 
             # 按频率排序关键词
