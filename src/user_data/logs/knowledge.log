@@ -106,3 +106,262 @@ sqlite3.OperationalError: no such column: updated_at
 2025-09-17 14:02:25,087 - INFO - [app.py:86] - 数据库初始化/校验完成。
 2025-09-17 14:02:25,090 - INFO - [db_utils.py:370] - 数据库初始化完成
 2025-09-17 14:02:25,094 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-17 14:14:15,508 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:14:16,081 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:14:16,091 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:14:16,092 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-17 14:14:16,097 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:14:16,101 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-17 14:15:18,284 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
+    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
+sqlite3.OperationalError: no such column: updated_at
+2025-09-17 14:15:20,844 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
+    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
+sqlite3.OperationalError: no such column: updated_at
+2025-09-17 14:18:37,984 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:18:38,483 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:18:38,489 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:18:38,489 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-17 14:18:38,494 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:18:38,497 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-17 14:20:33,604 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:20:34,078 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:20:34,085 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:20:34,086 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-17 14:20:34,090 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:20:34,095 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-17 14:52:34,774 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:52:35,253 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:52:35,259 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:52:35,260 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-17 14:52:35,263 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:52:35,267 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-17 14:52:54,011 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: reason
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 806, in admin_user_detail
+    interests = cursor.execute(
+sqlite3.OperationalError: no such column: reason
+2025-09-17 14:52:55,631 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: reason
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 806, in admin_user_detail
+    interests = cursor.execute(
+sqlite3.OperationalError: no such column: reason
+2025-09-17 14:52:56,029 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: reason
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 806, in admin_user_detail
+    interests = cursor.execute(
+sqlite3.OperationalError: no such column: reason
+2025-09-17 14:52:56,835 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: reason
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 806, in admin_user_detail
+    interests = cursor.execute(
+sqlite3.OperationalError: no such column: reason
+2025-09-17 14:52:57,146 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: reason
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 806, in admin_user_detail
+    interests = cursor.execute(
+sqlite3.OperationalError: no such column: reason
+2025-09-17 14:52:57,399 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: reason
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 806, in admin_user_detail
+    interests = cursor.execute(
+sqlite3.OperationalError: no such column: reason
+2025-09-17 14:52:57,943 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: reason
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 806, in admin_user_detail
+    interests = cursor.execute(
+sqlite3.OperationalError: no such column: reason
+2025-09-17 14:54:59,322 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:54:59,924 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:54:59,941 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:54:59,942 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-17 14:54:59,953 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:54:59,961 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-17 14:55:46,678 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:55:47,218 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:55:47,225 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:55:47,225 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-17 14:55:47,229 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:55:47,232 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-17 14:55:55,470 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:55:55,966 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:55:55,975 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:55:55,975 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-17 14:55:55,978 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:55:55,981 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-17 14:56:46,385 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:56:46,947 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:56:46,952 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:56:46,952 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-17 14:56:46,955 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:56:46,959 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-17 14:57:56,867 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:57:57,338 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 14:57:57,345 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:57:57,345 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-17 14:57:57,349 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 14:57:57,353 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-17 14:58:47,899 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
+    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
+sqlite3.OperationalError: no such column: updated_at
+2025-09-17 14:58:51,174 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
+    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
+sqlite3.OperationalError: no such column: updated_at
+2025-09-17 14:58:52,931 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
+    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
+sqlite3.OperationalError: no such column: updated_at
+2025-09-17 14:59:00,601 - WARNING - [app.py:998] - 修复users.updated_at失败: Cannot add a column with non-constant default
+2025-09-17 14:59:00,617 - INFO - [app.py:1041] - 管理员数据库修复: 数据库修复完成，已修复: user_interests.reason
+2025-09-17 14:59:05,020 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
+    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
+sqlite3.OperationalError: no such column: updated_at
+2025-09-17 14:59:05,917 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
+    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
+sqlite3.OperationalError: no such column: updated_at
+2025-09-17 14:59:07,657 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
+    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
+sqlite3.OperationalError: no such column: updated_at
+2025-09-17 14:59:31,769 - INFO - [app.py:439] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 10。准备流式传输事件。
+2025-09-17 14:59:31,795 - INFO - [app.py:512] - 接收到用户数据: Tssword21, 职业: 算法工程师, 简历文件: 丁子健.pdf, 大小: 674835B, 关注领域: 神经网络, 请求文献数: 10
+2025-09-17 14:59:31,861 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-17 14:59:31,891 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-17 14:59:31,894 - INFO - [user_profile.py:59] - 已加载兴趣分类体系，共 6 个类别
+2025-09-17 14:59:31,896 - INFO - [user_profile.py:32] - 用户画像管理器初始化完成
+2025-09-17 14:59:31,897 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
+2025-09-17 14:59:31,898 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-17 14:59:31,899 - INFO - [generators.py:53] - 报告生成器初始化完成
+2025-09-17 14:59:31,909 - INFO - [search.py:300] - 搜索管理器初始化完成
+2025-09-17 14:59:31,911 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-17 14:59:31,912 - INFO - [knowledge_flow.py:89] - KnowledgeFlow初始化完成
+2025-09-17 14:59:31,913 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
+2025-09-17 14:59:31,915 - INFO - [app.py:214] - 处理用户: Tssword21, ID: tssword21
+2025-09-17 14:59:31,916 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
+2025-09-17 14:59:31,918 - INFO - [knowledge_flow.py:106] - 开始为用户 tssword21 分析简历
+2025-09-17 14:59:31,920 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmplcri54nz.pdf
+2025-09-17 14:59:33,570 - INFO - [resume_reader.py:60] - 成功读取简历，共 2244 个字符
+2025-09-17 15:00:04,252 - INFO - [user_profile.py:216] - 用户画像更新成功: tssword21
+2025-09-17 15:00:04,255 - INFO - [user_profile.py:238] - 更新用户 tssword21 的兴趣标签: ['人工智能', '机器学习', '自然语言处理', '大模型Agent开发', 'RAG架构', '大模型测评集', '评估指标', '数学建模', '多模态', '智能Agent', '图像识别', '物理化学特征提取', '分布式Agent架构', 'LLM交互式提示词优化']
+2025-09-17 15:00:04,257 - ERROR - [user_profile.py:287] - 更新用户兴趣时出错: 'NoneType' object has no attribute 'items'
+2025-09-17 15:00:04,259 - INFO - [app.py:226] - 简历分析完成（已保存的临时文件）
+2025-09-17 15:00:04,259 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
+2025-09-17 15:00:04,260 - INFO - [app.py:258] - 搜索平台: ['arxiv'], 查询内容: 神经网络
+2025-09-17 15:00:04,260 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
+2025-09-17 15:00:04,260 - INFO - [knowledge_flow.py:336] - 记录用户 tssword21 的搜索: 神经网络
+2025-09-17 15:00:04,930 - INFO - [knowledge_flow.py:409] - 传统API翻译: '神经网络' -> 'Neural Network'
+2025-09-17 15:00:04,931 - INFO - [knowledge_flow.py:344] - 在平台 arxiv 上搜索(已优化): 'Neural Network'
+2025-09-17 15:00:04,933 - INFO - [search.py:91] - 使用ArxivSearcher搜索: Neural Network, 排序方式: relevance, 时间范围: {'days': 7}, 类别: None
+2025-09-17 15:00:04,934 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=10
+2025-09-17 15:00:04,934 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: Neural Network, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 7}, 类别: None
+2025-09-17 15:00:04,934 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"Neural Network" OR abs:"Neural Network" OR all:"Neural Network")'
+2025-09-17 15:00:04,935 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Neural+Network%22+OR+abs%3A%22Neural+Network%22+OR+all%3A%22Neural+Network%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
+2025-09-17 15:00:05,617 - INFO - [__init__.py:606] - Got first page: 10 of 139089 total results
+2025-09-17 15:00:05,619 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 10 篇论文
+2025-09-17 15:00:05,620 - INFO - [knowledge_flow.py:252] - arxiv 搜索完成，找到 10 条结果
+2025-09-17 15:00:05,627 - INFO - [user_profile.py:567] - 记录用户 tssword21 的搜索: Neural Network
+2025-09-17 15:00:05,629 - INFO - [app.py:303] - 搜索执行完成。查询: 神经网络 -> Neural Network. 平台: ['arxiv']
+2025-09-17 15:00:05,629 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
+2025-09-17 15:00:05,630 - INFO - [knowledge_flow.py:302] - 流式生成报告类型: standard
+2025-09-17 15:00:05,630 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
+2025-09-17 15:00:39,811 - INFO - [app.py:384] - 临时文件已删除: C:\Users\12595\AppData\Local\Temp\tmplcri54nz.pdf
+2025-09-17 15:04:25,888 - INFO - [app.py:439] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
+2025-09-17 15:04:25,892 - INFO - [app.py:512] - 接收到用户数据: Tssword21, 职业: 算法工程师, 无简历文件, 关注领域: 神经网络, 请求文献数: 15
+2025-09-17 15:04:25,913 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-17 15:04:25,927 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-17 15:04:25,928 - INFO - [user_profile.py:59] - 已加载兴趣分类体系，共 6 个类别
+2025-09-17 15:04:25,928 - INFO - [user_profile.py:32] - 用户画像管理器初始化完成
+2025-09-17 15:04:25,929 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
+2025-09-17 15:04:25,929 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-17 15:04:25,929 - INFO - [generators.py:53] - 报告生成器初始化完成
+2025-09-17 15:04:25,937 - INFO - [search.py:300] - 搜索管理器初始化完成
+2025-09-17 15:04:25,938 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-17 15:04:25,938 - INFO - [knowledge_flow.py:89] - KnowledgeFlow初始化完成
+2025-09-17 15:04:25,938 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
+2025-09-17 15:04:25,939 - INFO - [app.py:214] - 处理用户: Tssword21, ID: tssword21
+2025-09-17 15:04:25,940 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
+2025-09-17 15:04:25,943 - INFO - [app.py:236] - 无简历文件，已创建或获取基本用户画像。
+2025-09-17 15:04:25,944 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
+2025-09-17 15:04:25,945 - INFO - [app.py:258] - 搜索平台: ['arxiv'], 查询内容: 神经网络
+2025-09-17 15:04:25,945 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
+2025-09-17 15:04:25,946 - INFO - [knowledge_flow.py:336] - 记录用户 tssword21 的搜索: 神经网络
+2025-09-17 15:04:26,927 - INFO - [knowledge_flow.py:409] - 传统API翻译: '神经网络' -> 'Neural Network'
+2025-09-17 15:04:26,927 - INFO - [knowledge_flow.py:344] - 在平台 arxiv 上搜索(已优化): 'Neural Network'
+2025-09-17 15:04:26,929 - INFO - [search.py:91] - 使用ArxivSearcher搜索: Neural Network, 排序方式: relevance, 时间范围: {'days': 7}, 类别: None
+2025-09-17 15:04:26,930 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=15
+2025-09-17 15:04:26,931 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: Neural Network, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 7}, 类别: None
+2025-09-17 15:04:26,932 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"Neural Network" OR abs:"Neural Network" OR all:"Neural Network")'
+2025-09-17 15:04:26,934 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Neural+Network%22+OR+abs%3A%22Neural+Network%22+OR+all%3A%22Neural+Network%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
+2025-09-17 15:04:27,234 - INFO - [__init__.py:606] - Got first page: 10 of 139089 total results
+2025-09-17 15:04:27,237 - INFO - [__init__.py:677] - Sleeping: 2.955989 seconds
+2025-09-17 15:04:30,196 - INFO - [__init__.py:680] - Requesting page (first: False, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Neural+Network%22+OR+abs%3A%22Neural+Network%22+OR+all%3A%22Neural+Network%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=10&max_results=100
+2025-09-17 15:04:31,158 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 15 篇论文
+2025-09-17 15:04:31,158 - INFO - [knowledge_flow.py:252] - arxiv 搜索完成，找到 15 条结果
+2025-09-17 15:04:31,169 - INFO - [user_profile.py:567] - 记录用户 tssword21 的搜索: Neural Network
+2025-09-17 15:04:31,170 - INFO - [app.py:303] - 搜索执行完成。查询: 神经网络 -> Neural Network. 平台: ['arxiv']
+2025-09-17 15:04:31,171 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
+2025-09-17 15:04:31,171 - INFO - [knowledge_flow.py:302] - 流式生成报告类型: standard
+2025-09-17 15:04:31,172 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
+2025-09-17 15:05:31,234 - ERROR - [llm_interface.py:123] - 流式调用LLM时出错: 
+2025-09-17 15:05:31,241 - INFO - [app.py:195] - SSE 进度 (standard): 第 6/6 步 - 处理完成
+2025-09-17 15:05:31,442 - INFO - [app.py:360] - 所有步骤完成。standard 流式输出完毕。
+2025-09-17 15:08:34,943 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
+Traceback (most recent call last):
+  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
+    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
+sqlite3.OperationalError: no such column: updated_at
+2025-09-17 15:09:18,580 - ERROR - [base_events.py:1758] - Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x00000212A7EB0A00>
+2025-09-17 15:09:20,208 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 15:09:20,777 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 15:09:20,784 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 15:09:20,784 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-17 15:09:20,788 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 15:09:20,792 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-17 15:09:31,310 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 15:09:31,834 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 15:09:31,842 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 15:09:31,842 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-17 15:09:31,847 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 15:09:31,851 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-17 15:09:54,889 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 15:09:55,402 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 15:09:55,411 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 15:09:55,411 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-17 15:09:55,417 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 15:09:55,425 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-17 15:15:41,678 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 15:15:42,106 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 15:15:42,111 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 15:15:42,112 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-17 15:15:42,117 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 15:15:42,119 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-17 15:15:47,542 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
+2025-09-17 15:16:07,287 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
+2025-09-17 15:16:44,045 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
+2025-09-17 15:16:45,647 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
+2025-09-17 15:16:46,135 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
+2025-09-17 15:16:55,920 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
+2025-09-17 15:17:01,802 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
+2025-09-17 15:19:51,655 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 15:19:52,264 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-17 15:19:52,269 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 15:19:52,269 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-17 15:19:52,273 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-17 15:19:52,276 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-17 15:19:52,532 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
+2025-09-17 15:19:54,987 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated

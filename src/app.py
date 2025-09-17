@@ -791,8 +791,21 @@ async def admin_user_detail(request: Request, user_id: str):
             from db_utils import get_db_connection
         conn = get_db_connection()
         cursor = conn.cursor()
-        # 基本信息
-        user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
+        # 基本信息 - 检查列是否存在以避免错误
+        try:
+            # 先检查users表有哪些列
+            cursor.execute("PRAGMA table_info(users)")
+            user_columns = [row[1] for row in cursor.fetchall()]
+            
+            # 动态构建查询语句
+            columns_to_select = ["id", "name", "occupation", "email", "created_at"]
+            if "updated_at" in user_columns:
+                columns_to_select.append("updated_at")
+            
+            user_row = cursor.execute(f"SELECT {', '.join(columns_to_select)} FROM users WHERE id=?", (user_id,)).fetchone()
+        except Exception as e:
+            logging.error(f"查询用户基本信息失败: {e}")
+            return JSONResponse(content={"error": "查询用户信息失败"}, status_code=500)
         if not user_row:
             return JSONResponse(content={"error": "NOT_FOUND"}, status_code=404)
         # is_admin
@@ -802,17 +815,30 @@ async def admin_user_detail(request: Request, user_id: str):
             "SELECT username, profile_data, created_at, updated_at FROM user_profiles WHERE user_id=?",
             (user_id,)
         ).fetchone()
-        # 兴趣（按权重）
-        interests = cursor.execute(
-            """
-            SELECT topic, category, weight, reason, last_updated
-            FROM user_interests
-            WHERE user_id=?
-            ORDER BY weight DESC, last_updated DESC
-            LIMIT 200
-            """,
-            (user_id,)
-        ).fetchall()
+        # 兴趣（按权重）- 动态处理列
+        try:
+            # 检查user_interests表的列
+            cursor.execute("PRAGMA table_info(user_interests)")
+            interest_columns = [row[1] for row in cursor.fetchall()]
+            
+            # 动态构建查询
+            base_columns = ["topic", "category", "weight", "last_updated"]
+            if "reason" in interest_columns:
+                base_columns.insert(-1, "reason")  # 在last_updated前插入reason
+            
+            interests = cursor.execute(
+                f"""
+                SELECT {', '.join(base_columns)}
+                FROM user_interests
+                WHERE user_id=?
+                ORDER BY weight DESC, last_updated DESC
+                LIMIT 200
+                """,
+                (user_id,)
+            ).fetchall()
+        except Exception as e:
+            logging.error(f"查询用户兴趣失败: {e}")
+            interests = []
         # 技能
         skills = cursor.execute(
             """
@@ -848,8 +874,13 @@ async def admin_user_detail(request: Request, user_id: str):
                 return {k: row[k] for k in row.keys()}
             except Exception:
                 return dict(row) if isinstance(row, dict) else {}
+        
         user_dict = row_to_dict(user_row)
         user_dict["is_admin"] = bool(admin_row[0]) if admin_row else False
+        
+        # 确保updated_at字段存在，即使为空
+        if "updated_at" not in user_dict:
+            user_dict["updated_at"] = None
         profile_data = None
         if profile_row:
             try:
@@ -911,6 +942,139 @@ async def admin_set_role(request: Request, user_id: str):
             conn.close()
         except Exception:
             pass
+
+@app.delete("/api/admin/users/{user_id}")
+async def admin_delete_user(request: Request, user_id: str):
+    if not _is_admin(request):
+        return JSONResponse(content={"error": "FORBIDDEN"}, status_code=403)
+    
+    # 防止删除自己
+    current_user = request.session.get("user")
+    if current_user and current_user.get("user_id") == user_id:
+        return JSONResponse(content={"error": "不能删除自己的账户"}, status_code=400)
+    
+    try:
+        try:
+            from src.db_utils import get_db_connection
+        except Exception:
+            from db_utils import get_db_connection
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # 检查用户是否存在
+        user_exists = cursor.execute("SELECT id FROM users WHERE id=?", (user_id,)).fetchone()
+        if not user_exists:
+            return JSONResponse(content={"error": "用户不存在"}, status_code=404)
+        
+        # 删除用户相关的所有数据
+        tables_to_clean = [
+            "user_interests",
+            "user_skills", 
+            "user_education",
+            "user_work_experience",
+            "search_history",
+            "user_interactions",
+            "user_profiles",
+            "user_auth",
+            "users"
+        ]
+        
+        for table in tables_to_clean:
+            try:
+                if table == "user_auth":
+                    cursor.execute(f"DELETE FROM {table} WHERE user_id=?", (user_id,))
+                else:
+                    cursor.execute(f"DELETE FROM {table} WHERE user_id=?", (user_id,))
+                logging.info(f"已清理表 {table} 中用户 {user_id} 的数据")
+            except Exception as e:
+                logging.warning(f"清理表 {table} 失败: {e}")
+        
+        conn.commit()
+        logging.info(f"用户 {user_id} 及其所有相关数据已删除")
+        return JSONResponse(content={"ok": True, "message": "用户删除成功"})
+        
+    except Exception as e:
+        logging.error(f"admin_delete_user 失败: {e}", exc_info=True)
+        return JSONResponse(content={"error": "删除失败: " + str(e)}, status_code=500)
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+@app.post("/api/admin/fix_database")
+async def admin_fix_database(request: Request):
+    if not _is_admin(request):
+        return JSONResponse(content={"error": "FORBIDDEN"}, status_code=403)
+    
+    try:
+        try:
+            from src.db_utils import get_db_connection
+        except Exception:
+            from db_utils import get_db_connection
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        fixes_applied = []
+        
+        # 修复users表的updated_at列
+        try:
+            cursor.execute("PRAGMA table_info(users)")
+            user_columns = [row[1] for row in cursor.fetchall()]
+            if 'updated_at' not in user_columns:
+                cursor.execute("ALTER TABLE users ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+                fixes_applied.append("users.updated_at")
+        except Exception as e:
+            logging.warning(f"修复users.updated_at失败: {e}")
+        
+        # 修复user_interests表的reason列
+        try:
+            cursor.execute("PRAGMA table_info(user_interests)")
+            interest_columns = [row[1] for row in cursor.fetchall()]
+            if 'reason' not in interest_columns:
+                cursor.execute("ALTER TABLE user_interests ADD COLUMN reason TEXT")
+                fixes_applied.append("user_interests.reason")
+        except Exception as e:
+            logging.warning(f"修复user_interests.reason失败: {e}")
+        
+        # 确保user_auth表存在且有is_admin列
+        try:
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS user_auth (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id TEXT,
+                username TEXT UNIQUE,
+                email TEXT,
+                password_hash TEXT,
+                is_admin INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+            ''')
+            
+            cursor.execute("PRAGMA table_info(user_auth)")
+            auth_columns = [row[1] for row in cursor.fetchall()]
+            if 'is_admin' not in auth_columns:
+                cursor.execute("ALTER TABLE user_auth ADD COLUMN is_admin INTEGER DEFAULT 0")
+                fixes_applied.append("user_auth.is_admin")
+        except Exception as e:
+            logging.warning(f"修复user_auth失败: {e}")
+        
+        conn.commit()
+        conn.close()
+        
+        if fixes_applied:
+            message = f"数据库修复完成，已修复: {', '.join(fixes_applied)}"
+        else:
+            message = "数据库检查完成，无需修复"
+            
+        logging.info(f"管理员数据库修复: {message}")
+        return JSONResponse(content={"ok": True, "message": message, "fixes": fixes_applied})
+        
+    except Exception as e:
+        logging.error(f"数据库修复失败: {e}", exc_info=True)
+        return JSONResponse(content={"error": f"修复失败: {str(e)}"}, status_code=500)
 
 # --- Uvicorn 运行说明 ---
 # 要运行此 FastAPI 应用:

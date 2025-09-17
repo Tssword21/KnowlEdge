@@ -33,17 +33,44 @@
       </div>
       <div class="text-white/80 text-sm flex items-center space-x-4">
         <span id="adminStatus" class="text-white/60 text-xs"></span>
+        <button id="fixDbBtn" class="px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-xs rounded">
+          <i class="fas fa-wrench mr-1"></i>修复DB
+        </button>
         <a href="/" class="hover:text-white">返回首页</a>
       </div>
     </div>
   </nav>
 
   <div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- 统计信息 -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="glass-card p-4 text-center">
+        <div class="text-blue-400 text-2xl font-bold" id="totalUsers">-</div>
+        <div class="text-white/70 text-sm">总用户数</div>
+      </div>
+      <div class="glass-card p-4 text-center">
+        <div class="text-green-400 text-2xl font-bold" id="totalAdmins">-</div>
+        <div class="text-white/70 text-sm">管理员数</div>
+      </div>
+      <div class="glass-card p-4 text-center">
+        <div class="text-yellow-400 text-2xl font-bold" id="totalSearches">-</div>
+        <div class="text-white/70 text-sm">总搜索次数</div>
+      </div>
+      <div class="glass-card p-4 text-center">
+        <div class="text-purple-400 text-2xl font-bold" id="totalInteractions">-</div>
+        <div class="text-white/70 text-sm">总交互次数</div>
+      </div>
+    </div>
+    
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- 左侧：用户列表 -->
       <div class="lg:col-span-1 glass-card p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-white text-lg font-semibold"><i class="fas fa-users mr-2 text-blue-400"></i> 用户列表</h2>
+          <div class="flex space-x-2">
+            <button id="refreshBtn" class="primary-btn px-3 py-1 text-xs"><i class="fas fa-sync-alt"></i></button>
+            <button id="exportBtn" class="primary-btn px-3 py-1 text-xs"><i class="fas fa-download"></i></button>
+          </div>
         </div>
         <div class="mb-4 flex space-x-2">
           <input id="q" class="glass-input" placeholder="搜索用户ID/姓名/邮箱" />
@@ -62,7 +89,12 @@
       <div class="lg:col-span-2 glass-card p-6">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-white text-lg font-semibold"><i class="fas fa-id-card mr-2 text-purple-400"></i> 用户详情</h2>
-          <div id="currentUserId" class="badge">未选择</div>
+          <div class="flex items-center space-x-2">
+            <div id="currentUserId" class="badge">未选择</div>
+            <button id="deleteUserBtn" class="hidden bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">
+              <i class="fas fa-trash mr-1"></i>删除用户
+            </button>
+          </div>
         </div>
         <div id="detailPanel" class="space-y-6">
           <div class="glass-card p-4">
@@ -145,7 +177,11 @@
         const resp = await fetch(`/api/admin/users/${encodeURIComponent(userId)}`);
         if (!resp.ok) { 
           console.error('获取用户详情失败:', resp.status);
-          setDetailError(`加载详情失败: ${resp.status}`); 
+          if (resp.status === 500) {
+            setDetailError(`数据库错误 (${resp.status})，请点击顶部"修复DB"按钮修复数据库`); 
+          } else {
+            setDetailError(`加载详情失败: ${resp.status}`); 
+          }
           return; 
         }
         const d = await resp.json();
@@ -155,8 +191,14 @@
         const toggleRow = document.getElementById('adminToggleRow');
         const toggle = document.getElementById('adminToggle');
         const saveBtn = document.getElementById('saveRoleBtn');
+        const deleteBtn = document.getElementById('deleteUserBtn');
+        
         toggleRow.classList.remove('hidden');
+        deleteBtn.classList.remove('hidden');
         toggle.checked = !!d.user?.is_admin;
+        
+        // 绑定删除按钮
+        deleteBtn.onclick = () => deleteUser(userId);
         saveBtn.onclick = async ()=>{
           try{
             const r = await fetch(`/api/admin/users/${encodeURIComponent(userId)}/role`, { 
@@ -189,7 +231,7 @@
         }
         
         // 详细数据
-        setList('interests', d.interests, x=> `${htmlesc(x.topic)} <span class="badge ml-2">权重: ${x.weight?.toFixed?.(2) ?? x.weight ?? '0'}</span> <span class="text-white/50 ml-2">${htmlesc(x.category||'')}</span>`);
+        setList('interests', d.interests, x=> `${htmlesc(x.topic)} <span class="badge ml-2">权重: ${x.weight?.toFixed?.(2) ?? x.weight ?? '0'}</span> <span class="text-white/50 ml-2">${htmlesc(x.category||'')}</span> ${x.reason ? `<div class="text-white/60 text-sm mt-1">原因: ${htmlesc(x.reason)}</div>` : ''} <span class="text-xs text-white/40 ml-2">${htmlesc(x.last_updated?.split('T')[0] || '')}</span>`);
         setList('skills', d.skills, x=> `${htmlesc(x.skill)} <span class="text-white/50 ml-2">等级: ${htmlesc(x.level||'')}</span> <span class="text-white/50 ml-2">类别: ${htmlesc(x.category||'')}</span>`);
         setList('education', d.education, x=> `${htmlesc(x.institution||'未知')} · ${htmlesc(x.major||'')} · ${htmlesc(x.degree||'')} <span class="text-white/50 ml-2">${htmlesc(x.time_period||'')}</span>`);
         setList('work', d.work, x=> `${htmlesc(x.company||'未知')} · ${htmlesc(x.position||'')} <span class="text-white/50 ml-2">${htmlesc(x.time_period||'')}</span>${x.description ? `<div class="text-white/60 text-sm mt-1">${htmlesc(x.description)}</div>` : ''}`);
@@ -215,7 +257,7 @@
         <div>职业：<span class="text-white">${htmlesc(u.occupation||'')}</span></div>
         <div>邮箱：<span class="text-white">${htmlesc(u.email||'')}</span></div>
         <div>创建时间：<span class="text-white">${htmlesc(u.created_at||'')}</span></div>
-        <div>更新时间：<span class="text-white">${htmlesc(u.updated_at||'')}</span></div>
+        ${u.updated_at ? `<div>更新时间：<span class="text-white">${htmlesc(u.updated_at)}</span></div>` : '<div class="text-yellow-400 text-sm">⚠️ 更新时间字段缺失，点击"修复DB"按钮修复</div>'}
       `;
     }
 
@@ -225,18 +267,181 @@
       el.innerHTML = `<ul class="list-disc ml-5 space-y-1">${arr.map(render).map(x=>`<li>${x}</li>`).join('')}</ul>`;
     }
 
-    // 初始化
+    // 加载统计信息
+    async function loadStats() {
+      try {
+        // 这里可以添加专门的统计API，现在先用用户列表数据估算
+        const resp = await fetch('/api/admin/users?limit=1000');
+        if (resp.ok) {
+          const data = await resp.json();
+          const users = data.items || [];
+          
+          document.getElementById('totalUsers').textContent = users.length;
+          document.getElementById('totalAdmins').textContent = users.filter(u => u.is_admin).length;
+          
+          // 计算总搜索和交互次数
+          let totalSearches = 0;
+          let totalInteractions = 0;
+          users.forEach(u => {
+            totalSearches += u.counts?.searches || 0;
+            totalInteractions += u.counts?.interactions || 0;
+          });
+          
+          document.getElementById('totalSearches').textContent = totalSearches;
+          document.getElementById('totalInteractions').textContent = totalInteractions;
+        }
+      } catch(e) {
+        console.error('加载统计信息失败:', e);
+      }
+    }
+    
+    // 刷新功能
+    async function refreshAll() {
+      document.getElementById('adminStatus').textContent = '刷新中...';
+      try {
+        await Promise.all([fetchUsers(), loadStats()]);
+        document.getElementById('adminStatus').textContent = '刷新完成';
+        setTimeout(() => {
+          document.getElementById('adminStatus').textContent = '管理员后台已就绪';
+        }, 2000);
+      } catch(e) {
+        document.getElementById('adminStatus').textContent = '刷新失败';
+      }
+    }
+    
+    // 导出功能
+    function exportData() {
+      const csvContent = "data:text/csv;charset=utf-8," 
+        + "用户ID,姓名,职业,邮箱,创建时间,是否管理员\n"
+        + Array.from(document.querySelectorAll('[data-uid]')).map(row => {
+            const cells = row.querySelectorAll('td');
+            return [
+              cells[0]?.textContent || '',
+              cells[1]?.textContent?.replace(/👑/g, '') || '',
+              '', // 职业信息需要从详情获取
+              '', // 邮箱信息需要从详情获取
+              '', // 创建时间需要从详情获取
+              cells[1]?.innerHTML?.includes('fa-shield-alt') ? '是' : '否'
+            ].map(field => `"${field}"`).join(',');
+          }).join('\n');
+      
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `users_export_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    
+    // 删除用户功能
+    async function deleteUser(userId) {
+      if (!confirm(`确认删除用户 ${userId}？此操作不可撤销！`)) {
+        return;
+      }
+      
+      try {
+        const resp = await fetch(`/api/admin/users/${encodeURIComponent(userId)}`, {
+          method: 'DELETE'
+        });
+        
+        if (resp.ok) {
+          alert('用户删除成功');
+          await fetchUsers();
+          // 清空详情面板
+          document.getElementById('currentUserId').textContent = '未选择';
+          document.getElementById('deleteUserBtn').classList.add('hidden');
+          document.getElementById('adminToggleRow').classList.add('hidden');
+          ['basicInfo','interests','skills','education','work','searches'].forEach(id => {
+            document.getElementById(id).innerHTML = '请选择左侧用户查看详情';
+          });
+        } else {
+          const error = await resp.text();
+          alert('删除失败: ' + error);
+        }
+      } catch(e) {
+        alert('删除失败: ' + e.message);
+      }
+    }
+    
+    // 数据库修复功能
+    async function fixDatabase() {
+      if (!confirm('确认修复数据库？这将添加缺失的列到数据库表中。')) {
+        return;
+      }
+      
+      const btn = document.getElementById('fixDbBtn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>修复中';
+      btn.disabled = true;
+      
+      try {
+        const resp = await fetch('/api/admin/fix_database', {
+          method: 'POST'
+        });
+        
+        if (resp.ok) {
+          const result = await resp.json();
+          alert(result.message);
+          if (result.fixes && result.fixes.length > 0) {
+            // 如果有修复，刷新页面数据
+            await refreshAll();
+          }
+        } else {
+          const error = await resp.json();
+          alert('修复失败: ' + error.error);
+        }
+      } catch(e) {
+        alert('修复失败: ' + e.message);
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+    
+    // 初始化事件绑定
     document.getElementById('searchBtn').onclick = fetchUsers;
+    document.getElementById('refreshBtn').onclick = refreshAll;
+    document.getElementById('exportBtn').onclick = exportData;
+    document.getElementById('fixDbBtn').onclick = fixDatabase;
     qInput.addEventListener('keydown', (e)=>{ if (e.key === 'Enter'){ e.preventDefault(); fetchUsers(); }});
     
     // 显示管理员状态
     document.getElementById('adminStatus').textContent = '正在加载...';
     
-    // 启动时获取用户列表
-    fetchUsers().then(() => {
-      document.getElementById('adminStatus').textContent = '管理员后台已就绪';
+    // 检查数据库状态
+    async function checkDatabaseStatus() {
+      try {
+        // 尝试获取一个用户详情来测试数据库
+        const resp = await fetch('/api/admin/users?limit=1');
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.items && data.items.length > 0) {
+            // 尝试获取第一个用户的详情
+            const firstUser = data.items[0];
+            const detailResp = await fetch(`/api/admin/users/${encodeURIComponent(firstUser.id)}`);
+            if (!detailResp.ok && detailResp.status === 500) {
+              document.getElementById('adminStatus').innerHTML = 
+                '<span class="text-red-400">⚠️ 数据库需要修复，请点击"修复DB"</span>';
+              return false;
+            }
+          }
+        }
+        return true;
+      } catch(e) {
+        console.error('数据库状态检查失败:', e);
+        return false;
+      }
+    }
+    
+    // 启动时获取数据
+    Promise.all([fetchUsers(), loadStats()]).then(async () => {
+      const dbOk = await checkDatabaseStatus();
+      if (dbOk) {
+        document.getElementById('adminStatus').textContent = '管理员后台已就绪';
+      }
     }).catch(e => {
-      document.getElementById('adminStatus').textContent = '加载失败';
+      document.getElementById('adminStatus').textContent = '加载失败，可能需要修复数据库';
       console.error('初始化失败:', e);
     });
   </script>
