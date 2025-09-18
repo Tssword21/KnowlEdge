@@ -99,6 +99,10 @@ def get_db_connection():
                 category TEXT,
                 weight REAL DEFAULT 5.0,
                 reason TEXT,
+                interest_level INTEGER DEFAULT 1,
+                search_count INTEGER DEFAULT 0,
+                source_type TEXT DEFAULT 'manual',
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users (id)
             )
@@ -112,6 +116,9 @@ def get_db_connection():
                 skill TEXT,
                 level TEXT,
                 category TEXT,
+                skill_level INTEGER DEFAULT 1,
+                skill_category TEXT DEFAULT 'general',
+                source_type TEXT DEFAULT 'manual',
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users (id)
             )
@@ -247,10 +254,39 @@ def get_db_connection():
                     category TEXT,
                     weight REAL DEFAULT 5.0,
                     reason TEXT,
+                    interest_level INTEGER DEFAULT 1,
+                    search_count INTEGER DEFAULT 0,
+                    source_type TEXT DEFAULT 'manual',
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users (id)
                 )
                 ''')
+            else:
+                # 检查并添加缺失的列
+                try:
+                    cursor = conn.cursor()
+                    cursor.execute("PRAGMA table_info(user_interests)")
+                    interest_columns = [row[1] for row in cursor.fetchall()]
+                    
+                    if 'interest_level' not in interest_columns:
+                        conn.execute("ALTER TABLE user_interests ADD COLUMN interest_level INTEGER DEFAULT 1")
+                        logger.info("已为user_interests表添加interest_level列")
+                    
+                    if 'search_count' not in interest_columns:
+                        conn.execute("ALTER TABLE user_interests ADD COLUMN search_count INTEGER DEFAULT 0")
+                        logger.info("已为user_interests表添加search_count列")
+                    
+                    if 'source_type' not in interest_columns:
+                        conn.execute("ALTER TABLE user_interests ADD COLUMN source_type TEXT DEFAULT 'manual'")
+                        logger.info("已为user_interests表添加source_type列")
+                        
+                    if 'timestamp' not in interest_columns:
+                        conn.execute("ALTER TABLE user_interests ADD COLUMN timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+                        logger.info("已为user_interests表添加timestamp列")
+                        
+                except Exception as e:
+                    logger.warning(f"更新user_interests表结构失败: {e}")
                 
             if 'user_skills' not in table_names:
                 logger.warning("数据库缺少user_skills表")
@@ -261,10 +297,34 @@ def get_db_connection():
                     skill TEXT,
                     level TEXT,
                     category TEXT,
+                    skill_level INTEGER DEFAULT 1,
+                    skill_category TEXT DEFAULT 'general',
+                    source_type TEXT DEFAULT 'manual',
                     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users (id)
                 )
                 ''')
+            else:
+                # 检查并添加缺失的列
+                try:
+                    cursor = conn.cursor()
+                    cursor.execute("PRAGMA table_info(user_skills)")
+                    skill_columns = [row[1] for row in cursor.fetchall()]
+                    
+                    if 'skill_level' not in skill_columns:
+                        conn.execute("ALTER TABLE user_skills ADD COLUMN skill_level INTEGER DEFAULT 1")
+                        logger.info("已为user_skills表添加skill_level列")
+                    
+                    if 'skill_category' not in skill_columns:
+                        conn.execute("ALTER TABLE user_skills ADD COLUMN skill_category TEXT DEFAULT 'general'")
+                        logger.info("已为user_skills表添加skill_category列")
+                    
+                    if 'source_type' not in skill_columns:
+                        conn.execute("ALTER TABLE user_skills ADD COLUMN source_type TEXT DEFAULT 'manual'")
+                        logger.info("已为user_skills表添加source_type列")
+                        
+                except Exception as e:
+                    logger.warning(f"更新user_skills表结构失败: {e}")
                 
             if 'user_education' not in table_names:
                 logger.warning("数据库缺少user_education表")

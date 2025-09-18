@@ -5,6 +5,8 @@ KnowlEdge项目工具模块
 import os
 import logging
 from logging.handlers import TimedRotatingFileHandler
+import hashlib
+import uuid
 
 from src.config import Config
 
@@ -94,3 +96,42 @@ def verify_database():
             conn.close()
         except Exception:
             pass 
+
+def generate_user_id(username: str, email: str = None, extra_data: str = None) -> str:
+    """
+    生成唯一的用户ID
+    
+    Args:
+        username: 用户名
+        email: 邮箱（可选）
+        extra_data: 额外数据（可选）
+    
+    Returns:
+        32位哈希用户ID
+    """
+    # 构建唯一字符串
+    unique_parts = [username]
+    if email:
+        unique_parts.append(email)
+    if extra_data:
+        unique_parts.append(extra_data)
+    
+    # 添加随机元素确保唯一性
+    unique_parts.append(uuid.uuid4().hex[:8])
+    
+    unique_string = "-".join(unique_parts)
+    return hashlib.md5(unique_string.encode()).hexdigest()
+
+def generate_temp_user_id(temp_name: str) -> str:
+    """
+    为临时/游客用户生成用户ID
+    
+    Args:
+        temp_name: 临时用户名
+    
+    Returns:
+        32位哈希用户ID
+    """
+    import time
+    temp_string = f"temp-{temp_name}-{int(time.time())}-{uuid.uuid4().hex[:6]}"
+    return hashlib.md5(temp_string.encode()).hexdigest() 

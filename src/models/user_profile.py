@@ -44,37 +44,76 @@ class EnhancedUserProfileExtractor:
         
         # 兴趣关键词映射和权重
         self.interest_keywords = {
-            '人工智能': {'keywords': ['ai', 'artificial intelligence', '人工智能', '机器学习', 'ml', 'deep learning', '深度学习'], 'category': 'AI技术', 'base_level': 3},
-            '自然语言处理': {'keywords': ['nlp', 'natural language', '自然语言', 'language model', '语言模型'], 'category': 'AI技术', 'base_level': 4},
-            '计算机视觉': {'keywords': ['cv', 'computer vision', '计算机视觉', 'image', '图像', 'vision'], 'category': 'AI技术', 'base_level': 4},
-            '数据科学': {'keywords': ['data science', '数据科学', 'analytics', '数据分析', 'statistics'], 'category': '数据分析', 'base_level': 3},
-            '区块链': {'keywords': ['blockchain', '区块链', 'crypto', '加密货币', 'bitcoin'], 'category': '新兴技术', 'base_level': 2},
-            '云计算': {'keywords': ['cloud', '云计算', 'aws', 'azure', 'docker', 'kubernetes'], 'category': '基础设施', 'base_level': 3},
-            '网络安全': {'keywords': ['security', '安全', 'cyber', '网络安全', 'encryption'], 'category': '安全技术', 'base_level': 4},
-            '前端开发': {'keywords': ['frontend', '前端', 'react', 'vue', 'javascript', 'css'], 'category': '软件开发', 'base_level': 2},
-            '后端开发': {'keywords': ['backend', '后端', 'api', 'server', 'database'], 'category': '软件开发', 'base_level': 3},
-            '移动开发': {'keywords': ['mobile', '移动', 'android', 'ios', 'flutter', 'react native'], 'category': '软件开发', 'base_level': 3},
+            '人工智能': {'keywords': ['ai', 'artificial intelligence', '人工智能', '机器学习', 'ml', 'deep learning', '深度学习', 'neural network', '神经网络'], 'category': 'AI技术', 'base_level': 3},
+            '自然语言处理': {'keywords': ['nlp', 'natural language', '自然语言', 'language model', '语言模型', 'chatgpt', 'bert', 'transformer'], 'category': 'AI技术', 'base_level': 4},
+            '计算机视觉': {'keywords': ['cv', 'computer vision', '计算机视觉', 'image', '图像', 'vision', 'opencv', '图像处理'], 'category': 'AI技术', 'base_level': 4},
+            '数据科学': {'keywords': ['data science', '数据科学', 'analytics', '数据分析', 'statistics', '统计', 'pandas', 'numpy', '数据挖掘'], 'category': '数据分析', 'base_level': 3},
+            '大数据': {'keywords': ['big data', '大数据', 'hadoop', 'spark', 'hive', 'kafka', '数据工程'], 'category': '数据分析', 'base_level': 3},
+            '区块链': {'keywords': ['blockchain', '区块链', 'crypto', '加密货币', 'bitcoin', 'ethereum', 'web3'], 'category': '新兴技术', 'base_level': 2},
+            '云计算': {'keywords': ['cloud', '云计算', 'aws', 'azure', 'docker', 'kubernetes', '容器', 'devops'], 'category': '基础设施', 'base_level': 3},
+            '网络安全': {'keywords': ['security', '安全', 'cyber', '网络安全', 'encryption', '密码学', '渗透测试'], 'category': '安全技术', 'base_level': 4},
+            '前端开发': {'keywords': ['frontend', '前端', 'react', 'vue', 'javascript', 'css', 'html', 'typescript', 'angular'], 'category': '软件开发', 'base_level': 2},
+            '后端开发': {'keywords': ['backend', '后端', 'api', 'server', 'database', 'spring', 'django', 'flask', 'node.js'], 'category': '软件开发', 'base_level': 3},
+            '移动开发': {'keywords': ['mobile', '移动', 'android', 'ios', 'flutter', 'react native', 'swift', 'kotlin'], 'category': '软件开发', 'base_level': 3},
+            '游戏开发': {'keywords': ['game', '游戏开发', 'unity', 'unreal', 'cocos', '游戏引擎'], 'category': '软件开发', 'base_level': 3},
+            '数据库技术': {'keywords': ['database', '数据库', 'mysql', 'postgresql', 'mongodb', 'redis', 'sql'], 'category': '基础设施', 'base_level': 2},
+            '软件架构': {'keywords': ['architecture', '架构', 'microservices', '微服务', '系统设计', 'design pattern'], 'category': '软件开发', 'base_level': 4},
+            '产品管理': {'keywords': ['product', '产品', 'pm', '产品经理', '需求分析', 'prototype'], 'category': '管理', 'base_level': 2},
+            '项目管理': {'keywords': ['project', '项目管理', 'scrum', 'agile', '敏捷', 'kanban'], 'category': '管理', 'base_level': 2},
+            '用户体验': {'keywords': ['ux', 'ui', '用户体验', '交互设计', 'figma', 'sketch', 'prototype'], 'category': '设计', 'base_level': 2},
+            '金融科技': {'keywords': ['fintech', '金融科技', '支付', 'payment', '风控', '量化'], 'category': '行业应用', 'base_level': 3},
+            '物联网': {'keywords': ['iot', '物联网', '传感器', '嵌入式', 'raspberry pi', 'arduino'], 'category': '新兴技术', 'base_level': 3},
+            '运维工程': {'keywords': ['devops', '运维', 'ops', 'monitoring', '监控', 'deployment', '部署'], 'category': '基础设施', 'base_level': 3},
         }
         
         # 技能等级评估关键词
         self.skill_level_indicators = {
-            'expert': 8,    # 专家级
-            'senior': 7,    # 高级
-            'advanced': 6,  # 进阶
-            'intermediate': 4,  # 中级
-            'beginner': 2,  # 初级
-            'basic': 1,     # 基础
-            '专家': 8, '高级': 7, '资深': 7, '进阶': 6, '中级': 4, '初级': 2, '基础': 1
+            # 等级描述词
+            'expert': 9, 'expertise': 9, 'specialist': 9,    # 专家级
+            'senior': 7, 'lead': 7, 'principal': 8,    # 高级/领导级
+            'advanced': 6, 'proficient': 6,  # 进阶/熟练
+            'intermediate': 4, 'experienced': 5,  # 中级/有经验
+            'beginner': 2, 'junior': 2,  # 初级
+            'basic': 1, 'fundamental': 1,     # 基础
+            # 中文描述
+            '专家': 9, '资深': 8, '高级': 7, '进阶': 6, '熟练': 5, '中级': 4, '初级': 2, '基础': 1,
+            # 年限指标
+            '5年以上': 7, '3-5年': 6, '2-3年': 4, '1-2年': 3, '1年': 2,
+            '5+年': 7, '3+年': 5, '2+年': 4, '1+年': 3,
+            # 项目经验指标
+            '项目经验': 4, '商业项目': 5, '大型项目': 6, '核心开发': 6,
+            '架构设计': 7, '技术负责': 7, '团队领导': 8,
+            # 认证和教育指标
+            '认证': 3, '证书': 3, '培训': 2, '学习': 2,
+            '毕业设计': 3, '研究': 4, '论文': 5,
         }
         
-        # 技能分类
+        # 技能分类 - 扩展更多分类
         self.skill_categories = {
-            'programming': ['python', 'java', 'javascript', 'c++', 'go', 'rust', 'php'],
-            'framework': ['react', 'vue', 'angular', 'django', 'flask', 'spring'],
-            'database': ['mysql', 'postgresql', 'mongodb', 'redis', 'elasticsearch'],
-            'cloud': ['aws', 'azure', 'gcp', 'docker', 'kubernetes'],
-            'ai_ml': ['tensorflow', 'pytorch', 'scikit-learn', 'opencv'],
-            'tools': ['git', 'linux', 'docker', 'jenkins', 'nginx'],
+            'programming': ['python', 'java', 'javascript', 'c++', 'go', 'rust', 'php', 'c#', 'swift', 'kotlin', 'scala'],
+            'frontend': ['html', 'css', 'javascript', 'typescript', 'react', 'vue', 'angular', 'sass', 'less'],
+            'backend': ['node.js', 'django', 'flask', 'spring', 'express', 'fastapi', 'gin', 'rails'],
+            'mobile': ['android', 'ios', 'flutter', 'react native', 'xamarin', 'ionic'],
+            'database': ['mysql', 'postgresql', 'mongodb', 'redis', 'elasticsearch', 'oracle', 'sqlite'],
+            'cloud': ['aws', 'azure', 'gcp', 'docker', 'kubernetes', 'terraform', 'ansible'],
+            'ai_ml': ['tensorflow', 'pytorch', 'scikit-learn', 'opencv', 'keras', 'pandas', 'numpy'],
+            'tools': ['git', 'linux', 'docker', 'jenkins', 'nginx', 'vim', 'vscode'],
+            'design': ['photoshop', 'illustrator', 'figma', 'sketch', 'ui', 'ux'],
+            'management': ['agile', 'scrum', 'kanban', 'jira', 'confluence', '项目管理'],
+        }
+        
+        # 技能熟练度推断关键词
+        self.proficiency_keywords = {
+            # 高熟练度指标 (7-9分)
+            'architect': 8, 'design': 6, 'optimize': 6, 'implement': 5,
+            'develop': 4, 'build': 4, 'create': 4, 'maintain': 5,
+            '架构': 8, '设计': 6, '优化': 6, '实现': 5, '开发': 4, '构建': 4, '维护': 5,
+            # 协作和管理指标
+            'collaborate': 4, 'mentor': 6, 'teach': 6, 'review': 5,
+            '协作': 4, '指导': 6, '教学': 6, '评审': 5, '带队': 7,
+            # 问题解决指标
+            'troubleshoot': 5, 'debug': 4, 'solve': 4, 'fix': 3,
+            '排错': 5, '调试': 4, '解决': 4, '修复': 3,
         }
         
         # 搜索行为技能关键词映射
@@ -240,17 +279,17 @@ class EnhancedUserProfileExtractor:
                         
                         cursor.execute("""
                             UPDATE user_interests 
-                            SET interest_level=?, search_count=?, weight=?, timestamp=?
+                            SET interest_level=?, search_count=?, weight=?, timestamp=datetime('now')
                             WHERE user_id=? AND topic=? AND source_type='search'
-                        """, (new_level, new_search_count, interest.weight, interest.last_updated, user_id, interest.topic))
+                        """, (new_level, new_search_count, interest.weight, user_id, interest.topic))
                     else:
                         # 插入新的搜索兴趣
                         cursor.execute("""
                             INSERT INTO user_interests 
-                            (user_id, topic, category, weight, interest_level, search_count, reason, timestamp, source_type)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'search')
+                            (user_id, topic, category, weight, interest_level, search_count, reason, source_type, timestamp)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
                         """, (user_id, interest.topic, interest.category, interest.weight, 
-                              interest.interest_level, interest.search_count, interest.reason, interest.last_updated))
+                              interest.interest_level, interest.search_count, interest.reason, 'search'))
                 
                 elif source_type == "resume":
                     # 简历来源：检查是否已存在，不存在才插入，不累加
@@ -263,10 +302,10 @@ class EnhancedUserProfileExtractor:
                         # 插入新的简历兴趣（搜索次数设为0）
                         cursor.execute("""
                             INSERT INTO user_interests 
-                            (user_id, topic, category, weight, interest_level, search_count, reason, timestamp, source_type)
-                            VALUES (?, ?, ?, ?, ?, 0, ?, ?, 'resume')
+                            (user_id, topic, category, weight, interest_level, search_count, reason, source_type, timestamp)
+                            VALUES (?, ?, ?, ?, ?, 0, ?, 'resume', datetime('now'))
                         """, (user_id, interest.topic, interest.category, interest.weight, 
-                              interest.interest_level, interest.reason, interest.last_updated))
+                              interest.interest_level, interest.reason))
             
             conn.commit()
             conn.close()
@@ -275,38 +314,149 @@ class EnhancedUserProfileExtractor:
         except Exception as e:
             logging.error(f"更新用户兴趣失败: {e}")
 
-    def assess_skill_level(self, skill_text: str) -> Tuple[int, str]:
-        """评估技能等级 (0-10) 和类别"""
+    def assess_skill_level(self, skill_text: str, context_text: str = "") -> Tuple[int, str]:
+        """
+        智能评估技能等级 (1-10) 和类别 - 重构版本，真正的差异化评分
+        
+        Args:
+            skill_text: 技能名称和描述
+            context_text: 上下文信息（工作描述、项目经验等）
+        
+        Returns:
+            (技能等级, 技能类别)
+        """
         skill_lower = skill_text.lower()
+        context_lower = context_text.lower()
+        combined_text = f"{skill_lower} {context_lower}"
         
-        # 根据描述中的关键词判断等级
-        level = 1  # 默认基础等级
+        # 基础等级评估 - 大幅降低基础分
+        base_level = 1  # 从1分开始，真正保守
+        
+        # 1. 只有明确的技能等级关键词才能提升基础分
+        explicit_level_found = False
         for indicator, score in self.skill_level_indicators.items():
-            if indicator in skill_lower:
-                level = max(level, score)
-        
-        # 保守评分策略：降低1-2级
-        conservative_level = max(1, level - 1)
-        
-        # 判断技能类别
-        category = 'general'
-        for cat, skills in self.skill_categories.items():
-            if any(skill in skill_lower for skill in skills):
-                category = cat
+            if indicator in combined_text:
+                base_level = max(base_level, min(4, score - 3))  # 大幅降低基础评分
+                explicit_level_found = True
                 break
         
-        return conservative_level, category
+        # 如果没有明确等级指标，保持1分
+        if not explicit_level_found:
+            base_level = 1
+        
+        # 2. 技能复杂度评估 - 只给少量加分
+        complexity_bonus = 0
+        high_complexity_skills = [
+            'kubernetes', 'tensorflow', 'pytorch', 'scala', 'rust', 'golang',
+            'microservices', 'distributed', 'machine learning', 'deep learning',
+            'blockchain', 'devops', 'architecture', '架构', '机器学习', '深度学习'
+        ]
+        
+        if any(skill in skill_lower for skill in high_complexity_skills):
+            complexity_bonus = 1  # 高复杂度技能只加1分
+        
+        # 3. 工作年限评估 - 非常保守
+        year_bonus = 0
+        import re
+        year_patterns = [r'(\d+)\+?\s*年', r'(\d+)\+?\s*years?', r'over\s+(\d+)\s+years?']
+        
+        for pattern in year_patterns:
+            matches = re.findall(pattern, combined_text)
+            if matches:
+                try:
+                    years = int(matches[0])
+                    if years >= 8:
+                        year_bonus = 2  # 8年以上才加2分
+                    elif years >= 5:
+                        year_bonus = 1  # 5年以上加1分
+                    # 5年以下不加分
+                    break
+                except:
+                    continue
+        
+        # 4. 高级职责评估 - 非常严格
+        senior_bonus = 0
+        senior_keywords = ['architect', 'lead', 'principal', '架构师', '技术负责人', '首席']
+        if any(keyword in combined_text for keyword in senior_keywords):
+            senior_bonus = 1  # 高级职责只加1分
+        
+        # 5. 计算最终等级
+        final_level = base_level + complexity_bonus + year_bonus + senior_bonus
+        
+        # 严格限制最高分数
+        final_level = max(1, min(6, final_level))  # 最高只能6分
+        
+        # 6. 根据技能名称的常见程度进一步调整
+        common_skills = ['html', 'css', 'javascript', 'python', 'java', 'sql', 'git']
+        if any(skill in skill_lower for skill in common_skills):
+            final_level = max(1, min(4, final_level))  # 常见技能最高4分
+        
+        # 7. 判断技能类别
+        category = self._determine_skill_category(skill_lower)
+        
+        logging.info(f"技能评估详情: {skill_text[:20]}... -> 基础:{base_level}, 复杂度:+{complexity_bonus}, 年限:+{year_bonus}, 职责:+{senior_bonus} = 最终:{final_level}/10")
+        
+        return final_level, category
+    
+    def _determine_skill_category(self, skill_lower: str) -> str:
+        """确定技能类别"""
+        category = 'general'
+        max_matches = 0
+        
+        for cat, skills in self.skill_categories.items():
+            matches = sum(1 for skill in skills if skill in skill_lower)
+            if matches > max_matches:
+                max_matches = matches
+                category = cat
+        
+        # 特殊分类
+        if category == 'general':
+            if any(keyword in skill_lower for keyword in ['管理', 'management', 'lead', 'scrum', 'agile']):
+                category = 'management'
+            elif any(keyword in skill_lower for keyword in ['设计', 'design', 'ui', 'ux']):
+                category = 'design'
+        
+        return category
 
-    def enhance_extracted_skills(self, skills: List[Dict]) -> List[SkillItem]:
-        """增强技能提取，添加等级和类别评估"""
+    def enhance_extracted_skills(self, skills: List[Dict], context: str = "") -> List[SkillItem]:
+        """
+        增强技能提取，添加等级和类别评估
+        
+        Args:
+            skills: 技能列表字典
+            context: 上下文信息（简历全文、工作描述等）
+        """
         enhanced_skills = []
         
         for skill_dict in skills:
             skill_name = skill_dict.get('skill', '')
             original_level = skill_dict.get('level', '')
             
-            # 评估数值等级和类别
-            skill_level, skill_category = self.assess_skill_level(f"{skill_name} {original_level}")
+            # 构建评估文本：技能名 + 等级描述 + 上下文
+            assessment_text = f"{skill_name} {original_level}"
+            
+            # 评估数值等级和类别，传入上下文
+            skill_level, skill_category = self.assess_skill_level(assessment_text, context)
+            
+            # 如果LLM也给了skill_level，进行综合评估（极度保守）
+            if 'skill_level' in skill_dict and isinstance(skill_dict['skill_level'], (int, float)):
+                llm_level = min(6, max(1, skill_dict['skill_level']))  # LLM评分也限制在1-6
+                
+                # 极度保守的综合评估：我们的评估为主
+                # 权重：我们的评估占90%，LLM占10%
+                combined_level = (skill_level * 0.9 + llm_level * 0.1)
+                
+                # 向下取整，进一步保守
+                combined_level = int(combined_level)
+                
+                # 最终分数：绝对不超过5分
+                skill_level = max(1, min(5, combined_level))
+                
+                logging.info(f"技能综合评估: {skill_name} - 算法:{skill_level}, LLM:{llm_level}, 最终:{skill_level}")
+            else:
+                # 没有LLM评分时，直接使用我们的评估，但限制更严格
+                skill_level = max(1, min(4, skill_level))  # 无LLM时最高4分
+                logging.info(f"技能算法评估: {skill_name} - 最终评分:{skill_level}")
             
             enhanced_skill = SkillItem(
                 skill=skill_name,
@@ -320,14 +470,128 @@ class EnhancedUserProfileExtractor:
         return enhanced_skills
 
     async def extract_from_resume_with_enhancement(self, resume_content: str, user_id: str) -> Dict:
-        """增强的简历解析，包含兴趣和技能等级评估"""
-        # 原有的简历解析逻辑
-        profile_data = await self.extract_user_profile(resume_content)
+        """增强的简历解析，包含兴趣和技能等级评估 - 并行处理"""
+        logging.info(f"开始增强简历分析，用户ID: {user_id}")
+        
+        # 并行执行技能提取和兴趣提取
+        import asyncio
+        
+        # 定义并行任务
+        async def extract_skills_task():
+            """技能提取任务"""
+            try:
+                system_msg = "你是专业的技能分析师。请从简历中提取技能信息并评估等级。"
+                prompt = f"""
+请分析以下简历内容，提取技能信息并评估等级（1-10分，保守评分）：
+
+{resume_content}
+
+请返回JSON格式，包含技能列表：
+{{
+  "skills": [
+    {{"skill": "技能名称", "level": "等级描述", "skill_level": 数值1-10, "category": "技能类别"}}
+  ]
+}}
+"""
+                result = await self.llm.call_llm(prompt, system_message=system_msg)
+                # 清理JSON
+                result = result.strip()
+                if result.startswith("```json"):
+                    result = result[7:]
+                if result.startswith("```"):
+                    result = result[3:]
+                if result.endswith("```"):
+                    result = result[:-3]
+                result = result.strip()
+                
+                import json
+                parsed = json.loads(result)
+                return parsed.get('skills', [])
+            except Exception as e:
+                logging.error(f"技能提取失败: {e}")
+                return []
+        
+        async def extract_interests_task():
+            """兴趣提取任务"""
+            try:
+                # 使用现有的兴趣提取方法（但不保存到数据库）
+                interests_data = []
+                resume_lower = resume_content.lower()
+                
+                logging.info(f"开始从简历中提取兴趣，简历长度: {len(resume_content)} 字符")
+                logging.info(f"简历内容前300字符: {resume_content[:300]}...")
+                logging.info(f"兴趣关键词库有 {len(self.interest_keywords)} 个兴趣领域")
+                
+                for topic, config in self.interest_keywords.items():
+                    # 检查是否匹配关键词
+                    matches = [keyword for keyword in config['keywords'] if keyword.lower() in resume_lower]
+                    match_count = len(matches)
+                    
+                    logging.debug(f"检查兴趣领域 '{topic}': 匹配 {match_count} 个关键词: {matches}")
+                    
+                    if match_count > 0:
+                        # 简历兴趣等级基于匹配程度，但相对保守
+                        interest_level = min(8, config['base_level'] + match_count)  # 最高8级
+                        
+                        interest = InterestItem(
+                            topic=topic,
+                            category=config['category'],
+                            weight=0.8 + (match_count * 0.1),  # 简历权重稍高但不会过高
+                            interest_level=interest_level,
+                            search_count=0,  # 简历兴趣不计搜索次数
+                            reason=f"基于简历内容分析得出，匹配度: {match_count}，匹配关键词: {matches}",
+                            last_updated=datetime.now().isoformat()
+                        )
+                        interests_data.append(interest)
+                        logging.info(f"✅ 提取到兴趣: {topic} (等级:{interest_level}, 匹配:{matches})")
+                
+                logging.info(f"兴趣提取完成，共提取到 {len(interests_data)} 项兴趣")
+                return interests_data
+            except Exception as e:
+                logging.error(f"兴趣提取失败: {e}", exc_info=True)
+                return []
+        
+        # 并行执行两个任务
+        try:
+            skills_data, interests_data = await asyncio.gather(
+                extract_skills_task(),
+                extract_interests_task(),
+                return_exceptions=True
+            )
+            
+            # 处理可能的异常
+            if isinstance(skills_data, Exception):
+                logging.error(f"技能提取任务失败: {skills_data}")
+                skills_data = []
+            if isinstance(interests_data, Exception):
+                logging.error(f"兴趣提取任务失败: {interests_data}")
+                interests_data = []
+                
+        except Exception as e:
+            logging.error(f"并行任务执行失败: {e}")
+            skills_data = []
+            interests_data = []
         
         # 增强技能评估
-        if 'skills' in profile_data:
-            enhanced_skills = self.enhance_extracted_skills(profile_data['skills'])
-            profile_data['enhanced_skills'] = [
+        enhanced_skills = []
+        if skills_data:
+            enhanced_skills = self.enhance_extracted_skills(skills_data, resume_content)
+        
+        # 保存兴趣到数据库（标记为简历来源）
+        if interests_data:
+            try:
+                self._update_user_interests(user_id, interests_data, "resume")
+                logging.info(f"✅ 已成功保存 {len(interests_data)} 项简历兴趣到数据库")
+                for interest in interests_data:
+                    logging.info(f"  - {interest.topic} (等级: {interest.interest_level}, 类别: {interest.category})")
+            except Exception as e:
+                logging.error(f"❌ 保存简历兴趣到数据库失败: {e}", exc_info=True)
+        else:
+            logging.warning("⚠️ 未从简历中提取到任何兴趣")
+        
+        # 构建返回数据
+        profile_data = {
+            'enhanced_skills': [
                 {
                     'skill': s.skill,
                     'level': s.level,
@@ -336,21 +600,20 @@ class EnhancedUserProfileExtractor:
                     'skill_category': s.skill_category
                 }
                 for s in enhanced_skills
+            ],
+            'extracted_interests': [
+                {
+                    'topic': i.topic,
+                    'category': i.category,
+                    'interest_level': i.interest_level,
+                    'reason': i.reason,
+                    'source_type': 'resume'
+                }
+                for i in interests_data
             ]
+        }
         
-        # 基于简历内容提取潜在兴趣（标记为简历来源）
-        potential_interests = self.extract_interests_from_resume(resume_content, user_id)
-        profile_data['extracted_interests'] = [
-            {
-                'topic': i.topic,
-                'category': i.category,
-                'interest_level': i.interest_level,
-                'reason': i.reason,
-                'source_type': 'resume'
-            }
-            for i in potential_interests
-        ]
-        
+        logging.info(f"并行简历分析完成 - 技能: {len(enhanced_skills)}, 兴趣: {len(interests_data)}")
         return profile_data
 
     async def extract_user_profile(self, resume_content: str) -> Dict:
@@ -372,7 +635,7 @@ class EnhancedUserProfileExtractor:
 返回JSON格式，确保数据结构清晰。
 """
             
-            response = await self.llm.call_llm(prompt, system_msg)
+            response = await self.llm.call_llm(prompt, system_message=system_msg)
             
             # 解析LLM返回的JSON
             import json
@@ -580,8 +843,8 @@ class UserProfileManager:
                     if isinstance(skill, str):
                         # 如果技能是字符串，使用默认值
                         conn.execute(
-                            "INSERT INTO user_skills (user_id, skill) VALUES (?, ?)",
-                            (user_id, skill)
+                            "INSERT INTO user_skills (user_id, skill, level, category, skill_level, skill_category, source_type) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                            (user_id, skill, "未知", "通用", 1, "general", "manual")
                         )
                     elif isinstance(skill, dict):
                         # 如果技能是字典，提取相关字段（包括新的等级字段）
@@ -590,15 +853,15 @@ class UserProfileManager:
                         cursor.execute("PRAGMA table_info(user_skills)")
                         columns = [row[1] for row in cursor.fetchall()]
                         
-                        if "skill_level" in columns and "skill_category" in columns:
+                        if "skill_level" in columns and "skill_category" in columns and "source_type" in columns:
                             # 新表结构，包含增强字段
                             conn.execute(
                                 """INSERT INTO user_skills 
-                                   (user_id, skill, level, category, skill_level, skill_category)
-                                   VALUES (?, ?, ?, ?, ?, ?)""",
+                                   (user_id, skill, level, category, skill_level, skill_category, source_type)
+                                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
                                 (user_id, skill.get("skill", ""), skill.get("level", ""), 
                                  skill.get("category", ""), skill.get("skill_level", 1), 
-                                 skill.get("skill_category", "general"))
+                                 skill.get("skill_category", "general"), skill.get("source_type", "resume"))
                             )
                         else:
                             # 旧表结构
@@ -618,6 +881,62 @@ class UserProfileManager:
             
         except Exception as e:
             logging.error(f"更新用户画像时出错: {e}")
+            return {"error": str(e), "user_id": user_id}
+        finally:
+            conn.close()
+
+    def update_user_interests_from_resume(self, user_id: str, interests: List[str]) -> Dict:
+        """
+        从简历更新用户兴趣标签，避免叠加，只在不存在时添加
+        
+        Args:
+            user_id: 用户ID
+            interests: 兴趣标签列表
+            
+        Returns:
+            更新后的用户画像
+        """
+        logging.info(f"从简历更新用户 {user_id} 的兴趣标签: {interests}")
+        
+        conn = get_db_connection()
+        try:
+            # 检查用户是否存在
+            user = conn.execute("SELECT id FROM users WHERE id = ?", (user_id,)).fetchone()
+            if not user:
+                logging.error(f"尝试更新不存在的用户: {user_id}")
+                return {"error": f"用户 {user_id} 不存在"}
+                
+            # 清除该用户所有简历来源的兴趣，避免重复
+            conn.execute(
+                "DELETE FROM user_interests WHERE user_id = ? AND source_type = 'resume'",
+                (user_id,)
+            )
+            
+            # 添加新的兴趣（仅简历来源）
+            for interest in interests:
+                # 尝试确定类别
+                category = "未分类"
+                for cat, topics in self.interest_categories.items():
+                    if any(t.lower() in interest.lower() for t in topics):
+                        category = cat
+                        break
+                        
+                # 插入新兴趣，标记为简历来源
+                conn.execute(
+                    """INSERT INTO user_interests 
+                       (user_id, topic, category, weight, source_type, interest_level, search_count, timestamp)
+                       VALUES (?, ?, ?, ?, 'resume', ?, 0, datetime('now'))""",
+                    (user_id, interest, category, 3.0, 3)  # 简历兴趣默认权重3.0，等级3
+                )
+                    
+            conn.commit()
+            logging.info(f"从简历更新用户兴趣成功: {user_id}")
+            
+            # 返回更新后的用户画像
+            return self.get_user_profile(user_id)
+            
+        except Exception as e:
+            logging.error(f"从简历更新用户兴趣时出错: {e}")
             return {"error": str(e), "user_id": user_id}
         finally:
             conn.close()

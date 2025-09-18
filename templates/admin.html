@@ -406,31 +406,77 @@
     
     // 删除用户功能
     async function deleteUser(userId) {
-      if (!confirm(`确认删除用户 ${userId}？此操作不可撤销！`)) {
+      // 多重确认机制
+      const userName = document.querySelector(`[data-uid="${userId}"] td:nth-child(2)`)?.textContent?.trim() || userId;
+      
+      if (!confirm(`⚠️ 危险操作确认\n\n即将删除用户: ${userName} (ID: ${userId})\n\n此操作将永久删除:\n• 用户基本信息\n• 所有兴趣和技能数据\n• 教育和工作经历\n• 搜索历史记录\n• 用户画像数据\n• 登录认证信息\n\n此操作不可撤销！确认继续吗？`)) {
         return;
       }
       
+      // 二次确认
+      const confirmText = prompt(`请输入用户ID "${userId}" 来确认删除操作:`);
+      if (confirmText !== userId) {
+        alert('用户ID不匹配，删除操作已取消');
+        return;
+      }
+      
+      const deleteBtn = document.getElementById('deleteUserBtn');
+      const originalText = deleteBtn.innerHTML;
+      
       try {
+        // 显示删除进度
+        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>删除中...';
+        deleteBtn.disabled = true;
+        
         const resp = await fetch(`/api/admin/users/${encodeURIComponent(userId)}`, {
-          method: 'DELETE'
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
         
         if (resp.ok) {
-          alert('用户删除成功');
+          const result = await resp.json();
+          
+          // 成功提示
+          alert(`✅ 删除成功\n\n用户 "${userName}" 及其所有相关数据已被永久删除。`);
+          
+          // 刷新用户列表
           await fetchUsers();
+          
           // 清空详情面板
           document.getElementById('currentUserId').textContent = '未选择';
-          document.getElementById('deleteUserBtn').classList.add('hidden');
+          deleteBtn.classList.add('hidden');
           document.getElementById('adminToggleRow').classList.add('hidden');
+          
+          // 清空所有详情区域
           ['basicInfo','interests','skills','education','work','searches'].forEach(id => {
-            document.getElementById(id).innerHTML = '请选择左侧用户查看详情';
+            document.getElementById(id).innerHTML = '<div class="text-white/60">请选择左侧用户查看详情</div>';
           });
+          
+          console.log(`用户删除成功: ${userId}`);
+          
         } else {
-          const error = await resp.text();
-          alert('删除失败: ' + error);
+          // 解析错误响应
+          let errorMessage = '删除失败';
+          try {
+            const errorData = await resp.json();
+            errorMessage = errorData.error || errorData.message || `HTTP ${resp.status}`;
+          } catch {
+            errorMessage = await resp.text() || `HTTP ${resp.status} 错误`;
+          }
+          
+          alert(`❌ 删除失败\n\n错误信息: ${errorMessage}\n\n请检查网络连接或联系管理员。`);
+          console.error('删除用户失败:', resp.status, errorMessage);
         }
+        
       } catch(e) {
-        alert('删除失败: ' + e.message);
+        console.error('删除用户异常:', e);
+        alert(`❌ 删除失败\n\n网络错误: ${e.message}\n\n请检查网络连接后重试。`);
+      } finally {
+        // 恢复按钮状态
+        deleteBtn.innerHTML = originalText;
+        deleteBtn.disabled = false;
       }
     }
     

@@ -116,6 +116,18 @@ class KnowledgeFlow:
             enhanced_profile = await self.enhanced_profile_extractor.extract_from_resume_with_enhancement(resume_text, user_id)
             if enhanced_profile:
                 logging.info(f"增强简历分析完成，提取到技能数量: {len(enhanced_profile.get('enhanced_skills', []))}")
+                
+                # 保存增强的技能信息到数据库
+                if 'enhanced_skills' in enhanced_profile:
+                    self.profile_manager.update_user_profile(
+                        user_id,
+                        skills=enhanced_profile['enhanced_skills']
+                    )
+                    logging.info(f"已保存 {len(enhanced_profile['enhanced_skills'])} 项增强技能")
+                
+                # 注意：兴趣已经在extract_from_resume_with_enhancement中通过extract_interests_from_resume保存
+                # 不需要重复处理，避免叠加问题
+                
                 return {"success": True, "message": "简历分析完成", "profile": enhanced_profile}
         except Exception as e:
             logging.error(f"增强简历分析失败: {e}")
@@ -190,7 +202,7 @@ JSON格式：
                     frag = _extract_json_fragment(cleaned_retry) or cleaned_retry
                 parsed_result = json.loads(frag)
              
-            # 提取兴趣标签
+            # 提取兴趣标签 - 避免叠加，使用新的逻辑
             interests = []
             if "research_interests" in parsed_result:
                 interests.extend(parsed_result["research_interests"])
@@ -205,7 +217,7 @@ JSON格式：
                 skills=parsed_result.get("skills", [])
             )
              
-            # 更新兴趣标签
+            # 更新兴趣标签 - 使用新的不叠加逻辑
             if interests:
                 # 去重并清洗
                 uniq_interests = []
@@ -218,7 +230,8 @@ JSON格式：
                         uniq_interests.append(key)
                         seen.add(key)
                 if uniq_interests:
-                    self.profile_manager.update_user_interests(user_id, uniq_interests)
+                    # 使用新的不叠加更新逻辑
+                    self.profile_manager.update_user_interests_from_resume(user_id, uniq_interests)
                  
             return {
                 "success": True, 

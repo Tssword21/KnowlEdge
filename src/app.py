@@ -17,12 +17,12 @@ try:
     # 当在项目根目录运行时
     from src.core.knowledge_flow import KnowledgeFlow
     from src.config import Config
-    from src.utils import setup_logging, verify_database, get_user_data_path
+    from src.utils import setup_logging, verify_database, get_user_data_path, generate_temp_user_id
 except ImportError:
     # 当在src目录下运行时
     from core.knowledge_flow import KnowledgeFlow
     from config import Config
-    from utils import setup_logging, verify_database, get_user_data_path
+    from utils import setup_logging, verify_database, get_user_data_path, generate_temp_user_id
 
 from fastapi import FastAPI, Request, Form, File, UploadFile, HTTPException, Response
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
@@ -214,8 +214,9 @@ async def knowledge_flow_sse_generator(user_input_data: dict, request: Request, 
             user_id = current_user.get("user_id")
             user_name = current_user.get("username", "已登录用户")
         else:
-            # 未登录用户，使用临时ID
-            user_id = user_input_data.get("user_name", "anonymous").lower().replace(" ", "_")
+            # 未登录用户，生成唯一临时ID
+            temp_name = user_input_data.get("user_name", "anonymous")
+            user_id = generate_temp_user_id(temp_name)
             user_name = user_input_data.get("user_name", "游客用户")
         logging.info(f"处理用户: {user_name}, ID: {user_id}")
 
@@ -669,7 +670,11 @@ async def register(request: Request, username: str = Form(...), password: str = 
         if exists:
             return JSONResponse(content={"error": "用户名已存在", "code": "USERNAME_TAKEN"}, status_code=400)
         # 创建基础 user 记录
-        user_id = username.lower()
+        from src.utils import generate_user_id
+        
+        # 生成唯一的用户ID（类似之前的方式）
+        user_id = generate_user_id(username, email)
+        
         conn.execute("INSERT OR IGNORE INTO users (id, name, occupation, email) VALUES (?, ?, ?, ?)", (user_id, username, occupation or "", email or ""))
         # 判断管理员（邀请码优先，其次 ADMIN_USERS 列表）
         admins_env = os.getenv("ADMIN_USERS", "admin")
@@ -999,12 +1004,15 @@ async def admin_delete_user(request: Request, user_id: str):
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # 检查用户是否存在
-        user_exists = cursor.execute("SELECT id FROM users WHERE id=?", (user_id,)).fetchone()
-        if not user_exists:
+        # 检查用户是否存在并获取用户信息
+        user_info = cursor.execute("SELECT id, name FROM users WHERE id=?", (user_id,)).fetchone()
+        if not user_info:
             return JSONResponse(content={"error": "用户不存在"}, status_code=404)
         
-        # 删除用户相关的所有数据
+        user_name = user_info[1] if user_info[1] else user_id
+        
+        # 统计要删除的数据量
+        deletion_stats = {}
         tables_to_clean = [
             "user_interests",
             "user_skills", 
@@ -1017,23 +1025,62 @@ async def admin_delete_user(request: Request, user_id: str):
             "users"
         ]
         
+        # 先统计各表的数据量
         for table in tables_to_clean:
             try:
-                if table == "user_auth":
-                    cursor.execute(f"DELETE FROM {table} WHERE user_id=?", (user_id,))
+                if table in ["user_auth"]:
+                    count = cursor.execute(f"SELECT COUNT(*) FROM {table} WHERE user_id=?", (user_id,)).fetchone()[0]
                 else:
-                    cursor.execute(f"DELETE FROM {table} WHERE user_id=?", (user_id,))
-                logging.info(f"已清理表 {table} 中用户 {user_id} 的数据")
+                    count = cursor.execute(f"SELECT COUNT(*) FROM {table} WHERE user_id=?", (user_id,)).fetchone()[0]
+                deletion_stats[table] = count
             except Exception as e:
-                logging.warning(f"清理表 {table} 失败: {e}")
+                logging.warning(f"无法统计表 {table} 的数据: {e}")
+                deletion_stats[table] = 0
+        
+        total_records = sum(deletion_stats.values())
+        logging.info(f"准备删除用户 {user_name} ({user_id})，总计 {total_records} 条记录: {deletion_stats}")
+        
+        # 执行删除操作
+        deletion_results = {}
+        for table in tables_to_clean:
+            try:
+                if deletion_stats.get(table, 0) > 0:
+                    if table == "user_auth":
+                        result = cursor.execute(f"DELETE FROM {table} WHERE user_id=?", (user_id,))
+                    else:
+                        result = cursor.execute(f"DELETE FROM {table} WHERE user_id=?", (user_id,))
+                    
+                    deleted_count = result.rowcount
+                    deletion_results[table] = deleted_count
+                    logging.info(f"已清理表 {table}: 删除 {deleted_count} 条记录")
+                else:
+                    deletion_results[table] = 0
+            except Exception as e:
+                logging.error(f"清理表 {table} 失败: {e}")
+                deletion_results[table] = 0
+                # 继续删除其他表，不要因为一个表失败就停止
         
         conn.commit()
-        logging.info(f"用户 {user_id} 及其所有相关数据已删除")
-        return JSONResponse(content={"ok": True, "message": "用户删除成功"})
+        
+        total_deleted = sum(deletion_results.values())
+        success_message = f"用户 {user_name} ({user_id}) 删除成功，共删除 {total_deleted} 条记录"
+        
+        logging.info(success_message)
+        logging.info(f"删除详情: {deletion_results}")
+        
+        return JSONResponse(content={
+            "ok": True, 
+            "message": success_message,
+            "user_name": user_name,
+            "user_id": user_id,
+            "total_deleted": total_deleted,
+            "deletion_details": deletion_results
+        })
         
     except Exception as e:
+        error_msg = f"删除用户 {user_id} 时发生错误: {str(e)}"
         logging.error(f"admin_delete_user 失败: {e}", exc_info=True)
-        return JSONResponse(content={"error": "删除失败: " + str(e)}, status_code=500)
+        return JSONResponse(content={"error": error_msg}, status_code=500)
     finally:
         try:
             conn.close()
@@ -1060,11 +1107,18 @@ async def admin_fix_database(request: Request):
         try:
             cursor.execute("PRAGMA table_info(users)")
             user_columns = [row[1] for row in cursor.fetchall()]
+            
             if 'updated_at' not in user_columns:
-                # SQLite不支持CURRENT_TIMESTAMP作为ALTER TABLE的默认值
+                # 添加updated_at列
                 cursor.execute("ALTER TABLE users ADD COLUMN updated_at TIMESTAMP")
+                fixes_applied.append("users.updated_at (新增列)")
+            
+            # 无论列是否新增，都检查并修复NULL值
+            null_count = cursor.execute("SELECT COUNT(*) FROM users WHERE updated_at IS NULL").fetchone()[0]
+            if null_count > 0:
                 cursor.execute("UPDATE users SET updated_at = datetime('now') WHERE updated_at IS NULL")
-                fixes_applied.append("users.updated_at")
+                fixes_applied.append(f"users.updated_at (修复{null_count}个NULL值)")
+                
         except Exception as e:
             logging.warning(f"修复users.updated_at失败: {e}")
         
@@ -1125,6 +1179,47 @@ async def admin_fix_database(request: Request):
                 fixes_applied.append("user_auth.is_admin")
         except Exception as e:
             logging.warning(f"修复user_auth失败: {e}")
+        
+        # 修复用户ID问题：为用户名和ID一样的用户重新生成ID
+        try:
+            # 查找ID和用户名一样的用户（旧的错误数据）
+            problematic_users = cursor.execute("""
+                SELECT u.id, u.name, ua.username, ua.email
+                FROM users u 
+                LEFT JOIN user_auth ua ON u.id = ua.user_id
+                WHERE u.id = u.name OR u.id = ua.username
+            """).fetchall()
+            
+            if problematic_users:
+                import hashlib
+                import uuid
+                
+                for old_id, name, username, email in problematic_users:
+                    # 生成新的唯一ID
+                    unique_string = f"{username or name}-{email or ''}-{uuid.uuid4().hex[:8]}"
+                    new_id = hashlib.md5(unique_string.encode()).hexdigest()
+                    
+                    # 更新所有相关表的user_id
+                    tables_to_update = [
+                        "user_interests", "user_skills", "user_education", 
+                        "user_work_experience", "search_history", "user_interactions", 
+                        "user_profiles", "user_auth"
+                    ]
+                    
+                    for table in tables_to_update:
+                        try:
+                            cursor.execute(f"UPDATE {table} SET user_id=? WHERE user_id=?", (new_id, old_id))
+                        except Exception as table_error:
+                            logging.warning(f"更新表 {table} 的用户ID失败: {table_error}")
+                    
+                    # 最后更新users表的id
+                    cursor.execute("UPDATE users SET id=? WHERE id=?", (new_id, old_id))
+                    
+                    logging.info(f"用户ID修复: {old_id} -> {new_id} (用户: {username or name})")
+                
+                fixes_applied.append(f"user_id_regeneration({len(problematic_users)}个用户)")
+        except Exception as e:
+            logging.warning(f"修复用户ID失败: {e}")
         
         conn.commit()
         conn.close()

@@ -1,828 +1,877 @@
-2025-09-17 13:44:01,850 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 13:44:02,269 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 13:44:02,277 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 13:44:02,277 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 13:44:02,279 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 13:44:02,282 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 13:44:56,034 - ERROR - [app.py:857] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 793, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:44:57,182 - ERROR - [app.py:857] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 793, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:44:58,005 - ERROR - [app.py:857] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 793, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:44:58,780 - ERROR - [app.py:857] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 793, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:44:59,330 - ERROR - [app.py:857] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 793, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:44:59,986 - ERROR - [app.py:857] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 793, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:45:00,298 - ERROR - [app.py:857] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 793, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:45:11,938 - ERROR - [app.py:857] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 793, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:45:12,512 - ERROR - [app.py:857] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 793, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:54:49,194 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 13:54:49,732 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 13:54:49,740 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 13:54:49,741 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 13:54:49,745 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 13:54:49,748 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 13:55:23,594 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:55:24,825 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:55:27,635 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:55:27,972 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:55:28,228 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:55:29,141 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:55:29,397 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:55:34,015 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 13:55:35,298 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 14:02:24,626 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:02:25,081 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:02:25,087 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:02:25,087 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 14:02:25,090 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:02:25,094 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 14:14:15,508 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:14:16,081 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:14:16,091 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:14:16,092 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 14:14:16,097 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:14:16,101 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 14:15:18,284 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 14:15:20,844 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 14:18:37,984 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:18:38,483 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:18:38,489 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:18:38,489 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 14:18:38,494 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:18:38,497 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 14:20:33,604 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:20:34,078 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:20:34,085 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:20:34,086 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 14:20:34,090 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:20:34,095 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 14:52:34,774 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:52:35,253 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:52:35,259 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:52:35,260 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 14:52:35,263 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:52:35,267 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 14:52:54,011 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: reason
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 806, in admin_user_detail
-    interests = cursor.execute(
-sqlite3.OperationalError: no such column: reason
-2025-09-17 14:52:55,631 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: reason
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 806, in admin_user_detail
-    interests = cursor.execute(
-sqlite3.OperationalError: no such column: reason
-2025-09-17 14:52:56,029 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: reason
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 806, in admin_user_detail
-    interests = cursor.execute(
-sqlite3.OperationalError: no such column: reason
-2025-09-17 14:52:56,835 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: reason
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 806, in admin_user_detail
-    interests = cursor.execute(
-sqlite3.OperationalError: no such column: reason
-2025-09-17 14:52:57,146 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: reason
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 806, in admin_user_detail
-    interests = cursor.execute(
-sqlite3.OperationalError: no such column: reason
-2025-09-17 14:52:57,399 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: reason
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 806, in admin_user_detail
-    interests = cursor.execute(
-sqlite3.OperationalError: no such column: reason
-2025-09-17 14:52:57,943 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: reason
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 806, in admin_user_detail
-    interests = cursor.execute(
-sqlite3.OperationalError: no such column: reason
-2025-09-17 14:54:59,322 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:54:59,924 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:54:59,941 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:54:59,942 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 14:54:59,953 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:54:59,961 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 14:55:46,678 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:55:47,218 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:55:47,225 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:55:47,225 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 14:55:47,229 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:55:47,232 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 14:55:55,470 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:55:55,966 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:55:55,975 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:55:55,975 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 14:55:55,978 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:55:55,981 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 14:56:46,385 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:56:46,947 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:56:46,952 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:56:46,952 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 14:56:46,955 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:56:46,959 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 14:57:56,867 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:57:57,338 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 14:57:57,345 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:57:57,345 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 14:57:57,349 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 14:57:57,353 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 14:58:47,899 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 14:58:51,174 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 14:58:52,931 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 14:59:00,601 - WARNING - [app.py:998] - 修复users.updated_at失败: Cannot add a column with non-constant default
-2025-09-17 14:59:00,617 - INFO - [app.py:1041] - 管理员数据库修复: 数据库修复完成，已修复: user_interests.reason
-2025-09-17 14:59:05,020 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 14:59:05,917 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 14:59:07,657 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 14:59:31,769 - INFO - [app.py:439] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 10。准备流式传输事件。
-2025-09-17 14:59:31,795 - INFO - [app.py:512] - 接收到用户数据: Tssword21, 职业: 算法工程师, 简历文件: 丁子健.pdf, 大小: 674835B, 关注领域: 神经网络, 请求文献数: 10
-2025-09-17 14:59:31,861 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 14:59:31,891 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 14:59:31,894 - INFO - [user_profile.py:59] - 已加载兴趣分类体系，共 6 个类别
-2025-09-17 14:59:31,896 - INFO - [user_profile.py:32] - 用户画像管理器初始化完成
-2025-09-17 14:59:31,897 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
-2025-09-17 14:59:31,898 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 14:59:31,899 - INFO - [generators.py:53] - 报告生成器初始化完成
-2025-09-17 14:59:31,909 - INFO - [search.py:300] - 搜索管理器初始化完成
-2025-09-17 14:59:31,911 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 14:59:31,912 - INFO - [knowledge_flow.py:89] - KnowledgeFlow初始化完成
-2025-09-17 14:59:31,913 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
-2025-09-17 14:59:31,915 - INFO - [app.py:214] - 处理用户: Tssword21, ID: tssword21
-2025-09-17 14:59:31,916 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
-2025-09-17 14:59:31,918 - INFO - [knowledge_flow.py:106] - 开始为用户 tssword21 分析简历
-2025-09-17 14:59:31,920 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmplcri54nz.pdf
-2025-09-17 14:59:33,570 - INFO - [resume_reader.py:60] - 成功读取简历，共 2244 个字符
-2025-09-17 15:00:04,252 - INFO - [user_profile.py:216] - 用户画像更新成功: tssword21
-2025-09-17 15:00:04,255 - INFO - [user_profile.py:238] - 更新用户 tssword21 的兴趣标签: ['人工智能', '机器学习', '自然语言处理', '大模型Agent开发', 'RAG架构', '大模型测评集', '评估指标', '数学建模', '多模态', '智能Agent', '图像识别', '物理化学特征提取', '分布式Agent架构', 'LLM交互式提示词优化']
-2025-09-17 15:00:04,257 - ERROR - [user_profile.py:287] - 更新用户兴趣时出错: 'NoneType' object has no attribute 'items'
-2025-09-17 15:00:04,259 - INFO - [app.py:226] - 简历分析完成（已保存的临时文件）
-2025-09-17 15:00:04,259 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
-2025-09-17 15:00:04,260 - INFO - [app.py:258] - 搜索平台: ['arxiv'], 查询内容: 神经网络
-2025-09-17 15:00:04,260 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
-2025-09-17 15:00:04,260 - INFO - [knowledge_flow.py:336] - 记录用户 tssword21 的搜索: 神经网络
-2025-09-17 15:00:04,930 - INFO - [knowledge_flow.py:409] - 传统API翻译: '神经网络' -> 'Neural Network'
-2025-09-17 15:00:04,931 - INFO - [knowledge_flow.py:344] - 在平台 arxiv 上搜索(已优化): 'Neural Network'
-2025-09-17 15:00:04,933 - INFO - [search.py:91] - 使用ArxivSearcher搜索: Neural Network, 排序方式: relevance, 时间范围: {'days': 7}, 类别: None
-2025-09-17 15:00:04,934 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=10
-2025-09-17 15:00:04,934 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: Neural Network, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 7}, 类别: None
-2025-09-17 15:00:04,934 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"Neural Network" OR abs:"Neural Network" OR all:"Neural Network")'
-2025-09-17 15:00:04,935 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Neural+Network%22+OR+abs%3A%22Neural+Network%22+OR+all%3A%22Neural+Network%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
-2025-09-17 15:00:05,617 - INFO - [__init__.py:606] - Got first page: 10 of 139089 total results
-2025-09-17 15:00:05,619 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 10 篇论文
-2025-09-17 15:00:05,620 - INFO - [knowledge_flow.py:252] - arxiv 搜索完成，找到 10 条结果
-2025-09-17 15:00:05,627 - INFO - [user_profile.py:567] - 记录用户 tssword21 的搜索: Neural Network
-2025-09-17 15:00:05,629 - INFO - [app.py:303] - 搜索执行完成。查询: 神经网络 -> Neural Network. 平台: ['arxiv']
-2025-09-17 15:00:05,629 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
-2025-09-17 15:00:05,630 - INFO - [knowledge_flow.py:302] - 流式生成报告类型: standard
-2025-09-17 15:00:05,630 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
-2025-09-17 15:00:39,811 - INFO - [app.py:384] - 临时文件已删除: C:\Users\12595\AppData\Local\Temp\tmplcri54nz.pdf
-2025-09-17 15:04:25,888 - INFO - [app.py:439] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
-2025-09-17 15:04:25,892 - INFO - [app.py:512] - 接收到用户数据: Tssword21, 职业: 算法工程师, 无简历文件, 关注领域: 神经网络, 请求文献数: 15
-2025-09-17 15:04:25,913 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 15:04:25,927 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 15:04:25,928 - INFO - [user_profile.py:59] - 已加载兴趣分类体系，共 6 个类别
-2025-09-17 15:04:25,928 - INFO - [user_profile.py:32] - 用户画像管理器初始化完成
-2025-09-17 15:04:25,929 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
-2025-09-17 15:04:25,929 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 15:04:25,929 - INFO - [generators.py:53] - 报告生成器初始化完成
-2025-09-17 15:04:25,937 - INFO - [search.py:300] - 搜索管理器初始化完成
-2025-09-17 15:04:25,938 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 15:04:25,938 - INFO - [knowledge_flow.py:89] - KnowledgeFlow初始化完成
-2025-09-17 15:04:25,938 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
-2025-09-17 15:04:25,939 - INFO - [app.py:214] - 处理用户: Tssword21, ID: tssword21
-2025-09-17 15:04:25,940 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
-2025-09-17 15:04:25,943 - INFO - [app.py:236] - 无简历文件，已创建或获取基本用户画像。
-2025-09-17 15:04:25,944 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
-2025-09-17 15:04:25,945 - INFO - [app.py:258] - 搜索平台: ['arxiv'], 查询内容: 神经网络
-2025-09-17 15:04:25,945 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
-2025-09-17 15:04:25,946 - INFO - [knowledge_flow.py:336] - 记录用户 tssword21 的搜索: 神经网络
-2025-09-17 15:04:26,927 - INFO - [knowledge_flow.py:409] - 传统API翻译: '神经网络' -> 'Neural Network'
-2025-09-17 15:04:26,927 - INFO - [knowledge_flow.py:344] - 在平台 arxiv 上搜索(已优化): 'Neural Network'
-2025-09-17 15:04:26,929 - INFO - [search.py:91] - 使用ArxivSearcher搜索: Neural Network, 排序方式: relevance, 时间范围: {'days': 7}, 类别: None
-2025-09-17 15:04:26,930 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=15
-2025-09-17 15:04:26,931 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: Neural Network, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 7}, 类别: None
-2025-09-17 15:04:26,932 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"Neural Network" OR abs:"Neural Network" OR all:"Neural Network")'
-2025-09-17 15:04:26,934 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Neural+Network%22+OR+abs%3A%22Neural+Network%22+OR+all%3A%22Neural+Network%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
-2025-09-17 15:04:27,234 - INFO - [__init__.py:606] - Got first page: 10 of 139089 total results
-2025-09-17 15:04:27,237 - INFO - [__init__.py:677] - Sleeping: 2.955989 seconds
-2025-09-17 15:04:30,196 - INFO - [__init__.py:680] - Requesting page (first: False, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Neural+Network%22+OR+abs%3A%22Neural+Network%22+OR+all%3A%22Neural+Network%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=10&max_results=100
-2025-09-17 15:04:31,158 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 15 篇论文
-2025-09-17 15:04:31,158 - INFO - [knowledge_flow.py:252] - arxiv 搜索完成，找到 15 条结果
-2025-09-17 15:04:31,169 - INFO - [user_profile.py:567] - 记录用户 tssword21 的搜索: Neural Network
-2025-09-17 15:04:31,170 - INFO - [app.py:303] - 搜索执行完成。查询: 神经网络 -> Neural Network. 平台: ['arxiv']
-2025-09-17 15:04:31,171 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
-2025-09-17 15:04:31,171 - INFO - [knowledge_flow.py:302] - 流式生成报告类型: standard
-2025-09-17 15:04:31,172 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
-2025-09-17 15:05:31,234 - ERROR - [llm_interface.py:123] - 流式调用LLM时出错: 
-2025-09-17 15:05:31,241 - INFO - [app.py:195] - SSE 进度 (standard): 第 6/6 步 - 处理完成
-2025-09-17 15:05:31,442 - INFO - [app.py:360] - 所有步骤完成。standard 流式输出完毕。
-2025-09-17 15:08:34,943 - ERROR - [app.py:883] - admin_user_detail 失败: no such column: updated_at
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 795, in admin_user_detail
-    user_row = cursor.execute("SELECT id, name, occupation, email, created_at, updated_at FROM users WHERE id=?", (user_id,)).fetchone()
-sqlite3.OperationalError: no such column: updated_at
-2025-09-17 15:09:18,580 - ERROR - [base_events.py:1758] - Unclosed client session
-client_session: <aiohttp.client.ClientSession object at 0x00000212A7EB0A00>
-2025-09-17 15:09:20,208 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:09:20,777 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:09:20,784 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:09:20,784 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 15:09:20,788 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:09:20,792 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 15:09:31,310 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:09:31,834 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:09:31,842 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:09:31,842 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 15:09:31,847 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:09:31,851 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 15:09:54,889 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:09:55,402 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:09:55,411 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:09:55,411 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 15:09:55,417 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:09:55,425 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 15:15:41,678 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:15:42,106 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:15:42,111 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:15:42,112 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 15:15:42,117 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:15:42,119 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 15:15:47,542 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:16:07,287 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:16:44,045 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:16:45,647 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:16:46,135 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:16:55,920 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:17:01,802 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:19:51,655 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:19:52,264 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:19:52,269 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:19:52,269 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 15:19:52,273 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:19:52,276 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 15:19:52,532 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:19:54,987 - ERROR - [app.py:840] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:40:30,222 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:40:30,931 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:40:30,943 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:40:30,943 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 15:40:30,949 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:40:30,955 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 15:40:39,703 - ERROR - [app.py:844] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:40:42,262 - ERROR - [app.py:844] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:40:45,792 - WARNING - [app.py:1033] - 修复users.updated_at失败: Cannot add a column with non-constant default
-2025-09-17 15:40:45,841 - INFO - [app.py:1095] - 管理员数据库修复: 数据库修复完成，已修复: user_interests.interest_level, user_interests.search_count, user_skills.skill_level, user_skills.skill_category
-2025-09-17 15:41:32,375 - INFO - [app.py:439] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
-2025-09-17 15:41:32,381 - INFO - [app.py:512] - 接收到用户数据: Tssword123, 职业: 学生, 无简历文件, 关注领域: 大语言模型, 请求文献数: 15
-2025-09-17 15:41:32,424 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 15:41:32,450 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 15:41:32,452 - INFO - [user_profile.py:309] - 已加载兴趣分类体系，共 6 个类别
-2025-09-17 15:41:32,453 - INFO - [user_profile.py:282] - 用户画像管理器初始化完成
-2025-09-17 15:41:32,455 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
-2025-09-17 15:41:32,456 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 15:41:32,458 - INFO - [generators.py:53] - 报告生成器初始化完成
-2025-09-17 15:41:32,469 - INFO - [search.py:300] - 搜索管理器初始化完成
-2025-09-17 15:41:32,470 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 15:41:32,471 - INFO - [knowledge_flow.py:90] - KnowledgeFlow初始化完成
-2025-09-17 15:41:32,472 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
-2025-09-17 15:41:32,474 - INFO - [app.py:214] - 处理用户: Tssword123, ID: tssword123
-2025-09-17 15:41:32,475 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
-2025-09-17 15:41:32,488 - INFO - [app.py:236] - 无简历文件，已创建或获取基本用户画像。
-2025-09-17 15:41:32,489 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
-2025-09-17 15:41:32,491 - INFO - [app.py:258] - 搜索平台: ['arxiv'], 查询内容: 大语言模型
-2025-09-17 15:41:32,494 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
-2025-09-17 15:41:32,496 - INFO - [knowledge_flow.py:337] - 记录用户 tssword123 的搜索: 大语言模型
-2025-09-17 15:41:32,504 - ERROR - [user_profile.py:146] - 更新用户兴趣失败: table user_interests has no column named last_updated
-2025-09-17 15:41:32,507 - INFO - [knowledge_flow.py:344] - 为用户 tssword123 提取到 1 个兴趣: ['自然语言处理']
-2025-09-17 15:41:33,447 - INFO - [knowledge_flow.py:419] - 传统API翻译: '大语言模型' -> 'Big language model'
-2025-09-17 15:41:33,448 - INFO - [knowledge_flow.py:354] - 在平台 arxiv 上搜索(已优化): 'Big language model'
-2025-09-17 15:41:33,451 - INFO - [search.py:91] - 使用ArxivSearcher搜索: Big language model, 排序方式: relevance, 时间范围: {'days': 7}, 类别: None
-2025-09-17 15:41:33,452 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=15
-2025-09-17 15:41:33,455 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: Big language model, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 7}, 类别: None
-2025-09-17 15:41:33,456 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"Big language model" OR abs:"Big language model" OR all:"Big language model")'
-2025-09-17 15:41:33,458 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Big+language+model%22+OR+abs%3A%22Big+language+model%22+OR+all%3A%22Big+language+model%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
-2025-09-17 15:41:34,147 - INFO - [__init__.py:606] - Got first page: 7 of 7 total results
-2025-09-17 15:41:34,153 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 0 篇论文
-2025-09-17 15:41:34,161 - INFO - [knowledge_flow.py:253] - arxiv 搜索完成，找到 0 条结果
-2025-09-17 15:41:34,192 - INFO - [user_profile.py:817] - 记录用户 tssword123 的搜索: Big language model
-2025-09-17 15:41:34,196 - INFO - [app.py:303] - 搜索执行完成。查询: 大语言模型 -> Big language model. 平台: ['arxiv']
-2025-09-17 15:41:34,200 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
-2025-09-17 15:41:34,206 - INFO - [knowledge_flow.py:303] - 流式生成报告类型: standard
-2025-09-17 15:41:34,208 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
-2025-09-17 15:42:00,284 - INFO - [app.py:195] - SSE 进度 (standard): 第 6/6 步 - 处理完成
-2025-09-17 15:42:00,483 - INFO - [app.py:360] - 所有步骤完成。standard 流式输出完毕。
-2025-09-17 15:42:28,514 - INFO - [app.py:439] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
-2025-09-17 15:42:28,539 - INFO - [app.py:512] - 接收到用户数据: Tssword123, 职业: 学生, 简历文件: 丁子健.pdf, 大小: 674835B, 关注领域: 自然语言处理, 请求文献数: 15
-2025-09-17 15:42:28,568 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 15:42:28,598 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 15:42:28,603 - INFO - [user_profile.py:309] - 已加载兴趣分类体系，共 6 个类别
-2025-09-17 15:42:28,604 - INFO - [user_profile.py:282] - 用户画像管理器初始化完成
-2025-09-17 15:42:28,606 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
-2025-09-17 15:42:28,607 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 15:42:28,608 - INFO - [generators.py:53] - 报告生成器初始化完成
-2025-09-17 15:42:28,621 - INFO - [search.py:300] - 搜索管理器初始化完成
-2025-09-17 15:42:28,624 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 15:42:28,624 - INFO - [knowledge_flow.py:90] - KnowledgeFlow初始化完成
-2025-09-17 15:42:28,625 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
-2025-09-17 15:42:28,627 - INFO - [app.py:214] - 处理用户: Tssword123, ID: tssword123
-2025-09-17 15:42:28,629 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
-2025-09-17 15:42:28,632 - INFO - [knowledge_flow.py:107] - 开始为用户 tssword123 分析简历
-2025-09-17 15:42:28,634 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmp4djosy0l.pdf
-2025-09-17 15:42:30,075 - INFO - [resume_reader.py:60] - 成功读取简历，共 2244 个字符
-2025-09-17 15:43:07,704 - INFO - [user_profile.py:466] - 用户画像更新成功: tssword123
-2025-09-17 15:43:07,708 - INFO - [user_profile.py:488] - 更新用户 tssword123 的兴趣标签: ['人工智能', '机器学习', '自然语言处理', '大模型', 'Agent开发', 'RAG架构', '多模态', '计算机视觉', '数学建模', '算法设计', '数据清洗', 'OCR', '智能系统', '知识引擎', 'LLM', 'Transformer', 'BERT', 'GPT', 'FastAPI', 'Python', 'C++', '爬虫', '数据库', 'PostgreSQL', 'SQLite', '多源数据', '规则引擎', '语义检索', '跨模态理解', 'SVM', 'XGBoost', 'LSTM', '随机森林', 'K-Means', 'Stable Diffusion', 'LoRA']
-2025-09-17 15:43:07,710 - ERROR - [user_profile.py:537] - 更新用户兴趣时出错: 'NoneType' object has no attribute 'items'
-2025-09-17 15:43:07,716 - INFO - [app.py:226] - 简历分析完成（已保存的临时文件）
-2025-09-17 15:43:07,716 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
-2025-09-17 15:43:07,717 - INFO - [app.py:258] - 搜索平台: ['arxiv'], 查询内容: 自然语言处理
-2025-09-17 15:43:07,717 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
-2025-09-17 15:43:07,717 - INFO - [knowledge_flow.py:337] - 记录用户 tssword123 的搜索: 自然语言处理
-2025-09-17 15:43:07,719 - ERROR - [user_profile.py:146] - 更新用户兴趣失败: table user_interests has no column named last_updated
-2025-09-17 15:43:07,720 - INFO - [knowledge_flow.py:344] - 为用户 tssword123 提取到 1 个兴趣: ['自然语言处理']
-2025-09-17 15:43:08,093 - INFO - [knowledge_flow.py:419] - 传统API翻译: '自然语言处理' -> 'Natural Language Processing'
-2025-09-17 15:43:08,093 - INFO - [knowledge_flow.py:354] - 在平台 arxiv 上搜索(已优化): 'Natural Language Processing'
-2025-09-17 15:43:08,095 - INFO - [search.py:91] - 使用ArxivSearcher搜索: Natural Language Processing, 排序方式: relevance, 时间范围: {'days': 7}, 类别: None
-2025-09-17 15:43:08,096 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=15
-2025-09-17 15:43:08,096 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: Natural Language Processing, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 7}, 类别: None
-2025-09-17 15:43:08,096 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"Natural Language Processing" OR abs:"Natural Language Processing" OR all:"Natural Language Processing")'
-2025-09-17 15:43:08,098 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Natural+Language+Processing%22+OR+abs%3A%22Natural+Language+Processing%22+OR+all%3A%22Natural+Language+Processing%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
-2025-09-17 15:43:09,280 - INFO - [__init__.py:606] - Got first page: 100 of 13314 total results
-2025-09-17 15:43:09,285 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 15 篇论文
-2025-09-17 15:43:09,286 - INFO - [knowledge_flow.py:253] - arxiv 搜索完成，找到 15 条结果
-2025-09-17 15:43:09,297 - INFO - [user_profile.py:817] - 记录用户 tssword123 的搜索: Natural Language Processing
-2025-09-17 15:43:09,297 - INFO - [app.py:303] - 搜索执行完成。查询: 自然语言处理 -> Natural Language Processing. 平台: ['arxiv']
-2025-09-17 15:43:09,298 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
-2025-09-17 15:43:09,298 - INFO - [knowledge_flow.py:303] - 流式生成报告类型: standard
-2025-09-17 15:43:09,299 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
-2025-09-17 15:44:10,236 - ERROR - [llm_interface.py:123] - 流式调用LLM时出错: 
-2025-09-17 15:44:10,239 - INFO - [app.py:195] - SSE 进度 (standard): 第 6/6 步 - 处理完成
-2025-09-17 15:44:10,434 - INFO - [app.py:360] - 所有步骤完成。standard 流式输出完毕。
-2025-09-17 15:44:10,435 - INFO - [app.py:384] - 临时文件已删除: C:\Users\12595\AppData\Local\Temp\tmp4djosy0l.pdf
-2025-09-17 15:45:19,158 - ERROR - [app.py:844] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:45:23,166 - ERROR - [app.py:844] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:46:56,168 - ERROR - [base_events.py:1758] - Unclosed client session
-client_session: <aiohttp.client.ClientSession object at 0x00000296091900D0>
-2025-09-17 15:48:06,838 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:48:07,309 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:48:07,318 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:48:07,318 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 15:48:07,321 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:48:07,325 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 15:48:09,051 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:48:09,538 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:48:09,544 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:48:09,544 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 15:48:09,548 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:48:09,553 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 15:49:00,163 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:49:00,708 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:49:00,715 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:49:00,716 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 15:49:00,720 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:49:00,725 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 15:49:10,328 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:49:10,838 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:49:10,846 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:49:10,847 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 15:49:10,853 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:49:10,859 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 15:53:50,776 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:53:51,499 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 15:53:51,506 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:53:51,507 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 15:53:51,514 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 15:53:51,544 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 15:53:57,912 - ERROR - [app.py:851] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:54:07,311 - ERROR - [app.py:851] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:55:25,430 - INFO - [app.py:439] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 10。准备流式传输事件。
-2025-09-17 15:55:25,449 - INFO - [app.py:512] - 接收到用户数据: Tssword123, 职业: 未知职业, 简历文件: 丁子健.pdf, 大小: 674835B, 关注领域: 自然语言处理, 请求文献数: 10
-2025-09-17 15:55:25,512 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 15:55:25,545 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 15:55:25,548 - INFO - [user_profile.py:309] - 已加载兴趣分类体系，共 6 个类别
-2025-09-17 15:55:25,549 - INFO - [user_profile.py:282] - 用户画像管理器初始化完成
-2025-09-17 15:55:25,550 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
-2025-09-17 15:55:25,551 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 15:55:25,553 - INFO - [generators.py:53] - 报告生成器初始化完成
-2025-09-17 15:55:25,559 - INFO - [search.py:300] - 搜索管理器初始化完成
-2025-09-17 15:55:25,559 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 15:55:25,560 - INFO - [knowledge_flow.py:90] - KnowledgeFlow初始化完成
-2025-09-17 15:55:25,561 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
-2025-09-17 15:55:25,565 - INFO - [app.py:214] - 处理用户: Tssword123, ID: tssword123
-2025-09-17 15:55:25,566 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
-2025-09-17 15:55:25,570 - INFO - [knowledge_flow.py:107] - 开始为用户 tssword123 分析简历
-2025-09-17 15:55:25,572 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmpctqleaa8.pdf
-2025-09-17 15:55:26,966 - INFO - [resume_reader.py:60] - 成功读取简历，共 2244 个字符
-2025-09-17 15:56:00,704 - INFO - [user_profile.py:466] - 用户画像更新成功: tssword123
-2025-09-17 15:56:00,706 - INFO - [user_profile.py:488] - 更新用户 tssword123 的兴趣标签: ['人工智能', '机器学习', '自然语言处理', '大模型', '多模态', '智能Agent', 'RAG', '数学建模', '图像识别', '计算机视觉', '数据清洗', 'OCR', 'FastAPI', 'Python', 'C++', '算法设计', '数据结构', 'Transformer', 'BERT', 'GPT', 'SVM', 'XGBoost', 'LSTM', '随机森林', 'K-Means', 'PCA', '分布式系统', 'Stable Diffusion', 'LoRA']
-2025-09-17 15:56:00,709 - ERROR - [user_profile.py:537] - 更新用户兴趣时出错: 'NoneType' object has no attribute 'items'
-2025-09-17 15:56:00,712 - INFO - [app.py:226] - 简历分析完成（已保存的临时文件）
-2025-09-17 15:56:00,712 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
-2025-09-17 15:56:00,713 - INFO - [app.py:258] - 搜索平台: ['arxiv'], 查询内容: 自然语言处理
-2025-09-17 15:56:00,713 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
-2025-09-17 15:56:00,714 - INFO - [knowledge_flow.py:337] - 记录用户 tssword123 的搜索: 自然语言处理
-2025-09-17 15:56:00,725 - INFO - [user_profile.py:143] - 已更新用户 tssword123 的兴趣: ['自然语言处理']
-2025-09-17 15:56:00,725 - INFO - [knowledge_flow.py:344] - 为用户 tssword123 提取到 1 个兴趣: ['自然语言处理']
-2025-09-17 15:56:01,135 - INFO - [knowledge_flow.py:419] - 传统API翻译: '自然语言处理' -> 'Natural Language Processing'
-2025-09-17 15:56:01,135 - INFO - [knowledge_flow.py:354] - 在平台 arxiv 上搜索(已优化): 'Natural Language Processing'
-2025-09-17 15:56:01,137 - INFO - [search.py:91] - 使用ArxivSearcher搜索: Natural Language Processing, 排序方式: relevance, 时间范围: {'days': 7}, 类别: None
-2025-09-17 15:56:01,138 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=10
-2025-09-17 15:56:01,138 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: Natural Language Processing, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 7}, 类别: None
-2025-09-17 15:56:01,139 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"Natural Language Processing" OR abs:"Natural Language Processing" OR all:"Natural Language Processing")'
-2025-09-17 15:56:01,140 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Natural+Language+Processing%22+OR+abs%3A%22Natural+Language+Processing%22+OR+all%3A%22Natural+Language+Processing%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
-2025-09-17 15:56:01,730 - INFO - [__init__.py:606] - Got first page: 100 of 13314 total results
-2025-09-17 15:56:01,733 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 10 篇论文
-2025-09-17 15:56:01,734 - INFO - [knowledge_flow.py:253] - arxiv 搜索完成，找到 10 条结果
-2025-09-17 15:56:01,771 - INFO - [user_profile.py:817] - 记录用户 tssword123 的搜索: Natural Language Processing
-2025-09-17 15:56:01,772 - INFO - [app.py:303] - 搜索执行完成。查询: 自然语言处理 -> Natural Language Processing. 平台: ['arxiv']
-2025-09-17 15:56:01,772 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
-2025-09-17 15:56:01,773 - INFO - [knowledge_flow.py:303] - 流式生成报告类型: standard
-2025-09-17 15:56:01,773 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
-2025-09-17 15:57:02,231 - ERROR - [llm_interface.py:123] - 流式调用LLM时出错: 
-2025-09-17 15:57:02,240 - INFO - [app.py:195] - SSE 进度 (standard): 第 6/6 步 - 处理完成
-2025-09-17 15:57:02,430 - INFO - [app.py:360] - 所有步骤完成。standard 流式输出完毕。
-2025-09-17 15:57:02,435 - INFO - [app.py:384] - 临时文件已删除: C:\Users\12595\AppData\Local\Temp\tmpctqleaa8.pdf
-2025-09-17 15:57:14,190 - ERROR - [app.py:851] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:57:18,579 - ERROR - [app.py:851] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:57:31,196 - ERROR - [app.py:851] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:57:39,369 - ERROR - [app.py:851] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:57:42,948 - INFO - [app.py:999] - 已清理表 user_interests 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:42,949 - INFO - [app.py:999] - 已清理表 user_skills 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:42,949 - INFO - [app.py:999] - 已清理表 user_education 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:42,949 - INFO - [app.py:999] - 已清理表 user_work_experience 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:42,949 - INFO - [app.py:999] - 已清理表 search_history 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:42,951 - INFO - [app.py:999] - 已清理表 user_interactions 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:42,951 - INFO - [app.py:999] - 已清理表 user_profiles 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:42,951 - INFO - [app.py:999] - 已清理表 user_auth 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:42,952 - WARNING - [app.py:1001] - 清理表 users 失败: no such column: user_id
-2025-09-17 15:57:42,952 - INFO - [app.py:1004] - 用户 b87a0dcaea4adedadfae1fc468dc69e1 及其所有相关数据已删除
-2025-09-17 15:57:45,839 - ERROR - [app.py:851] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:57:46,331 - ERROR - [app.py:851] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:57:48,557 - INFO - [app.py:999] - 已清理表 user_interests 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:48,559 - INFO - [app.py:999] - 已清理表 user_skills 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:48,559 - INFO - [app.py:999] - 已清理表 user_education 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:48,560 - INFO - [app.py:999] - 已清理表 user_work_experience 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:48,560 - INFO - [app.py:999] - 已清理表 search_history 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:48,560 - INFO - [app.py:999] - 已清理表 user_interactions 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:48,560 - INFO - [app.py:999] - 已清理表 user_profiles 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:48,561 - INFO - [app.py:999] - 已清理表 user_auth 中用户 b87a0dcaea4adedadfae1fc468dc69e1 的数据
-2025-09-17 15:57:48,561 - WARNING - [app.py:1001] - 清理表 users 失败: no such column: user_id
-2025-09-17 15:57:48,561 - INFO - [app.py:1004] - 用户 b87a0dcaea4adedadfae1fc468dc69e1 及其所有相关数据已删除
-2025-09-17 15:58:19,918 - ERROR - [app.py:851] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 15:58:46,189 - INFO - [app.py:439] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
-2025-09-17 15:58:46,195 - INFO - [app.py:512] - 接收到用户数据: Tssword_test1, 职业: 软件工程师, 简历文件: 丁子健.pdf, 大小: 674835B, 关注领域: 深度学习, 请求文献数: 15
-2025-09-17 15:58:46,202 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-reasoner, API基础URL: https://api.deepseek.com
-2025-09-17 15:58:46,207 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 15:58:46,208 - INFO - [user_profile.py:309] - 已加载兴趣分类体系，共 6 个类别
-2025-09-17 15:58:46,208 - INFO - [user_profile.py:282] - 用户画像管理器初始化完成
-2025-09-17 15:58:46,209 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
-2025-09-17 15:58:46,209 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 15:58:46,209 - INFO - [generators.py:53] - 报告生成器初始化完成
-2025-09-17 15:58:46,212 - INFO - [search.py:300] - 搜索管理器初始化完成
-2025-09-17 15:58:46,213 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 15:58:46,213 - INFO - [knowledge_flow.py:90] - KnowledgeFlow初始化完成
-2025-09-17 15:58:46,213 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
-2025-09-17 15:58:46,214 - INFO - [app.py:214] - 处理用户: Tssword_test1, ID: tssword_test1
-2025-09-17 15:58:46,214 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
-2025-09-17 15:58:46,214 - INFO - [knowledge_flow.py:107] - 开始为用户 tssword_test1 分析简历
-2025-09-17 15:58:46,215 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmpqjdn1eoe.pdf
-2025-09-17 15:58:46,894 - INFO - [resume_reader.py:60] - 成功读取简历，共 2244 个字符
-2025-09-17 15:59:47,243 - WARNING - [llm_interface.py:82] - LLM调用失败(第1次): 
-2025-09-17 16:00:49,232 - WARNING - [llm_interface.py:82] - LLM调用失败(第2次): 
-2025-09-17 16:01:10,330 - INFO - [app.py:384] - 临时文件已删除: C:\Users\12595\AppData\Local\Temp\tmpqjdn1eoe.pdf
-2025-09-17 16:01:10,488 - ERROR - [base_events.py:1758] - Unclosed client session
-client_session: <aiohttp.client.ClientSession object at 0x000001A9A5944700>
-2025-09-17 16:01:16,512 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 16:01:17,005 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 16:01:17,013 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 16:01:17,013 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 16:01:17,015 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 16:01:17,019 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 16:01:23,019 - INFO - [app.py:439] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
-2025-09-17 16:01:23,026 - INFO - [app.py:512] - 接收到用户数据: Tssword_test1, 职业: 软件工程师, 简历文件: 丁子健.pdf, 大小: 674835B, 关注领域: 深度学习, 请求文献数: 15
-2025-09-17 16:01:23,038 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 16:01:23,045 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 16:01:23,045 - INFO - [user_profile.py:309] - 已加载兴趣分类体系，共 6 个类别
-2025-09-17 16:01:23,046 - INFO - [user_profile.py:282] - 用户画像管理器初始化完成
-2025-09-17 16:01:23,046 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
-2025-09-17 16:01:23,046 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 16:01:23,046 - INFO - [generators.py:53] - 报告生成器初始化完成
-2025-09-17 16:01:23,049 - INFO - [search.py:300] - 搜索管理器初始化完成
-2025-09-17 16:01:23,049 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 16:01:23,049 - INFO - [knowledge_flow.py:90] - KnowledgeFlow初始化完成
-2025-09-17 16:01:23,050 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
-2025-09-17 16:01:23,050 - INFO - [app.py:214] - 处理用户: Tssword_test1, ID: tssword_test1
-2025-09-17 16:01:23,050 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
-2025-09-17 16:01:23,051 - INFO - [knowledge_flow.py:107] - 开始为用户 tssword_test1 分析简历
-2025-09-17 16:01:23,052 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmpyq7ut5tv.pdf
-2025-09-17 16:01:24,346 - INFO - [resume_reader.py:60] - 成功读取简历，共 2244 个字符
-2025-09-17 16:01:53,693 - ERROR - [knowledge_flow.py:220] - 简历分析失败: Expecting ',' delimiter: line 16 column 6 (char 681)
-2025-09-17 16:01:53,694 - WARNING - [app.py:228] - 简历分析未成功：简历分析失败: Expecting ',' delimiter: line 16 column 6 (char 681)
-2025-09-17 16:01:53,696 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
-2025-09-17 16:01:53,696 - INFO - [app.py:258] - 搜索平台: ['arxiv'], 查询内容: 深度学习
-2025-09-17 16:01:53,697 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
-2025-09-17 16:01:53,698 - INFO - [knowledge_flow.py:337] - 记录用户 tssword_test1 的搜索: 深度学习
-2025-09-17 16:01:53,709 - INFO - [user_profile.py:143] - 已更新用户 tssword_test1 的兴趣: ['人工智能']
-2025-09-17 16:01:53,710 - INFO - [knowledge_flow.py:344] - 为用户 tssword_test1 提取到 1 个兴趣: ['人工智能']
-2025-09-17 16:01:54,105 - INFO - [knowledge_flow.py:419] - 传统API翻译: '深度学习' -> 'Deep Learning'
-2025-09-17 16:01:54,105 - INFO - [knowledge_flow.py:354] - 在平台 arxiv 上搜索(已优化): 'Deep Learning'
-2025-09-17 16:01:54,107 - INFO - [search.py:91] - 使用ArxivSearcher搜索: Deep Learning, 排序方式: relevance, 时间范围: {'days': 7}, 类别: None
-2025-09-17 16:01:54,107 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=15
-2025-09-17 16:01:54,107 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: Deep Learning, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 7}, 类别: None
-2025-09-17 16:01:54,108 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"Deep Learning" OR abs:"Deep Learning" OR all:"Deep Learning")'
-2025-09-17 16:01:54,109 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Deep+Learning%22+OR+abs%3A%22Deep+Learning%22+OR+all%3A%22Deep+Learning%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
-2025-09-17 16:01:55,169 - INFO - [__init__.py:606] - Got first page: 100 of 60173 total results
-2025-09-17 16:01:55,171 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 15 篇论文
-2025-09-17 16:01:55,172 - INFO - [knowledge_flow.py:253] - arxiv 搜索完成，找到 15 条结果
-2025-09-17 16:01:55,180 - INFO - [user_profile.py:817] - 记录用户 tssword_test1 的搜索: Deep Learning
-2025-09-17 16:01:55,181 - INFO - [app.py:303] - 搜索执行完成。查询: 深度学习 -> Deep Learning. 平台: ['arxiv']
-2025-09-17 16:01:55,181 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
-2025-09-17 16:01:55,182 - INFO - [knowledge_flow.py:303] - 流式生成报告类型: standard
-2025-09-17 16:01:55,182 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
-2025-09-17 16:02:55,231 - ERROR - [llm_interface.py:123] - 流式调用LLM时出错: 
-2025-09-17 16:02:55,232 - INFO - [app.py:195] - SSE 进度 (standard): 第 6/6 步 - 处理完成
-2025-09-17 16:02:55,435 - INFO - [app.py:360] - 所有步骤完成。standard 流式输出完毕。
-2025-09-17 16:02:55,436 - INFO - [app.py:384] - 临时文件已删除: C:\Users\12595\AppData\Local\Temp\tmpyq7ut5tv.pdf
-2025-09-17 16:03:08,176 - ERROR - [app.py:851] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 16:03:13,537 - ERROR - [app.py:851] - 查询用户兴趣失败: no such column: last_updated
-2025-09-17 16:03:23,320 - INFO - [app.py:1104] - 管理员数据库修复: 数据库修复完成，已修复: users.updated_at
-2025-09-17 16:03:30,919 - ERROR - [base_events.py:1758] - Unclosed client session
-client_session: <aiohttp.client.ClientSession object at 0x0000021A34580220>
-2025-09-17 16:14:47,751 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 16:14:48,390 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 16:14:48,405 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 16:14:48,407 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 16:14:48,417 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 16:14:48,420 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 16:15:29,096 - INFO - [app.py:445] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
-2025-09-17 16:15:29,106 - INFO - [app.py:518] - 接收到用户数据: Tssword_test1, 职业: 算法工程师, 简历文件: 丁子健.pdf, 大小: 674835B, 关注领域: 自然语言处理, 请求文献数: 15
-2025-09-17 16:15:29,122 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 16:15:29,129 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 16:15:29,130 - INFO - [user_profile.py:309] - 已加载兴趣分类体系，共 6 个类别
-2025-09-17 16:15:29,130 - INFO - [user_profile.py:282] - 用户画像管理器初始化完成
-2025-09-17 16:15:29,131 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
-2025-09-17 16:15:29,131 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 16:15:29,133 - INFO - [generators.py:53] - 报告生成器初始化完成
-2025-09-17 16:15:29,137 - INFO - [search.py:300] - 搜索管理器初始化完成
-2025-09-17 16:15:29,137 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 16:15:29,138 - INFO - [knowledge_flow.py:90] - KnowledgeFlow初始化完成
-2025-09-17 16:15:29,138 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
-2025-09-17 16:15:29,138 - ERROR - [app.py:374] - SSE 流处理错误 (standard, 步骤 1 - 接收和初始化): name 'request' is not defined
-Traceback (most recent call last):
-  File "D:\item\KnowlEdge\src\app.py", line 212, in knowledge_flow_sse_generator
-    current_user = request.session.get("user")
-NameError: name 'request' is not defined. Did you mean: 'Request'?
-2025-09-17 16:16:54,149 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 16:16:54,536 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 16:16:54,540 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 16:16:54,541 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 16:16:54,546 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 16:16:54,552 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 16:17:05,653 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 16:17:06,075 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 16:17:06,082 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 16:17:06,082 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 16:17:06,084 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 16:17:06,088 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 16:17:20,747 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 16:17:21,174 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 16:17:21,180 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 16:17:21,180 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 16:17:21,183 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 16:17:21,187 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 16:17:38,287 - INFO - [app.py:445] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
-2025-09-17 16:17:38,301 - INFO - [app.py:518] - 接收到用户数据: Tssword_test1, 职业: 算法工程师, 简历文件: 丁子健.pdf, 大小: 674835B, 关注领域: 自然语言处理, 请求文献数: 15
-2025-09-17 16:17:38,328 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 16:17:38,340 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 16:17:38,341 - INFO - [user_profile.py:309] - 已加载兴趣分类体系，共 6 个类别
-2025-09-17 16:17:38,342 - INFO - [user_profile.py:282] - 用户画像管理器初始化完成
-2025-09-17 16:17:38,342 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
-2025-09-17 16:17:38,343 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 16:17:38,343 - INFO - [generators.py:53] - 报告生成器初始化完成
-2025-09-17 16:17:38,348 - INFO - [search.py:300] - 搜索管理器初始化完成
-2025-09-17 16:17:38,349 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 16:17:38,349 - INFO - [knowledge_flow.py:90] - KnowledgeFlow初始化完成
-2025-09-17 16:17:38,350 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
-2025-09-17 16:17:38,351 - INFO - [app.py:220] - 处理用户: Tssword_test1, ID: tssword_test1
-2025-09-17 16:17:38,351 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
-2025-09-17 16:17:38,353 - INFO - [knowledge_flow.py:107] - 开始为用户 tssword_test1 分析简历
-2025-09-17 16:17:38,354 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmp05fepfex.pdf
-2025-09-17 16:17:39,523 - INFO - [resume_reader.py:60] - 成功读取简历，共 2244 个字符
-2025-09-17 16:17:39,524 - ERROR - [user_profile.py:263] - 简历分析失败: 'LLMInterface' object has no attribute 'chat_async'
-2025-09-17 16:17:39,553 - INFO - [user_profile.py:143] - 已更新用户 tssword_test1 的兴趣: ['人工智能', '自然语言处理', '计算机视觉', '前端开发', '后端开发']
-2025-09-17 16:17:39,556 - INFO - [knowledge_flow.py:118] - 增强简历分析完成，提取到技能数量: 0
-2025-09-17 16:17:39,557 - INFO - [app.py:232] - 简历分析完成（已保存的临时文件）
-2025-09-17 16:17:39,558 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
-2025-09-17 16:17:39,561 - INFO - [app.py:264] - 搜索平台: ['arxiv'], 查询内容: 自然语言处理
-2025-09-17 16:17:39,561 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
-2025-09-17 16:17:39,564 - INFO - [knowledge_flow.py:347] - 记录用户 tssword_test1 的搜索: 自然语言处理
-2025-09-17 16:17:39,593 - INFO - [user_profile.py:143] - 已更新用户 tssword_test1 的兴趣: ['自然语言处理']
-2025-09-17 16:17:39,596 - INFO - [knowledge_flow.py:354] - 为用户 tssword_test1 提取到 1 个兴趣: ['自然语言处理']
-2025-09-17 16:17:40,040 - INFO - [knowledge_flow.py:429] - 传统API翻译: '自然语言处理' -> 'Natural Language Processing'
-2025-09-17 16:17:40,040 - INFO - [knowledge_flow.py:364] - 在平台 arxiv 上搜索(已优化): 'Natural Language Processing'
-2025-09-17 16:17:40,042 - INFO - [search.py:91] - 使用ArxivSearcher搜索: Natural Language Processing, 排序方式: relevance, 时间范围: {'days': 7}, 类别: None
-2025-09-17 16:17:40,043 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=15
-2025-09-17 16:17:40,043 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: Natural Language Processing, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 7}, 类别: None
-2025-09-17 16:17:40,043 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"Natural Language Processing" OR abs:"Natural Language Processing" OR all:"Natural Language Processing")'
-2025-09-17 16:17:40,045 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Natural+Language+Processing%22+OR+abs%3A%22Natural+Language+Processing%22+OR+all%3A%22Natural+Language+Processing%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
-2025-09-17 16:17:40,855 - INFO - [__init__.py:606] - Got first page: 100 of 13314 total results
-2025-09-17 16:17:40,859 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 15 篇论文
-2025-09-17 16:17:40,860 - INFO - [knowledge_flow.py:263] - arxiv 搜索完成，找到 15 条结果
-2025-09-17 16:17:40,876 - INFO - [user_profile.py:834] - 记录用户 tssword_test1 的搜索: Natural Language Processing
-2025-09-17 16:17:40,878 - INFO - [app.py:309] - 搜索执行完成。查询: 自然语言处理 -> Natural Language Processing. 平台: ['arxiv']
-2025-09-17 16:17:40,878 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
-2025-09-17 16:17:40,879 - INFO - [knowledge_flow.py:313] - 流式生成报告类型: standard
-2025-09-17 16:17:40,881 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
-2025-09-17 16:18:41,235 - ERROR - [llm_interface.py:123] - 流式调用LLM时出错: 
-2025-09-17 16:18:41,242 - INFO - [app.py:195] - SSE 进度 (standard): 第 6/6 步 - 处理完成
-2025-09-17 16:18:41,445 - INFO - [app.py:366] - 所有步骤完成。standard 流式输出完毕。
-2025-09-17 16:18:41,449 - INFO - [app.py:390] - 临时文件已删除: C:\Users\12595\AppData\Local\Temp\tmp05fepfex.pdf
-2025-09-17 16:19:44,081 - ERROR - [base_events.py:1758] - Unclosed client session
-client_session: <aiohttp.client.ClientSession object at 0x00000219A090C4F0>
-2025-09-17 16:19:45,750 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 16:19:46,227 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 16:19:46,232 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 16:19:46,232 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 16:19:46,235 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 16:19:46,237 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 16:22:13,761 - INFO - [app.py:445] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
-2025-09-17 16:22:13,773 - INFO - [app.py:518] - 接收到用户数据: Tssword_test1, 职业: 学生, 简历文件: 丁子健.pdf, 大小: 674835B, 关注领域: 自然语言处理, 请求文献数: 15
-2025-09-17 16:22:13,837 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 16:22:13,867 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 16:22:13,872 - INFO - [user_profile.py:309] - 已加载兴趣分类体系，共 6 个类别
-2025-09-17 16:22:13,873 - INFO - [user_profile.py:282] - 用户画像管理器初始化完成
-2025-09-17 16:22:13,874 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
-2025-09-17 16:22:13,878 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 16:22:13,878 - INFO - [generators.py:53] - 报告生成器初始化完成
-2025-09-17 16:22:13,899 - INFO - [search.py:300] - 搜索管理器初始化完成
-2025-09-17 16:22:13,900 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 16:22:13,901 - INFO - [knowledge_flow.py:90] - KnowledgeFlow初始化完成
-2025-09-17 16:22:13,901 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
-2025-09-17 16:22:13,903 - INFO - [app.py:220] - 处理用户: Tssword_test1, ID: tssword_test1
-2025-09-17 16:22:13,905 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
-2025-09-17 16:22:13,910 - INFO - [knowledge_flow.py:107] - 开始为用户 tssword_test1 分析简历
-2025-09-17 16:22:13,914 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmp2xkijf46.pdf
-2025-09-17 16:22:14,843 - INFO - [resume_reader.py:60] - 成功读取简历，共 2244 个字符
-2025-09-17 16:23:09,653 - WARNING - [user_profile.py:253] - LLM返回的不是有效JSON，使用默认结构
-2025-09-17 16:23:09,664 - INFO - [user_profile.py:143] - 已更新用户 tssword_test1 的兴趣: ['人工智能', '自然语言处理', '计算机视觉', '前端开发', '后端开发']
-2025-09-17 16:23:09,665 - INFO - [knowledge_flow.py:118] - 增强简历分析完成，提取到技能数量: 0
-2025-09-17 16:23:09,666 - INFO - [app.py:232] - 简历分析完成（已保存的临时文件）
-2025-09-17 16:23:09,666 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
-2025-09-17 16:23:09,666 - INFO - [app.py:264] - 搜索平台: ['arxiv'], 查询内容: 自然语言处理
-2025-09-17 16:23:09,666 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
-2025-09-17 16:23:09,666 - INFO - [knowledge_flow.py:347] - 记录用户 tssword_test1 的搜索: 自然语言处理
-2025-09-17 16:23:09,676 - INFO - [user_profile.py:143] - 已更新用户 tssword_test1 的兴趣: ['自然语言处理']
-2025-09-17 16:23:09,676 - INFO - [knowledge_flow.py:354] - 为用户 tssword_test1 提取到 1 个兴趣: ['自然语言处理']
-2025-09-17 16:23:09,969 - INFO - [knowledge_flow.py:429] - 传统API翻译: '自然语言处理' -> 'Natural Language Processing'
-2025-09-17 16:23:09,969 - INFO - [knowledge_flow.py:364] - 在平台 arxiv 上搜索(已优化): 'Natural Language Processing'
-2025-09-17 16:23:09,970 - INFO - [search.py:91] - 使用ArxivSearcher搜索: Natural Language Processing, 排序方式: relevance, 时间范围: {'days': 30}, 类别: None
-2025-09-17 16:23:09,970 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=15
-2025-09-17 16:23:09,971 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: Natural Language Processing, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 30}, 类别: None
-2025-09-17 16:23:09,971 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"Natural Language Processing" OR abs:"Natural Language Processing" OR all:"Natural Language Processing")'
-2025-09-17 16:23:09,971 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Natural+Language+Processing%22+OR+abs%3A%22Natural+Language+Processing%22+OR+all%3A%22Natural+Language+Processing%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
-2025-09-17 16:23:10,397 - INFO - [__init__.py:606] - Got first page: 100 of 13314 total results
-2025-09-17 16:23:10,398 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 15 篇论文
-2025-09-17 16:23:10,399 - INFO - [knowledge_flow.py:263] - arxiv 搜索完成，找到 15 条结果
-2025-09-17 16:23:10,410 - INFO - [user_profile.py:834] - 记录用户 tssword_test1 的搜索: Natural Language Processing
-2025-09-17 16:23:10,410 - INFO - [app.py:309] - 搜索执行完成。查询: 自然语言处理 -> Natural Language Processing. 平台: ['arxiv']
-2025-09-17 16:23:10,411 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
-2025-09-17 16:23:10,411 - INFO - [knowledge_flow.py:313] - 流式生成报告类型: standard
-2025-09-17 16:23:10,411 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
-2025-09-17 16:24:11,229 - ERROR - [llm_interface.py:123] - 流式调用LLM时出错: 
-2025-09-17 16:24:11,230 - INFO - [app.py:195] - SSE 进度 (standard): 第 6/6 步 - 处理完成
-2025-09-17 16:24:11,435 - INFO - [app.py:366] - 所有步骤完成。standard 流式输出完毕。
-2025-09-17 16:24:11,437 - INFO - [app.py:390] - 临时文件已删除: C:\Users\12595\AppData\Local\Temp\tmp2xkijf46.pdf
-2025-09-17 16:42:01,823 - ERROR - [base_events.py:1758] - Unclosed client session
-client_session: <aiohttp.client.ClientSession object at 0x0000017AAB684670>
-2025-09-17 17:04:05,411 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 17:04:05,830 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 17:04:05,836 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 17:04:05,836 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 17:04:05,840 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 17:04:05,843 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 17:10:51,903 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 17:10:52,364 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
-2025-09-17 17:10:52,369 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 17:10:52,371 - INFO - [app.py:86] - 数据库初始化/校验完成。
-2025-09-17 17:10:52,375 - INFO - [db_utils.py:370] - 数据库初始化完成
-2025-09-17 17:10:52,378 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
-2025-09-17 17:11:09,283 - INFO - [app.py:445] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
-2025-09-17 17:11:09,294 - INFO - [app.py:518] - 接收到用户数据: Tssword_test1, 职业: 算法工程师, 简历文件: 丁子健.pdf, 大小: 674835B, 关注领域: 自然语言处理, 请求文献数: 15
-2025-09-17 17:11:09,314 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 17:11:09,323 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
-2025-09-17 17:11:09,324 - INFO - [user_profile.py:440] - 已加载兴趣分类体系，共 6 个类别
-2025-09-17 17:11:09,325 - INFO - [user_profile.py:413] - 用户画像管理器初始化完成
-2025-09-17 17:11:09,326 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
-2025-09-17 17:11:09,326 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 17:11:09,327 - INFO - [generators.py:53] - 报告生成器初始化完成
-2025-09-17 17:11:09,331 - INFO - [search.py:300] - 搜索管理器初始化完成
-2025-09-17 17:11:09,332 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
-2025-09-17 17:11:09,332 - INFO - [knowledge_flow.py:90] - KnowledgeFlow初始化完成
-2025-09-17 17:11:09,333 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
-2025-09-17 17:11:09,334 - INFO - [app.py:220] - 处理用户: Tssword_test1, ID: tssword_test1
-2025-09-17 17:11:09,334 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
-2025-09-17 17:11:09,336 - INFO - [knowledge_flow.py:107] - 开始为用户 tssword_test1 分析简历
-2025-09-17 17:11:09,337 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmpzdb_h0wf.pdf
-2025-09-17 17:11:09,791 - INFO - [resume_reader.py:60] - 成功读取简历，共 2244 个字符
+2025-09-18 10:06:05,101 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:06:05,630 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:06:05,641 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-18 10:06:05,642 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:06:05,647 - INFO - [db_utils.py:370] - 数据库初始化完成
+2025-09-18 10:06:05,655 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:09:45,218 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:09:45,727 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:09:45,739 - INFO - [db_utils.py:384] - 数据库初始化完成
+2025-09-18 10:09:45,740 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:09:45,743 - INFO - [db_utils.py:384] - 数据库初始化完成
+2025-09-18 10:09:45,746 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:10:00,479 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:10:00,829 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:10:00,833 - INFO - [db_utils.py:384] - 数据库初始化完成
+2025-09-18 10:10:00,833 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:10:00,834 - INFO - [db_utils.py:384] - 数据库初始化完成
+2025-09-18 10:10:00,837 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:10:02,002 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:10:02,370 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:10:02,389 - INFO - [db_utils.py:282] - 已为user_interests表添加source_type列
+2025-09-18 10:10:02,397 - INFO - [db_utils.py:324] - 已为user_skills表添加source_type列
+2025-09-18 10:10:02,398 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:10:02,398 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:10:02,400 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:10:02,403 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:10:52,055 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:10:52,397 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:10:52,401 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:10:52,401 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:10:52,403 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:10:52,406 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:11:10,532 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:11:10,911 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:11:10,917 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:11:10,919 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:11:10,922 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:11:10,926 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:11:39,331 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:11:39,719 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:11:39,725 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:11:39,725 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:11:39,728 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:11:39,732 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:11:41,329 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:11:41,774 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:11:41,780 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:11:41,780 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:11:41,785 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:11:41,788 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:11:57,896 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:11:58,365 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:11:58,370 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:11:58,370 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:11:58,373 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:11:58,376 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:11:59,902 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:12:00,293 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:12:00,300 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:12:00,301 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:12:00,305 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:12:00,309 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:17:10,559 - INFO - [app.py:445] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
+2025-09-18 10:17:10,574 - INFO - [app.py:518] - 接收到用户数据: Tssword_test1, 职业: 算法工程师, 简历文件: 丁子健.pdf, 大小: 674835B, 关注领域: 自然语言处理, 请求文献数: 15
+2025-09-18 10:17:10,609 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-18 10:17:10,625 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-18 10:17:10,627 - INFO - [user_profile.py:537] - 已加载兴趣分类体系，共 6 个类别
+2025-09-18 10:17:10,628 - INFO - [user_profile.py:510] - 用户画像管理器初始化完成
+2025-09-18 10:17:10,628 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
+2025-09-18 10:17:10,629 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-18 10:17:10,629 - INFO - [generators.py:53] - 报告生成器初始化完成
+2025-09-18 10:17:10,639 - INFO - [search.py:300] - 搜索管理器初始化完成
+2025-09-18 10:17:10,641 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-18 10:17:10,642 - INFO - [knowledge_flow.py:90] - KnowledgeFlow初始化完成
+2025-09-18 10:17:10,643 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
+2025-09-18 10:17:10,644 - INFO - [app.py:220] - 处理用户: Tssword_test1, ID: tssword_test1
+2025-09-18 10:17:10,644 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
+2025-09-18 10:17:10,647 - INFO - [knowledge_flow.py:107] - 开始为用户 tssword_test1 分析简历
+2025-09-18 10:17:10,649 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmphwnsy4xe.pdf
+2025-09-18 10:17:11,942 - INFO - [resume_reader.py:60] - 成功读取简历，共 2244 个字符
+2025-09-18 10:17:11,943 - INFO - [user_profile.py:324] - 开始增强简历分析，用户ID: tssword_test1
+2025-09-18 10:17:41,352 - INFO - [user_profile.py:273] - 已更新用户 tssword_test1 的resume兴趣: ['人工智能', '自然语言处理', '计算机视觉', '前端开发', '后端开发']
+2025-09-18 10:17:41,352 - INFO - [user_profile.py:424] - 已保存 5 项简历兴趣
+2025-09-18 10:17:41,353 - INFO - [user_profile.py:450] - 并行简历分析完成 - 技能: 13, 兴趣: 5
+2025-09-18 10:17:41,353 - INFO - [knowledge_flow.py:118] - 增强简历分析完成，提取到技能数量: 13
+2025-09-18 10:17:41,363 - INFO - [user_profile.py:711] - 用户画像更新成功: tssword_test1
+2025-09-18 10:17:41,365 - INFO - [knowledge_flow.py:126] - 已保存 13 项增强技能
+2025-09-18 10:17:41,366 - INFO - [app.py:232] - 简历分析完成（已保存的临时文件）
+2025-09-18 10:17:41,366 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
+2025-09-18 10:17:41,366 - INFO - [app.py:264] - 搜索平台: ['arxiv'], 查询内容: 自然语言处理
+2025-09-18 10:17:41,367 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
+2025-09-18 10:17:41,367 - INFO - [knowledge_flow.py:360] - 记录用户 tssword_test1 的搜索: 自然语言处理
+2025-09-18 10:17:41,379 - INFO - [user_profile.py:273] - 已更新用户 tssword_test1 的search兴趣: ['自然语言处理']
+2025-09-18 10:17:41,379 - INFO - [knowledge_flow.py:368] - 为用户 tssword_test1 提取到 1 个搜索兴趣: ['自然语言处理']
+2025-09-18 10:17:41,382 - INFO - [user_profile.py:216] - 已更新用户 tssword_test1 的search技能: []
+2025-09-18 10:17:42,701 - INFO - [knowledge_flow.py:448] - 传统API翻译: '自然语言处理' -> 'Natural Language Processing'
+2025-09-18 10:17:42,701 - INFO - [knowledge_flow.py:383] - 在平台 arxiv 上搜索(已优化): 'Natural Language Processing'
+2025-09-18 10:17:42,702 - INFO - [search.py:91] - 使用ArxivSearcher搜索: Natural Language Processing, 排序方式: relevance, 时间范围: {'days': 7}, 类别: None
+2025-09-18 10:17:42,702 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=15
+2025-09-18 10:17:42,703 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: Natural Language Processing, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 7}, 类别: None
+2025-09-18 10:17:42,703 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"Natural Language Processing" OR abs:"Natural Language Processing" OR all:"Natural Language Processing")'
+2025-09-18 10:17:42,703 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Natural+Language+Processing%22+OR+abs%3A%22Natural+Language+Processing%22+OR+all%3A%22Natural+Language+Processing%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
+2025-09-18 10:17:43,961 - INFO - [__init__.py:606] - Got first page: 100 of 13314 total results
+2025-09-18 10:17:43,963 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 15 篇论文
+2025-09-18 10:17:43,964 - INFO - [knowledge_flow.py:276] - arxiv 搜索完成，找到 15 条结果
+2025-09-18 10:17:43,973 - INFO - [user_profile.py:1118] - 记录用户 tssword_test1 的搜索: Natural Language Processing
+2025-09-18 10:17:43,974 - INFO - [app.py:309] - 搜索执行完成。查询: 自然语言处理 -> Natural Language Processing. 平台: ['arxiv']
+2025-09-18 10:17:43,975 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
+2025-09-18 10:17:43,976 - INFO - [knowledge_flow.py:326] - 流式生成报告类型: standard
+2025-09-18 10:17:43,976 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
+2025-09-18 10:18:44,121 - ERROR - [llm_interface.py:123] - 流式调用LLM时出错: 
+2025-09-18 10:18:44,130 - INFO - [app.py:195] - SSE 进度 (standard): 第 6/6 步 - 处理完成
+2025-09-18 10:18:44,324 - INFO - [app.py:366] - 所有步骤完成。standard 流式输出完毕。
+2025-09-18 10:18:44,328 - INFO - [app.py:390] - 临时文件已删除: C:\Users\12595\AppData\Local\Temp\tmphwnsy4xe.pdf
+2025-09-18 10:21:21,418 - ERROR - [base_events.py:1758] - Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x0000029C007F99C0>
+2025-09-18 10:21:23,629 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:21:24,153 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:21:24,164 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:21:24,165 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:21:24,171 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:21:24,178 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:21:26,406 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:21:26,851 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:21:26,861 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:21:26,863 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:21:26,870 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:21:26,877 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:21:55,703 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:21:56,161 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:21:56,167 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:21:56,167 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:21:56,173 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:21:56,180 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:21:59,019 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:21:59,406 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:21:59,411 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:21:59,411 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:21:59,414 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:21:59,417 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:22:13,529 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:22:13,983 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:22:13,991 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:22:13,991 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:22:13,995 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:22:13,999 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:22:17,675 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:22:18,151 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:22:18,155 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:22:18,156 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:22:18,158 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:22:18,161 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:22:25,340 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:22:25,701 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:22:25,705 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:22:25,706 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:22:25,708 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:22:25,711 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:22:28,202 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:22:28,572 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:22:28,578 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:22:28,579 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:22:28,582 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:22:28,584 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:23:39,527 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:23:39,948 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:23:39,952 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:23:39,952 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:23:39,956 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:23:39,959 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:33:47,217 - WARNING - [app.py:1032] - 无法统计表 users 的数据: no such column: user_id
+2025-09-18 10:33:47,217 - INFO - [app.py:1036] - 准备删除用户 Tssword3 (ddd515e224dce9e621937139df53300c)，总计 0 条记录: {'user_interests': 0, 'user_skills': 0, 'user_education': 0, 'user_work_experience': 0, 'search_history': 0, 'user_interactions': 0, 'user_profiles': 0, 'user_auth': 0, 'users': 0}
+2025-09-18 10:33:47,218 - INFO - [app.py:1063] - 用户 Tssword3 (ddd515e224dce9e621937139df53300c) 删除成功，共删除 0 条记录
+2025-09-18 10:33:47,219 - INFO - [app.py:1064] - 删除详情: {'user_interests': 0, 'user_skills': 0, 'user_education': 0, 'user_work_experience': 0, 'search_history': 0, 'user_interactions': 0, 'user_profiles': 0, 'user_auth': 0, 'users': 0}
+2025-09-18 10:34:12,861 - WARNING - [app.py:1032] - 无法统计表 users 的数据: no such column: user_id
+2025-09-18 10:34:12,861 - INFO - [app.py:1036] - 准备删除用户 Ykb (4728f49a99d0f627ce9042d7203402a6)，总计 24 条记录: {'user_interests': 0, 'user_skills': 24, 'user_education': 0, 'user_work_experience': 0, 'search_history': 0, 'user_interactions': 0, 'user_profiles': 0, 'user_auth': 0, 'users': 0}
+2025-09-18 10:34:12,871 - INFO - [app.py:1050] - 已清理表 user_skills: 删除 24 条记录
+2025-09-18 10:34:12,880 - INFO - [app.py:1063] - 用户 Ykb (4728f49a99d0f627ce9042d7203402a6) 删除成功，共删除 24 条记录
+2025-09-18 10:34:12,882 - INFO - [app.py:1064] - 删除详情: {'user_interests': 0, 'user_skills': 24, 'user_education': 0, 'user_work_experience': 0, 'search_history': 0, 'user_interactions': 0, 'user_profiles': 0, 'user_auth': 0, 'users': 0}
+2025-09-18 10:35:42,266 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:35:42,666 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:35:42,673 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:35:42,673 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:35:42,677 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:35:42,684 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:35:44,277 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:35:44,816 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:35:44,825 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:35:44,825 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:35:44,829 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:35:44,833 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:35:53,295 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:35:53,820 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:35:53,826 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:35:53,826 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:35:53,830 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:35:53,833 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:35:55,320 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:35:55,739 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:35:55,743 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:35:55,743 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:35:55,747 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:35:55,750 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:36:22,607 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:36:23,112 - INFO - [utils.py:50] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:36:23,117 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:36:23,117 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:36:23,121 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:36:23,125 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:36:55,917 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:36:56,329 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:36:56,334 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:36:56,334 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:36:56,337 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:36:56,340 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:37:07,107 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:37:07,558 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:37:07,571 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:37:07,571 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:37:07,575 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:37:07,580 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:37:15,569 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:37:15,978 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:37:15,982 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:37:15,983 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:37:15,987 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:37:15,990 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:37:17,458 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:37:17,909 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:37:17,917 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:37:17,917 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:37:17,923 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:37:17,927 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:38:00,441 - INFO - [app.py:446] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
+2025-09-18 10:38:00,453 - INFO - [app.py:519] - 接收到用户数据: Tssword_test2, 职业: 算法工程师, 简历文件: 颜可滨.pdf, 大小: 702210B, 关注领域: 神经网络, 请求文献数: 15
+2025-09-18 10:38:00,481 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-18 10:38:00,491 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-18 10:38:00,492 - INFO - [user_profile.py:695] - 已加载兴趣分类体系，共 6 个类别
+2025-09-18 10:38:00,493 - INFO - [user_profile.py:668] - 用户画像管理器初始化完成
+2025-09-18 10:38:00,493 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
+2025-09-18 10:38:00,494 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-18 10:38:00,494 - INFO - [generators.py:53] - 报告生成器初始化完成
+2025-09-18 10:38:00,500 - INFO - [search.py:300] - 搜索管理器初始化完成
+2025-09-18 10:38:00,500 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-18 10:38:00,501 - INFO - [knowledge_flow.py:90] - KnowledgeFlow初始化完成
+2025-09-18 10:38:00,501 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
+2025-09-18 10:38:00,502 - INFO - [app.py:221] - 处理用户: Tssword_test2, ID: 181181b74b4b9f9294eeeb9fd40fe1aa
+2025-09-18 10:38:00,502 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
+2025-09-18 10:38:00,504 - INFO - [knowledge_flow.py:107] - 开始为用户 181181b74b4b9f9294eeeb9fd40fe1aa 分析简历
+2025-09-18 10:38:00,505 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmpm62zkukh.pdf
+2025-09-18 10:38:00,759 - INFO - [resume_reader.py:60] - 成功读取简历，共 2463 个字符
+2025-09-18 10:38:00,759 - INFO - [user_profile.py:482] - 开始增强简历分析，用户ID: 181181b74b4b9f9294eeeb9fd40fe1aa
+2025-09-18 10:38:31,476 - INFO - [user_profile.py:441] - 技能评估: Python 熟练掌握，有项目开发经验... -> 等级:10/10, 类别:programming, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,479 - INFO - [user_profile.py:441] - 技能评估: Java 熟悉面向对象编程，有课程基础... -> 等级:10/10, 类别:programming, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,481 - INFO - [user_profile.py:441] - 技能评估: SQL 熟悉数据库查询和设计... -> 等级:10/10, 类别:design, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,482 - INFO - [user_profile.py:441] - 技能评估: MySQL 熟悉体系结构和数据管理... -> 等级:10/10, 类别:database, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,484 - INFO - [user_profile.py:441] - 技能评估: Linux 熟悉系统管理和shell编程... -> 等级:10/10, 类别:tools, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,486 - INFO - [user_profile.py:441] - 技能评估: FastAPI 有实际项目开发经验... -> 等级:10/10, 类别:backend, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,489 - INFO - [user_profile.py:441] - 技能评估: 数据结构 熟悉常用数据结构和算法... -> 等级:10/10, 类别:general, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,491 - INFO - [user_profile.py:441] - 技能评估: 机器学习 课程成绩优秀，有理论基础... -> 等级:10/10, 类别:general, 组成:(基础:5+熟练度:5+复杂度:2+年限:3+职责:2)
+2025-09-18 10:38:31,493 - INFO - [user_profile.py:441] - 技能评估: 自然语言处理 课程成绩优秀，有项目应用... -> 等级:10/10, 类别:general, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,496 - INFO - [user_profile.py:441] - 技能评估: 大数据技术 课程成绩优秀，有理论基础... -> 等级:10/10, 类别:general, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,498 - INFO - [user_profile.py:441] - 技能评估: 云计算 课程成绩优秀... -> 等级:10/10, 类别:general, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,502 - INFO - [user_profile.py:441] - 技能评估: 数学建模 有多个竞赛获奖经历... -> 等级:10/10, 类别:general, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,504 - INFO - [user_profile.py:441] - 技能评估: Axure 有原型设计经验... -> 等级:10/10, 类别:design, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,506 - INFO - [user_profile.py:441] - 技能评估: 数据库设计 有数据仓库项目经验... -> 等级:10/10, 类别:design, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,509 - INFO - [user_profile.py:441] - 技能评估: API集成 有实际项目经验... -> 等级:10/10, 类别:general, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,511 - INFO - [user_profile.py:441] - 技能评估: 数据挖掘 有课程基础和项目经验... -> 等级:10/10, 类别:general, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,514 - INFO - [user_profile.py:441] - 技能评估: LLM微调 有项目实践经验... -> 等级:10/10, 类别:general, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,516 - INFO - [user_profile.py:441] - 技能评估: C语言 课程基础... -> 等级:10/10, 类别:general, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,518 - INFO - [user_profile.py:441] - 技能评估: 高等数学 课程成绩优秀... -> 等级:10/10, 类别:general, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,520 - INFO - [user_profile.py:441] - 技能评估: 线性代数 课程基础... -> 等级:10/10, 类别:general, 组成:(基础:5+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:38:31,544 - INFO - [user_profile.py:302] - 已更新用户 181181b74b4b9f9294eeeb9fd40fe1aa 的resume兴趣: ['人工智能', '自然语言处理', '数据科学', '云计算', '网络安全', '后端开发']
+2025-09-18 10:38:31,545 - INFO - [user_profile.py:582] - 已保存 6 项简历兴趣
+2025-09-18 10:38:31,546 - INFO - [user_profile.py:608] - 并行简历分析完成 - 技能: 20, 兴趣: 6
+2025-09-18 10:38:31,546 - INFO - [knowledge_flow.py:118] - 增强简历分析完成，提取到技能数量: 20
+2025-09-18 10:38:31,571 - INFO - [user_profile.py:869] - 用户画像更新成功: 181181b74b4b9f9294eeeb9fd40fe1aa
+2025-09-18 10:38:31,579 - INFO - [knowledge_flow.py:126] - 已保存 20 项增强技能
+2025-09-18 10:38:31,580 - INFO - [app.py:233] - 简历分析完成（已保存的临时文件）
+2025-09-18 10:38:31,580 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
+2025-09-18 10:38:31,581 - INFO - [app.py:265] - 搜索平台: ['arxiv'], 查询内容: 神经网络
+2025-09-18 10:38:31,583 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
+2025-09-18 10:38:31,585 - INFO - [knowledge_flow.py:360] - 记录用户 181181b74b4b9f9294eeeb9fd40fe1aa 的搜索: 神经网络
+2025-09-18 10:38:31,591 - INFO - [user_profile.py:302] - 已更新用户 181181b74b4b9f9294eeeb9fd40fe1aa 的search兴趣: []
+2025-09-18 10:38:31,596 - INFO - [user_profile.py:245] - 已更新用户 181181b74b4b9f9294eeeb9fd40fe1aa 的search技能: []
+2025-09-18 10:38:32,827 - INFO - [knowledge_flow.py:448] - 传统API翻译: '神经网络' -> 'Neural Network'
+2025-09-18 10:38:32,827 - INFO - [knowledge_flow.py:383] - 在平台 arxiv 上搜索(已优化): 'Neural Network'
+2025-09-18 10:38:32,829 - INFO - [search.py:91] - 使用ArxivSearcher搜索: Neural Network, 排序方式: relevance, 时间范围: {'days': 7}, 类别: None
+2025-09-18 10:38:32,830 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=15
+2025-09-18 10:38:32,830 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: Neural Network, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 7}, 类别: None
+2025-09-18 10:38:32,830 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"Neural Network" OR abs:"Neural Network" OR all:"Neural Network")'
+2025-09-18 10:38:32,831 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Neural+Network%22+OR+abs%3A%22Neural+Network%22+OR+all%3A%22Neural+Network%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
+2025-09-18 10:38:34,247 - INFO - [__init__.py:606] - Got first page: 100 of 139138 total results
+2025-09-18 10:38:34,257 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 15 篇论文
+2025-09-18 10:38:34,260 - INFO - [knowledge_flow.py:276] - arxiv 搜索完成，找到 15 条结果
+2025-09-18 10:38:34,286 - INFO - [user_profile.py:1276] - 记录用户 181181b74b4b9f9294eeeb9fd40fe1aa 的搜索: Neural Network
+2025-09-18 10:38:34,289 - INFO - [app.py:310] - 搜索执行完成。查询: 神经网络 -> Neural Network. 平台: ['arxiv']
+2025-09-18 10:38:34,292 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
+2025-09-18 10:38:34,294 - INFO - [knowledge_flow.py:326] - 流式生成报告类型: standard
+2025-09-18 10:38:34,296 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
+2025-09-18 10:39:34,977 - ERROR - [llm_interface.py:123] - 流式调用LLM时出错: 
+2025-09-18 10:39:34,984 - INFO - [app.py:195] - SSE 进度 (standard): 第 6/6 步 - 处理完成
+2025-09-18 10:39:35,185 - INFO - [app.py:367] - 所有步骤完成。standard 流式输出完毕。
+2025-09-18 10:39:35,188 - INFO - [app.py:391] - 临时文件已删除: C:\Users\12595\AppData\Local\Temp\tmpm62zkukh.pdf
+2025-09-18 10:47:16,049 - ERROR - [base_events.py:1758] - Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x000002A5C7C93100>
+2025-09-18 10:48:17,727 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:48:18,197 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:48:18,201 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:48:18,201 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:48:18,203 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:48:18,207 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:49:43,399 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:49:43,823 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:49:43,828 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:49:43,828 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:49:43,830 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:49:43,832 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:49:45,137 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:49:45,570 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:49:45,575 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:49:45,575 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:49:45,577 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:49:45,579 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:50:28,173 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:50:28,530 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:50:28,534 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:50:28,535 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:50:28,544 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:50:28,549 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:50:35,370 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:50:35,900 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:50:35,905 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:50:35,906 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:50:35,911 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:50:35,914 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:50:38,670 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:50:39,054 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:50:39,059 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:50:39,061 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:50:39,064 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:50:39,067 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:50:47,429 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:50:47,942 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:50:47,947 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:50:47,948 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:50:47,952 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:50:47,955 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:50:49,669 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:50:50,087 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:50:50,094 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:50:50,094 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:50:50,099 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:50:50,103 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:51:17,189 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:51:17,652 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:51:17,658 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:51:17,658 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:51:17,662 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:51:17,667 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:51:20,020 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:51:20,562 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:51:20,567 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:51:20,567 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:51:20,571 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:51:20,574 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:51:28,533 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:51:29,008 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:51:29,017 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:51:29,017 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:51:29,021 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:51:29,028 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:51:31,893 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:51:32,304 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:51:32,309 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:51:32,311 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:51:32,314 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:51:32,319 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:51:43,480 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:51:43,993 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:51:44,001 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:51:44,001 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:51:44,005 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:51:44,007 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:51:46,674 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:51:47,070 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 10:51:47,078 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:51:47,079 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 10:51:47,083 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 10:51:47,087 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 10:52:31,422 - INFO - [app.py:1232] - 管理员数据库修复: 数据库修复完成，已修复: users.updated_at (修复1个NULL值)
+2025-09-18 10:52:34,343 - INFO - [app.py:1232] - 管理员数据库修复: 数据库检查完成，无需修复
+2025-09-18 10:53:50,146 - INFO - [app.py:446] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
+2025-09-18 10:53:50,157 - INFO - [app.py:519] - 接收到用户数据: Tssword_test_profile, 职业: 学生, 简历文件: 丁子健 大模型.pdf, 大小: 596317B, 关注领域: cursor, 请求文献数: 15
+2025-09-18 10:53:50,184 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-18 10:53:50,195 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-18 10:53:50,198 - INFO - [user_profile.py:713] - 已加载兴趣分类体系，共 6 个类别
+2025-09-18 10:53:50,198 - INFO - [user_profile.py:686] - 用户画像管理器初始化完成
+2025-09-18 10:53:50,198 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
+2025-09-18 10:53:50,199 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-18 10:53:50,199 - INFO - [generators.py:53] - 报告生成器初始化完成
+2025-09-18 10:53:50,204 - INFO - [search.py:300] - 搜索管理器初始化完成
+2025-09-18 10:53:50,204 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-18 10:53:50,205 - INFO - [knowledge_flow.py:90] - KnowledgeFlow初始化完成
+2025-09-18 10:53:50,205 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
+2025-09-18 10:53:50,205 - INFO - [app.py:221] - 处理用户: Tssword_test_profile, ID: b559f8f3e9d5bb3fd35fa93f9d62043d
+2025-09-18 10:53:50,205 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
+2025-09-18 10:53:50,207 - INFO - [knowledge_flow.py:107] - 开始为用户 b559f8f3e9d5bb3fd35fa93f9d62043d 分析简历
+2025-09-18 10:53:50,208 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmpmz3yr71g.pdf
+2025-09-18 10:53:51,081 - INFO - [resume_reader.py:60] - 成功读取简历，共 1789 个字符
+2025-09-18 10:53:51,082 - INFO - [user_profile.py:500] - 开始增强简历分析，用户ID: b559f8f3e9d5bb3fd35fa93f9d62043d
+2025-09-18 10:54:16,215 - INFO - [user_profile.py:449] - 技能评估: Python 熟练掌握编程开发与数据处理... -> 等级:10/10, 类别:programming, 组成:(基础:9+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:54:16,216 - INFO - [user_profile.py:449] - 技能评估: C++ 熟悉算法实现与竞赛应用... -> 等级:10/10, 类别:programming, 组成:(基础:9+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:54:16,217 - INFO - [user_profile.py:449] - 技能评估: FastAPI 熟悉后端API开发与部署... -> 等级:10/10, 类别:backend, 组成:(基础:9+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:54:16,217 - INFO - [user_profile.py:449] - 技能评估: 大模型开发 熟悉Agent开发与RAG架构... -> 等级:10/10, 类别:general, 组成:(基础:9+熟练度:5+复杂度:2+年限:3+职责:2)
+2025-09-18 10:54:16,218 - INFO - [user_profile.py:449] - 技能评估: 自然语言处理 熟悉NLP任务与模型应用... -> 等级:10/10, 类别:general, 组成:(基础:9+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:54:16,218 - INFO - [user_profile.py:449] - 技能评估: 机器学习 掌握多种机器学习算法... -> 等级:10/10, 类别:general, 组成:(基础:9+熟练度:5+复杂度:2+年限:3+职责:2)
+2025-09-18 10:54:16,219 - INFO - [user_profile.py:449] - 技能评估: 深度学习 理解主流深度学习模型原理... -> 等级:10/10, 类别:general, 组成:(基础:9+熟练度:5+复杂度:2+年限:3+职责:2)
+2025-09-18 10:54:16,221 - INFO - [user_profile.py:449] - 技能评估: 算法设计 熟练掌握ACM常用算法... -> 等级:10/10, 类别:design, 组成:(基础:9+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:54:16,221 - INFO - [user_profile.py:449] - 技能评估: 数学建模 丰富的竞赛经验与建模能力... -> 等级:10/10, 类别:general, 组成:(基础:9+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:54:16,222 - INFO - [user_profile.py:449] - 技能评估: 前端开发 具备前端技术开发能力... -> 等级:10/10, 类别:general, 组成:(基础:9+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:54:16,223 - INFO - [user_profile.py:449] - 技能评估: 数据库 熟悉数据库操作与管理... -> 等级:10/10, 类别:management, 组成:(基础:9+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:54:16,223 - INFO - [user_profile.py:449] - 技能评估: 物联网开发 具备物联网系统开发经验... -> 等级:10/10, 类别:general, 组成:(基础:9+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:54:16,224 - INFO - [user_profile.py:449] - 技能评估: 项目管理 具备团队领导与项目管理经验... -> 等级:10/10, 类别:management, 组成:(基础:9+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:54:16,224 - INFO - [user_profile.py:449] - 技能评估: 团队协作 丰富的团队合作经验... -> 等级:10/10, 类别:general, 组成:(基础:9+熟练度:5+复杂度:0+年限:3+职责:2)
+2025-09-18 10:54:16,227 - ERROR - [user_profile.py:305] - 更新用户兴趣失败: Incorrect number of bindings supplied. The current statement uses 6, and there are 7 supplied.
+2025-09-18 10:54:16,227 - INFO - [user_profile.py:600] - 已保存 4 项简历兴趣
+2025-09-18 10:54:16,227 - INFO - [user_profile.py:626] - 并行简历分析完成 - 技能: 14, 兴趣: 4
+2025-09-18 10:54:16,228 - INFO - [knowledge_flow.py:118] - 增强简历分析完成，提取到技能数量: 14
+2025-09-18 10:54:16,240 - INFO - [user_profile.py:887] - 用户画像更新成功: b559f8f3e9d5bb3fd35fa93f9d62043d
+2025-09-18 10:54:16,244 - INFO - [knowledge_flow.py:126] - 已保存 14 项增强技能
+2025-09-18 10:54:16,244 - INFO - [app.py:233] - 简历分析完成（已保存的临时文件）
+2025-09-18 10:54:16,246 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
+2025-09-18 10:54:16,247 - INFO - [app.py:265] - 搜索平台: ['arxiv'], 查询内容: cursor
+2025-09-18 10:54:16,248 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
+2025-09-18 10:54:16,248 - INFO - [knowledge_flow.py:360] - 记录用户 b559f8f3e9d5bb3fd35fa93f9d62043d 的搜索: cursor
+2025-09-18 10:54:16,250 - INFO - [user_profile.py:302] - 已更新用户 b559f8f3e9d5bb3fd35fa93f9d62043d 的search兴趣: []
+2025-09-18 10:54:16,253 - INFO - [user_profile.py:245] - 已更新用户 b559f8f3e9d5bb3fd35fa93f9d62043d 的search技能: []
+2025-09-18 10:54:16,258 - INFO - [knowledge_flow.py:383] - 在平台 arxiv 上搜索(已优化): 'cursor'
+2025-09-18 10:54:16,258 - INFO - [search.py:91] - 使用ArxivSearcher搜索: cursor, 排序方式: relevance, 时间范围: {'days': 7}, 类别: None
+2025-09-18 10:54:16,259 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=15
+2025-09-18 10:54:16,259 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: cursor, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 7}, 类别: None
+2025-09-18 10:54:16,259 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"cursor" OR abs:"cursor" OR all:"cursor")'
+2025-09-18 10:54:16,260 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22cursor%22+OR+abs%3A%22cursor%22+OR+all%3A%22cursor%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
+2025-09-18 10:54:21,762 - INFO - [__init__.py:606] - Got first page: 100 of 170 total results
+2025-09-18 10:54:21,766 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 0 篇论文
+2025-09-18 10:54:21,766 - INFO - [knowledge_flow.py:276] - arxiv 搜索完成，找到 0 条结果
+2025-09-18 10:54:21,779 - INFO - [user_profile.py:1294] - 记录用户 b559f8f3e9d5bb3fd35fa93f9d62043d 的搜索: cursor
+2025-09-18 10:54:21,779 - INFO - [app.py:310] - 搜索执行完成。查询: cursor -> cursor. 平台: ['arxiv']
+2025-09-18 10:54:21,780 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
+2025-09-18 10:54:21,780 - INFO - [knowledge_flow.py:326] - 流式生成报告类型: standard
+2025-09-18 10:54:21,782 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
+2025-09-18 10:54:48,740 - INFO - [app.py:195] - SSE 进度 (standard): 第 6/6 步 - 处理完成
+2025-09-18 10:54:48,944 - INFO - [app.py:367] - 所有步骤完成。standard 流式输出完毕。
+2025-09-18 10:54:48,949 - INFO - [app.py:391] - 临时文件已删除: C:\Users\12595\AppData\Local\Temp\tmpmz3yr71g.pdf
+2025-09-18 10:55:09,714 - INFO - [app.py:1232] - 管理员数据库修复: 数据库修复完成，已修复: users.updated_at (修复1个NULL值)
+2025-09-18 11:03:27,481 - ERROR - [base_events.py:1758] - Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x00000206BA493670>
+2025-09-18 11:03:29,303 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:03:29,787 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:03:29,793 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:03:29,794 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:03:29,798 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:03:29,802 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:03:31,384 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:03:31,846 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:03:31,854 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:03:31,855 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:03:31,860 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:03:31,865 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:03:49,457 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:03:50,091 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:03:50,104 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:03:50,104 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:03:50,108 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:03:50,112 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:03:53,015 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:03:53,494 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:03:53,503 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:03:53,503 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:03:53,506 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:03:53,511 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:04:27,314 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:04:27,874 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:04:27,881 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:04:27,881 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:04:27,884 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:04:27,888 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:04:30,575 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:04:31,112 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:04:31,121 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:04:31,122 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:04:31,125 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:04:31,129 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:04:50,661 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:04:51,191 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:04:51,196 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:04:51,198 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:04:51,201 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:04:51,204 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:04:54,148 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:04:54,590 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:04:54,598 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:04:54,598 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:04:54,602 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:04:54,605 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:05:23,491 - INFO - [app.py:446] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
+2025-09-18 11:05:23,505 - INFO - [app.py:519] - 接收到用户数据: Tssword_test_profile, 职业: 未知职业, 简历文件: 丁子健.pdf, 大小: 674835B, 关注领域: 机器学习, 请求文献数: 15
+2025-09-18 11:05:23,533 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-18 11:05:23,544 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-18 11:05:23,546 - INFO - [user_profile.py:735] - 已加载兴趣分类体系，共 6 个类别
+2025-09-18 11:05:23,547 - INFO - [user_profile.py:708] - 用户画像管理器初始化完成
+2025-09-18 11:05:23,548 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
+2025-09-18 11:05:23,548 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-18 11:05:23,548 - INFO - [generators.py:53] - 报告生成器初始化完成
+2025-09-18 11:05:23,553 - INFO - [search.py:300] - 搜索管理器初始化完成
+2025-09-18 11:05:23,553 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-18 11:05:23,554 - INFO - [knowledge_flow.py:90] - KnowledgeFlow初始化完成
+2025-09-18 11:05:23,554 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
+2025-09-18 11:05:23,555 - INFO - [app.py:221] - 处理用户: Tssword_test_profile, ID: b559f8f3e9d5bb3fd35fa93f9d62043d
+2025-09-18 11:05:23,555 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
+2025-09-18 11:05:23,557 - INFO - [knowledge_flow.py:107] - 开始为用户 b559f8f3e9d5bb3fd35fa93f9d62043d 分析简历
+2025-09-18 11:05:23,558 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmpvxdmfd7f.pdf
+2025-09-18 11:05:24,463 - INFO - [resume_reader.py:60] - 成功读取简历，共 2244 个字符
+2025-09-18 11:05:24,464 - INFO - [user_profile.py:516] - 开始增强简历分析，用户ID: b559f8f3e9d5bb3fd35fa93f9d62043d
+2025-09-18 11:05:24,466 - INFO - [user_profile.py:563] - 开始从简历中提取兴趣，简历长度: 2244 字符
+2025-09-18 11:05:24,467 - INFO - [user_profile.py:585] - 提取到兴趣: 人工智能 (等级:6, 匹配:['ai', '机器学习', 'ml'])
+2025-09-18 11:05:24,467 - INFO - [user_profile.py:585] - 提取到兴趣: 自然语言处理 (等级:7, 匹配:['nlp', 'bert', 'transformer'])
+2025-09-18 11:05:24,468 - INFO - [user_profile.py:585] - 提取到兴趣: 计算机视觉 (等级:8, 匹配:['cv', '计算机视觉', '图像', 'opencv'])
+2025-09-18 11:05:24,468 - INFO - [user_profile.py:585] - 提取到兴趣: 前端开发 (等级:4, 匹配:['前端', 'html'])
+2025-09-18 11:05:24,469 - INFO - [user_profile.py:585] - 提取到兴趣: 后端开发 (等级:5, 匹配:['后端', 'api'])
+2025-09-18 11:05:24,469 - INFO - [user_profile.py:585] - 提取到兴趣: 数据库技术 (等级:5, 匹配:['数据库', 'postgresql', 'sql'])
+2025-09-18 11:05:24,469 - INFO - [user_profile.py:585] - 提取到兴趣: 软件架构 (等级:5, 匹配:['架构'])
+2025-09-18 11:05:24,471 - INFO - [user_profile.py:587] - 兴趣提取完成，共提取到 7 项兴趣
+2025-09-18 11:06:02,124 - INFO - [user_profile.py:456] - 技能评估: Python编程 精通... -> 等级:7/10, 类别:programming, 组成:(基础:4+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,125 - INFO - [user_profile.py:456] - 技能评估: C++编程 熟练... -> 等级:7/10, 类别:programming, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,126 - INFO - [user_profile.py:456] - 技能评估: 前端开发 精通... -> 等级:7/10, 类别:general, 组成:(基础:4+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,127 - INFO - [user_profile.py:456] - 技能评估: FastAPI开发 精通... -> 等级:7/10, 类别:backend, 组成:(基础:4+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,128 - INFO - [user_profile.py:456] - 技能评估: 机器学习 精通... -> 等级:7/10, 类别:general, 组成:(基础:4+熟练度:3+复杂度:1+年限:2+职责:1)
+2025-09-18 11:06:02,128 - INFO - [user_profile.py:456] - 技能评估: 自然语言处理 精通... -> 等级:7/10, 类别:general, 组成:(基础:4+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,129 - INFO - [user_profile.py:456] - 技能评估: 计算机视觉 熟练... -> 等级:7/10, 类别:general, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,131 - INFO - [user_profile.py:456] - 技能评估: 大模型开发 熟练... -> 等级:7/10, 类别:general, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,131 - INFO - [user_profile.py:456] - 技能评估: RAG架构 熟练... -> 等级:7/10, 类别:general, 组成:(基础:5+熟练度:3+复杂度:1+年限:2+职责:1)
+2025-09-18 11:06:02,132 - INFO - [user_profile.py:456] - 技能评估: 数据爬虫 精通... -> 等级:7/10, 类别:general, 组成:(基础:4+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,133 - INFO - [user_profile.py:456] - 技能评估: 数据清洗 精通... -> 等级:7/10, 类别:general, 组成:(基础:4+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,133 - INFO - [user_profile.py:456] - 技能评估: 数据库管理 熟练... -> 等级:7/10, 类别:management, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,134 - INFO - [user_profile.py:456] - 技能评估: 算法设计 精通... -> 等级:7/10, 类别:design, 组成:(基础:4+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,135 - INFO - [user_profile.py:456] - 技能评估: 数学建模 精通... -> 等级:7/10, 类别:general, 组成:(基础:4+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,136 - INFO - [user_profile.py:456] - 技能评估: OpenCV 熟练... -> 等级:7/10, 类别:ai_ml, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,137 - INFO - [user_profile.py:456] - 技能评估: PaddleOCR 熟练... -> 等级:7/10, 类别:general, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,137 - INFO - [user_profile.py:456] - 技能评估: Transformer模型 熟练... -> 等级:7/10, 类别:general, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,138 - INFO - [user_profile.py:456] - 技能评估: Stable Diffusion 熟练... -> 等级:7/10, 类别:general, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,138 - INFO - [user_profile.py:456] - 技能评估: 项目管理 熟练... -> 等级:7/10, 类别:management, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,139 - INFO - [user_profile.py:456] - 技能评估: 团队协作 熟练... -> 等级:7/10, 类别:general, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:06:02,142 - ERROR - [user_profile.py:315] - 更新用户兴趣失败: Incorrect number of bindings supplied. The current statement uses 6, and there are 7 supplied.
+2025-09-18 11:06:02,143 - INFO - [user_profile.py:622] - 已保存 7 项简历兴趣
+2025-09-18 11:06:02,143 - INFO - [user_profile.py:648] - 并行简历分析完成 - 技能: 20, 兴趣: 7
+2025-09-18 11:06:02,143 - INFO - [knowledge_flow.py:118] - 增强简历分析完成，提取到技能数量: 20
+2025-09-18 11:06:02,157 - INFO - [user_profile.py:909] - 用户画像更新成功: b559f8f3e9d5bb3fd35fa93f9d62043d
+2025-09-18 11:06:02,162 - INFO - [knowledge_flow.py:126] - 已保存 20 项增强技能
+2025-09-18 11:06:02,162 - INFO - [app.py:233] - 简历分析完成（已保存的临时文件）
+2025-09-18 11:06:02,162 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
+2025-09-18 11:06:02,163 - INFO - [app.py:265] - 搜索平台: ['arxiv'], 查询内容: 机器学习
+2025-09-18 11:06:02,163 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
+2025-09-18 11:06:02,163 - INFO - [knowledge_flow.py:360] - 记录用户 b559f8f3e9d5bb3fd35fa93f9d62043d 的搜索: 机器学习
+2025-09-18 11:06:02,176 - INFO - [user_profile.py:312] - 已更新用户 b559f8f3e9d5bb3fd35fa93f9d62043d 的search兴趣: ['人工智能']
+2025-09-18 11:06:02,178 - INFO - [knowledge_flow.py:368] - 为用户 b559f8f3e9d5bb3fd35fa93f9d62043d 提取到 1 个搜索兴趣: ['人工智能']
+2025-09-18 11:06:02,181 - INFO - [user_profile.py:255] - 已更新用户 b559f8f3e9d5bb3fd35fa93f9d62043d 的search技能: []
+2025-09-18 11:06:02,588 - INFO - [knowledge_flow.py:448] - 传统API翻译: '机器学习' -> 'Machine Learning'
+2025-09-18 11:06:02,589 - INFO - [knowledge_flow.py:383] - 在平台 arxiv 上搜索(已优化): 'Machine Learning'
+2025-09-18 11:06:02,590 - INFO - [search.py:91] - 使用ArxivSearcher搜索: Machine Learning, 排序方式: relevance, 时间范围: {'days': 7}, 类别: None
+2025-09-18 11:06:02,591 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=15
+2025-09-18 11:06:02,591 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: Machine Learning, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 7}, 类别: None
+2025-09-18 11:06:02,591 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"Machine Learning" OR abs:"Machine Learning" OR all:"Machine Learning")'
+2025-09-18 11:06:02,592 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Machine+Learning%22+OR+abs%3A%22Machine+Learning%22+OR+all%3A%22Machine+Learning%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
+2025-09-18 11:06:03,780 - INFO - [__init__.py:606] - Got first page: 100 of 279558 total results
+2025-09-18 11:06:03,783 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 15 篇论文
+2025-09-18 11:06:03,783 - INFO - [knowledge_flow.py:276] - arxiv 搜索完成，找到 15 条结果
+2025-09-18 11:06:03,797 - INFO - [user_profile.py:1316] - 记录用户 b559f8f3e9d5bb3fd35fa93f9d62043d 的搜索: Machine Learning
+2025-09-18 11:06:03,797 - INFO - [app.py:310] - 搜索执行完成。查询: 机器学习 -> Machine Learning. 平台: ['arxiv']
+2025-09-18 11:06:03,798 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
+2025-09-18 11:06:03,799 - INFO - [knowledge_flow.py:326] - 流式生成报告类型: standard
+2025-09-18 11:06:03,799 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
+2025-09-18 11:07:03,867 - ERROR - [llm_interface.py:123] - 流式调用LLM时出错: 
+2025-09-18 11:07:03,876 - INFO - [app.py:195] - SSE 进度 (standard): 第 6/6 步 - 处理完成
+2025-09-18 11:07:04,083 - INFO - [app.py:367] - 所有步骤完成。standard 流式输出完毕。
+2025-09-18 11:07:04,088 - INFO - [app.py:391] - 临时文件已删除: C:\Users\12595\AppData\Local\Temp\tmpvxdmfd7f.pdf
+2025-09-18 11:08:11,466 - INFO - [app.py:446] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
+2025-09-18 11:08:11,475 - INFO - [app.py:519] - 接收到用户数据: Tssword_profile1, 职业: 算法工程师, 简历文件: 丁子健.pdf, 大小: 674835B, 关注领域: manus, 请求文献数: 15
+2025-09-18 11:08:11,491 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-18 11:08:11,507 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-18 11:08:11,508 - INFO - [user_profile.py:735] - 已加载兴趣分类体系，共 6 个类别
+2025-09-18 11:08:11,509 - INFO - [user_profile.py:708] - 用户画像管理器初始化完成
+2025-09-18 11:08:11,511 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
+2025-09-18 11:08:11,511 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-18 11:08:11,511 - INFO - [generators.py:53] - 报告生成器初始化完成
+2025-09-18 11:08:11,517 - INFO - [search.py:300] - 搜索管理器初始化完成
+2025-09-18 11:08:11,517 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-18 11:08:11,518 - INFO - [knowledge_flow.py:90] - KnowledgeFlow初始化完成
+2025-09-18 11:08:11,518 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
+2025-09-18 11:08:11,519 - INFO - [app.py:221] - 处理用户: Tssword_profile1, ID: f9730dcfc58afccf02bbd16cf316b0f9
+2025-09-18 11:08:11,521 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
+2025-09-18 11:08:11,522 - INFO - [knowledge_flow.py:107] - 开始为用户 f9730dcfc58afccf02bbd16cf316b0f9 分析简历
+2025-09-18 11:08:11,523 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmp382wfrjw.pdf
+2025-09-18 11:08:12,485 - INFO - [resume_reader.py:60] - 成功读取简历，共 2244 个字符
+2025-09-18 11:08:12,486 - INFO - [user_profile.py:516] - 开始增强简历分析，用户ID: f9730dcfc58afccf02bbd16cf316b0f9
+2025-09-18 11:08:12,488 - INFO - [user_profile.py:563] - 开始从简历中提取兴趣，简历长度: 2244 字符
+2025-09-18 11:08:12,489 - INFO - [user_profile.py:585] - 提取到兴趣: 人工智能 (等级:6, 匹配:['ai', '机器学习', 'ml'])
+2025-09-18 11:08:12,491 - INFO - [user_profile.py:585] - 提取到兴趣: 自然语言处理 (等级:7, 匹配:['nlp', 'bert', 'transformer'])
+2025-09-18 11:08:12,491 - INFO - [user_profile.py:585] - 提取到兴趣: 计算机视觉 (等级:8, 匹配:['cv', '计算机视觉', '图像', 'opencv'])
+2025-09-18 11:08:12,492 - INFO - [user_profile.py:585] - 提取到兴趣: 前端开发 (等级:4, 匹配:['前端', 'html'])
+2025-09-18 11:08:12,492 - INFO - [user_profile.py:585] - 提取到兴趣: 后端开发 (等级:5, 匹配:['后端', 'api'])
+2025-09-18 11:08:12,493 - INFO - [user_profile.py:585] - 提取到兴趣: 数据库技术 (等级:5, 匹配:['数据库', 'postgresql', 'sql'])
+2025-09-18 11:08:12,493 - INFO - [user_profile.py:585] - 提取到兴趣: 软件架构 (等级:5, 匹配:['架构'])
+2025-09-18 11:08:12,495 - INFO - [user_profile.py:587] - 兴趣提取完成，共提取到 7 项兴趣
+2025-09-18 11:08:42,260 - INFO - [user_profile.py:456] - 技能评估: Python编程 精通... -> 等级:7/10, 类别:programming, 组成:(基础:4+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:08:42,263 - INFO - [user_profile.py:456] - 技能评估: C++编程 熟练... -> 等级:7/10, 类别:programming, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:08:42,266 - INFO - [user_profile.py:456] - 技能评估: FastAPI开发 精通... -> 等级:7/10, 类别:backend, 组成:(基础:4+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:08:42,267 - INFO - [user_profile.py:456] - 技能评估: 前端开发 熟练... -> 等级:7/10, 类别:general, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:08:42,269 - INFO - [user_profile.py:456] - 技能评估: 机器学习 精通... -> 等级:7/10, 类别:general, 组成:(基础:4+熟练度:3+复杂度:1+年限:2+职责:1)
+2025-09-18 11:08:42,271 - INFO - [user_profile.py:456] - 技能评估: 自然语言处理 精通... -> 等级:7/10, 类别:general, 组成:(基础:4+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:08:42,274 - INFO - [user_profile.py:456] - 技能评估: 计算机视觉 熟练... -> 等级:7/10, 类别:general, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:08:42,277 - INFO - [user_profile.py:456] - 技能评估: 大模型开发 熟练... -> 等级:7/10, 类别:general, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:08:42,280 - INFO - [user_profile.py:456] - 技能评估: OCR技术 熟练... -> 等级:7/10, 类别:general, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:08:42,282 - INFO - [user_profile.py:456] - 技能评估: 数据爬虫 精通... -> 等级:7/10, 类别:general, 组成:(基础:4+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:08:42,284 - INFO - [user_profile.py:456] - 技能评估: 数据清洗 精通... -> 等级:7/10, 类别:general, 组成:(基础:4+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:08:42,286 - INFO - [user_profile.py:456] - 技能评估: 数据库管理 熟练... -> 等级:7/10, 类别:management, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:08:42,288 - INFO - [user_profile.py:456] - 技能评估: 算法设计 精通... -> 等级:7/10, 类别:design, 组成:(基础:4+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:08:42,290 - INFO - [user_profile.py:456] - 技能评估: 数学建模 精通... -> 等级:7/10, 类别:general, 组成:(基础:4+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:08:42,292 - INFO - [user_profile.py:456] - 技能评估: 团队协作 熟练... -> 等级:7/10, 类别:general, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:08:42,295 - INFO - [user_profile.py:456] - 技能评估: 项目管理 熟练... -> 等级:7/10, 类别:management, 组成:(基础:5+熟练度:3+复杂度:0+年限:2+职责:1)
+2025-09-18 11:08:42,301 - ERROR - [user_profile.py:315] - 更新用户兴趣失败: Incorrect number of bindings supplied. The current statement uses 6, and there are 7 supplied.
+2025-09-18 11:08:42,303 - INFO - [user_profile.py:622] - 已保存 7 项简历兴趣
+2025-09-18 11:08:42,305 - INFO - [user_profile.py:648] - 并行简历分析完成 - 技能: 16, 兴趣: 7
+2025-09-18 11:08:42,306 - INFO - [knowledge_flow.py:118] - 增强简历分析完成，提取到技能数量: 16
+2025-09-18 11:08:42,338 - INFO - [user_profile.py:909] - 用户画像更新成功: f9730dcfc58afccf02bbd16cf316b0f9
+2025-09-18 11:08:42,349 - INFO - [knowledge_flow.py:126] - 已保存 16 项增强技能
+2025-09-18 11:08:42,350 - INFO - [app.py:233] - 简历分析完成（已保存的临时文件）
+2025-09-18 11:08:42,351 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
+2025-09-18 11:08:42,353 - INFO - [app.py:265] - 搜索平台: ['google_scholar', 'arxiv', 'patent', 'web', 'news'], 查询内容: manus
+2025-09-18 11:08:42,354 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
+2025-09-18 11:08:42,356 - INFO - [knowledge_flow.py:360] - 记录用户 f9730dcfc58afccf02bbd16cf316b0f9 的搜索: manus
+2025-09-18 11:08:42,365 - INFO - [user_profile.py:312] - 已更新用户 f9730dcfc58afccf02bbd16cf316b0f9 的search兴趣: []
+2025-09-18 11:08:42,373 - INFO - [user_profile.py:255] - 已更新用户 f9730dcfc58afccf02bbd16cf316b0f9 的search技能: []
+2025-09-18 11:08:42,385 - INFO - [knowledge_flow.py:383] - 在平台 google_scholar, arxiv, patent, web, news 上搜索(已优化): 'manus'
+2025-09-18 11:08:42,386 - INFO - [search.py:132] - 执行Google Scholar搜索: manus
+2025-09-18 11:08:42,388 - INFO - [search.py:91] - 使用ArxivSearcher搜索: manus, 排序方式: relevance, 时间范围: {'days': 7}, 类别: None
+2025-09-18 11:08:42,388 - INFO - [search.py:153] - 执行Google搜索: manus academic research paper
+2025-09-18 11:08:42,389 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=15
+2025-09-18 11:08:42,394 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: manus, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 7}, 类别: None
+2025-09-18 11:08:42,394 - INFO - [search.py:140] - 执行专利搜索: manus
+2025-09-18 11:08:42,396 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"manus" OR abs:"manus" OR all:"manus")'
+2025-09-18 11:08:42,401 - INFO - [search.py:153] - 执行Google搜索: manus patent
+2025-09-18 11:08:42,402 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22manus%22+OR+abs%3A%22manus%22+OR+all%3A%22manus%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
+2025-09-18 11:08:42,410 - INFO - [search.py:153] - 执行Google搜索: manus
+2025-09-18 11:08:42,412 - INFO - [search.py:148] - 执行新闻搜索: manus
+2025-09-18 11:08:42,424 - INFO - [search.py:153] - 执行Google搜索: manus news recent
+2025-09-18 11:08:43,622 - INFO - [knowledge_flow.py:276] - news 搜索完成，找到 10 条结果
+2025-09-18 11:08:43,641 - INFO - [knowledge_flow.py:276] - web 搜索完成，找到 10 条结果
+2025-09-18 11:08:43,668 - INFO - [knowledge_flow.py:276] - google_scholar 搜索完成，找到 10 条结果
+2025-09-18 11:08:44,255 - INFO - [knowledge_flow.py:276] - patent 搜索完成，找到 10 条结果
+2025-09-18 11:08:45,900 - INFO - [__init__.py:606] - Got first page: 100 of 520 total results
+2025-09-18 11:08:45,925 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 2 篇论文
+2025-09-18 11:08:45,927 - INFO - [knowledge_flow.py:276] - arxiv 搜索完成，找到 2 条结果
+2025-09-18 11:08:45,949 - INFO - [user_profile.py:1316] - 记录用户 f9730dcfc58afccf02bbd16cf316b0f9 的搜索: manus
+2025-09-18 11:08:45,951 - INFO - [app.py:310] - 搜索执行完成。查询: manus -> manus. 平台: ['google_scholar', 'arxiv', 'patent', 'web', 'news']
+2025-09-18 11:08:45,952 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
+2025-09-18 11:08:45,955 - INFO - [knowledge_flow.py:326] - 流式生成报告类型: standard
+2025-09-18 11:08:45,956 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
+2025-09-18 11:09:46,853 - ERROR - [llm_interface.py:123] - 流式调用LLM时出错: 
+2025-09-18 11:09:46,855 - INFO - [app.py:195] - SSE 进度 (standard): 第 6/6 步 - 处理完成
+2025-09-18 11:09:47,059 - INFO - [app.py:367] - 所有步骤完成。standard 流式输出完毕。
+2025-09-18 11:09:47,061 - INFO - [app.py:391] - 临时文件已删除: C:\Users\12595\AppData\Local\Temp\tmp382wfrjw.pdf
+2025-09-18 11:10:04,078 - INFO - [app.py:1232] - 管理员数据库修复: 数据库修复完成，已修复: users.updated_at (修复1个NULL值)
+2025-09-18 11:16:28,111 - ERROR - [base_events.py:1758] - Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x00000210DEEA3160>
+2025-09-18 11:16:29,899 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:16:30,469 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:16:30,478 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:16:30,479 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:16:30,484 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:16:30,487 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:16:34,616 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:16:35,253 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:16:35,259 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:16:35,260 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:16:35,263 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:16:35,265 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:16:50,897 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:16:51,519 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:16:51,528 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:16:51,529 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:16:51,535 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:16:51,541 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:16:53,988 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:16:54,386 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:16:54,391 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:16:54,391 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:16:54,394 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:16:54,397 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:17:14,603 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:17:15,152 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:17:15,160 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:17:15,160 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:17:15,164 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:17:15,167 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:17:17,697 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:17:18,208 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:17:18,213 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:17:18,214 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:17:18,218 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:17:18,222 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:17:35,695 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:17:36,156 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:17:36,161 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:17:36,162 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:17:36,166 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:17:36,172 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:17:37,786 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:17:38,236 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:17:38,240 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:17:38,241 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:17:38,245 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:17:38,248 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:17:51,947 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:17:52,425 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:17:52,433 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:17:52,434 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:17:52,437 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:17:52,440 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:17:53,923 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:17:54,389 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:17:54,394 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:17:54,395 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:17:54,397 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:17:54,401 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:18:03,436 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:18:03,897 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:18:03,903 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:18:03,903 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:18:03,906 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:18:03,908 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:18:24,425 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:18:24,956 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:18:24,963 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:18:24,964 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:18:24,967 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:18:24,970 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:18:28,114 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:18:28,600 - INFO - [utils.py:52] - 日志系统初始化完成（控制台+文件轮转）
+2025-09-18 11:18:28,609 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:18:28,609 - INFO - [app.py:86] - 数据库初始化/校验完成。
+2025-09-18 11:18:28,613 - INFO - [db_utils.py:430] - 数据库初始化完成
+2025-09-18 11:18:28,618 - INFO - [app.py:113] - 数据目录 './user_data' 已确保存在。
+2025-09-18 11:20:49,760 - INFO - [app.py:446] - '/process' POST 路由命中。请求报告类型: standard, 文献数量: 15。准备流式传输事件。
+2025-09-18 11:20:49,769 - INFO - [app.py:519] - 接收到用户数据: Tssword_test3, 职业: 算法工程师, 简历文件: 丁子健.pdf, 大小: 674835B, 关注领域: 自然语言处理, 请求文献数: 15
+2025-09-18 11:20:49,798 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-18 11:20:49,810 - INFO - [llm_interface.py:34] - LLM接口初始化完成，使用模型: deepseek-chat, API基础URL: https://api.deepseek.com
+2025-09-18 11:20:49,811 - INFO - [user_profile.py:703] - 已加载兴趣分类体系，共 6 个类别
+2025-09-18 11:20:49,812 - INFO - [user_profile.py:676] - 用户画像管理器初始化完成
+2025-09-18 11:20:49,812 - INFO - [resume_reader.py:29] - 简历读取器初始化完成
+2025-09-18 11:20:49,813 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-18 11:20:49,813 - INFO - [generators.py:53] - 报告生成器初始化完成
+2025-09-18 11:20:49,818 - INFO - [search.py:300] - 搜索管理器初始化完成
+2025-09-18 11:20:49,819 - INFO - [reference_formatter.py:15] - 引用格式化器初始化
+2025-09-18 11:20:49,819 - INFO - [knowledge_flow.py:90] - KnowledgeFlow初始化完成
+2025-09-18 11:20:49,820 - INFO - [app.py:195] - SSE 进度 (standard): 第 1/6 步 - 正在初始化处理流程...
+2025-09-18 11:20:49,820 - INFO - [app.py:221] - 处理用户: Tssword_test3, ID: d63757b61f5e97cee326873274ecb52e
+2025-09-18 11:20:49,821 - INFO - [app.py:195] - SSE 进度 (standard): 第 2/6 步 - 用户画像分析
+2025-09-18 11:20:49,822 - INFO - [knowledge_flow.py:107] - 开始为用户 d63757b61f5e97cee326873274ecb52e 分析简历
+2025-09-18 11:20:49,823 - INFO - [resume_reader.py:56] - 正在读取 pdf 格式文件: C:\Users\12595\AppData\Local\Temp\tmpqnlds6a0.pdf
+2025-09-18 11:20:50,799 - INFO - [resume_reader.py:60] - 成功读取简历，共 2244 个字符
+2025-09-18 11:20:50,800 - INFO - [user_profile.py:474] - 开始增强简历分析，用户ID: d63757b61f5e97cee326873274ecb52e
+2025-09-18 11:20:50,802 - INFO - [user_profile.py:521] - 开始从简历中提取兴趣，简历长度: 2244 字符
+2025-09-18 11:20:50,802 - INFO - [user_profile.py:522] - 简历内容前300字符: 竞赛获奖
+浙江财经⼤学本科⼈⼯智能专业
+GPA：4.2（9/154）
+主修课程：程序设计 95、⾯向对象程序设计 96、桌⾯应⽤开发 95、前端开发技术 97、机器学习 92、
+⾃然语⾔处理90、⼤数据开发技术 90、算法设计 91、操作系统 89、数学建模 94、雅思6.5(阅读8.0)
+教育背景
+实习经历
+校园经历邮箱：1259579739@qq.com
+项⽬经历 号码：15990682004姓名：丁⼦健
+预备党员 学⼠
+2022.09-⾄今年龄：20
+2025.5-2025.8                                                        ...
+2025-09-18 11:20:50,803 - INFO - [user_profile.py:523] - 兴趣关键词库有 20 个兴趣领域
+2025-09-18 11:20:50,803 - INFO - [user_profile.py:546] - ✅ 提取到兴趣: 人工智能 (等级:6, 匹配:['ai', '机器学习', 'ml'])
+2025-09-18 11:20:50,804 - INFO - [user_profile.py:546] - ✅ 提取到兴趣: 自然语言处理 (等级:7, 匹配:['nlp', 'bert', 'transformer'])
+2025-09-18 11:20:50,804 - INFO - [user_profile.py:546] - ✅ 提取到兴趣: 计算机视觉 (等级:8, 匹配:['cv', '计算机视觉', '图像', 'opencv'])
+2025-09-18 11:20:50,806 - INFO - [user_profile.py:546] - ✅ 提取到兴趣: 前端开发 (等级:4, 匹配:['前端', 'html'])
+2025-09-18 11:20:50,806 - INFO - [user_profile.py:546] - ✅ 提取到兴趣: 后端开发 (等级:5, 匹配:['后端', 'api'])
+2025-09-18 11:20:50,807 - INFO - [user_profile.py:546] - ✅ 提取到兴趣: 数据库技术 (等级:5, 匹配:['数据库', 'postgresql', 'sql'])
+2025-09-18 11:20:50,807 - INFO - [user_profile.py:546] - ✅ 提取到兴趣: 软件架构 (等级:5, 匹配:['架构'])
+2025-09-18 11:20:50,808 - INFO - [user_profile.py:548] - 兴趣提取完成，共提取到 7 项兴趣
+2025-09-18 11:21:25,038 - INFO - [user_profile.py:397] - 技能评估详情: Python编程 熟练掌握Python开... -> 基础:2, 复杂度:+0, 年限:+2, 职责:+0 = 最终:4/10
+2025-09-18 11:21:25,041 - INFO - [user_profile.py:455] - 技能综合评估: Python编程 - 算法:4, LLM:6, 最终:4
+2025-09-18 11:21:25,045 - INFO - [user_profile.py:397] - 技能评估详情: C++编程 熟悉C++及常用数据结构，有... -> 基础:1, 复杂度:+0, 年限:+2, 职责:+0 = 最终:3/10
+2025-09-18 11:21:25,048 - INFO - [user_profile.py:455] - 技能综合评估: C++编程 - 算法:3, LLM:6, 最终:3
+2025-09-18 11:21:25,050 - INFO - [user_profile.py:397] - 技能评估详情: 前端开发 具备前端开发技术，课程成绩优秀... -> 基础:1, 复杂度:+0, 年限:+2, 职责:+0 = 最终:3/10
+2025-09-18 11:21:25,051 - INFO - [user_profile.py:455] - 技能综合评估: 前端开发 - 算法:3, LLM:6, 最终:3
+2025-09-18 11:21:25,053 - INFO - [user_profile.py:397] - 技能评估详情: FastAPI开发 熟练掌握FastAP... -> 基础:2, 复杂度:+0, 年限:+2, 职责:+0 = 最终:4/10
+2025-09-18 11:21:25,056 - INFO - [user_profile.py:455] - 技能综合评估: FastAPI开发 - 算法:4, LLM:6, 最终:4
+2025-09-18 11:21:25,058 - INFO - [user_profile.py:397] - 技能评估详情: 机器学习 熟悉机器学习算法，课程成绩优秀... -> 基础:1, 复杂度:+1, 年限:+2, 职责:+0 = 最终:4/10
+2025-09-18 11:21:25,060 - INFO - [user_profile.py:455] - 技能综合评估: 机器学习 - 算法:4, LLM:6, 最终:4
+2025-09-18 11:21:25,061 - INFO - [user_profile.py:397] - 技能评估详情: 自然语言处理 熟悉NLP技术，包括多语言... -> 基础:1, 复杂度:+0, 年限:+2, 职责:+0 = 最终:3/10
+2025-09-18 11:21:25,064 - INFO - [user_profile.py:455] - 技能综合评估: 自然语言处理 - 算法:3, LLM:6, 最终:3
+2025-09-18 11:21:25,065 - INFO - [user_profile.py:397] - 技能评估详情: 大模型开发 熟悉大模型Agent开发、R... -> 基础:1, 复杂度:+1, 年限:+2, 职责:+0 = 最终:4/10
+2025-09-18 11:21:25,066 - INFO - [user_profile.py:455] - 技能综合评估: 大模型开发 - 算法:4, LLM:6, 最终:4
+2025-09-18 11:21:25,068 - INFO - [user_profile.py:397] - 技能评估详情: 计算机视觉 熟悉OpenCV、Paddl... -> 基础:1, 复杂度:+0, 年限:+2, 职责:+0 = 最终:3/10
+2025-09-18 11:21:25,069 - INFO - [user_profile.py:455] - 技能综合评估: 计算机视觉 - 算法:3, LLM:6, 最终:3
+2025-09-18 11:21:25,072 - INFO - [user_profile.py:397] - 技能评估详情: 数据爬虫 具备模块化爬虫开发经验，有多源... -> 基础:1, 复杂度:+0, 年限:+2, 职责:+0 = 最终:3/10
+2025-09-18 11:21:25,073 - INFO - [user_profile.py:455] - 技能综合评估: 数据爬虫 - 算法:3, LLM:6, 最终:3
+2025-09-18 11:21:25,074 - INFO - [user_profile.py:397] - 技能评估详情: 数据库管理 熟悉PostgreSQL、S... -> 基础:1, 复杂度:+0, 年限:+2, 职责:+0 = 最终:3/10
+2025-09-18 11:21:25,076 - INFO - [user_profile.py:455] - 技能综合评估: 数据库管理 - 算法:3, LLM:6, 最终:3
+2025-09-18 11:21:25,079 - INFO - [user_profile.py:397] - 技能评估详情: 算法设计 熟悉ACM常用算法，有算法竞赛... -> 基础:1, 复杂度:+0, 年限:+2, 职责:+0 = 最终:3/10
+2025-09-18 11:21:25,079 - INFO - [user_profile.py:455] - 技能综合评估: 算法设计 - 算法:3, LLM:6, 最终:3
+2025-09-18 11:21:25,082 - INFO - [user_profile.py:397] - 技能评估详情: 数学建模 具备丰富数学建模经验，多次获得... -> 基础:1, 复杂度:+0, 年限:+2, 职责:+0 = 最终:3/10
+2025-09-18 11:21:25,083 - INFO - [user_profile.py:455] - 技能综合评估: 数学建模 - 算法:3, LLM:6, 最终:3
+2025-09-18 11:21:25,086 - INFO - [user_profile.py:397] - 技能评估详情: 项目管理 有团队领导经验，熟悉项目架构设... -> 基础:4, 复杂度:+1, 年限:+2, 职责:+0 = 最终:6/10
+2025-09-18 11:21:25,086 - INFO - [user_profile.py:455] - 技能综合评估: 项目管理 - 算法:5, LLM:6, 最终:5
+2025-09-18 11:21:25,087 - INFO - [user_profile.py:397] - 技能评估详情: 英语能力 雅思6.5分（阅读8.0），具... -> 基础:1, 复杂度:+0, 年限:+2, 职责:+0 = 最终:3/10
+2025-09-18 11:21:25,089 - INFO - [user_profile.py:455] - 技能综合评估: 英语能力 - 算法:3, LLM:6, 最终:3
+2025-09-18 11:21:25,119 - INFO - [user_profile.py:312] - 已更新用户 d63757b61f5e97cee326873274ecb52e 的resume兴趣: ['人工智能', '自然语言处理', '计算机视觉', '前端开发', '后端开发', '数据库技术', '软件架构']
+2025-09-18 11:21:25,119 - INFO - [user_profile.py:584] - ✅ 已成功保存 7 项简历兴趣到数据库
+2025-09-18 11:21:25,120 - INFO - [user_profile.py:586] -   - 人工智能 (等级: 6, 类别: AI技术)
+2025-09-18 11:21:25,122 - INFO - [user_profile.py:586] -   - 自然语言处理 (等级: 7, 类别: AI技术)
+2025-09-18 11:21:25,122 - INFO - [user_profile.py:586] -   - 计算机视觉 (等级: 8, 类别: AI技术)
+2025-09-18 11:21:25,123 - INFO - [user_profile.py:586] -   - 前端开发 (等级: 4, 类别: 软件开发)
+2025-09-18 11:21:25,123 - INFO - [user_profile.py:586] -   - 后端开发 (等级: 5, 类别: 软件开发)
+2025-09-18 11:21:25,126 - INFO - [user_profile.py:586] -   - 数据库技术 (等级: 5, 类别: 基础设施)
+2025-09-18 11:21:25,126 - INFO - [user_profile.py:586] -   - 软件架构 (等级: 5, 类别: 软件开发)
+2025-09-18 11:21:25,127 - INFO - [user_profile.py:616] - 并行简历分析完成 - 技能: 14, 兴趣: 7
+2025-09-18 11:21:25,128 - INFO - [knowledge_flow.py:118] - 增强简历分析完成，提取到技能数量: 14
+2025-09-18 11:21:25,154 - INFO - [user_profile.py:877] - 用户画像更新成功: d63757b61f5e97cee326873274ecb52e
+2025-09-18 11:21:25,163 - INFO - [knowledge_flow.py:126] - 已保存 14 项增强技能
+2025-09-18 11:21:25,164 - INFO - [app.py:233] - 简历分析完成（已保存的临时文件）
+2025-09-18 11:21:25,164 - INFO - [app.py:195] - SSE 进度 (standard): 第 3/6 步 - 构建搜索参数
+2025-09-18 11:21:25,165 - INFO - [app.py:265] - 搜索平台: ['google_scholar', 'arxiv', 'patent', 'web', 'news'], 查询内容: 自然语言处理
+2025-09-18 11:21:25,165 - INFO - [app.py:195] - SSE 进度 (standard): 第 4/6 步 - 执行搜索
+2025-09-18 11:21:25,167 - INFO - [knowledge_flow.py:360] - 记录用户 d63757b61f5e97cee326873274ecb52e 的搜索: 自然语言处理
+2025-09-18 11:21:25,188 - INFO - [user_profile.py:312] - 已更新用户 d63757b61f5e97cee326873274ecb52e 的search兴趣: ['自然语言处理']
+2025-09-18 11:21:25,189 - INFO - [knowledge_flow.py:368] - 为用户 d63757b61f5e97cee326873274ecb52e 提取到 1 个搜索兴趣: ['自然语言处理']
+2025-09-18 11:21:25,194 - INFO - [user_profile.py:255] - 已更新用户 d63757b61f5e97cee326873274ecb52e 的search技能: []
+2025-09-18 11:21:25,658 - INFO - [knowledge_flow.py:448] - 传统API翻译: '自然语言处理' -> 'Natural Language Processing'
+2025-09-18 11:21:25,659 - INFO - [knowledge_flow.py:383] - 在平台 google_scholar, arxiv, patent, web, news 上搜索(已优化): 'Natural Language Processing'
+2025-09-18 11:21:25,660 - INFO - [search.py:132] - 执行Google Scholar搜索: Natural Language Processing
+2025-09-18 11:21:25,661 - INFO - [search.py:91] - 使用ArxivSearcher搜索: Natural Language Processing, 排序方式: relevance, 时间范围: {'days': 7}, 类别: None
+2025-09-18 11:21:25,661 - INFO - [search.py:153] - 执行Google搜索: Natural Language Processing academic research paper
+2025-09-18 11:21:25,661 - INFO - [improved_arxiv_search.py:28] - 初始化ArxivSearcher: max_results=15
+2025-09-18 11:21:25,665 - INFO - [improved_arxiv_search.py:136] - 使用ArxivSearcher搜索: Natural Language Processing, 排序方式: relevance -> SubmittedDate, 时间范围: {'days': 7}, 类别: None
+2025-09-18 11:21:25,665 - INFO - [search.py:140] - 执行专利搜索: Natural Language Processing
+2025-09-18 11:21:25,667 - INFO - [improved_arxiv_search.py:137] - 最终搜索查询: '(ti:"Natural Language Processing" OR abs:"Natural Language Processing" OR all:"Natural Language Processing")'
+2025-09-18 11:21:25,668 - INFO - [__init__.py:680] - Requesting page (first: True, try: 0): https://export.arxiv.org/api/query?search_query=%28ti%3A%22Natural+Language+Processing%22+OR+abs%3A%22Natural+Language+Processing%22+OR+all%3A%22Natural+Language+Processing%22%29&id_list=&sortBy=submittedDate&sortOrder=descending&start=0&max_results=100
+2025-09-18 11:21:25,669 - INFO - [search.py:153] - 执行Google搜索: Natural Language Processing patent
+2025-09-18 11:21:25,671 - INFO - [search.py:153] - 执行Google搜索: Natural Language Processing
+2025-09-18 11:21:25,671 - INFO - [search.py:148] - 执行新闻搜索: Natural Language Processing
+2025-09-18 11:21:25,679 - INFO - [search.py:153] - 执行Google搜索: Natural Language Processing news recent
+2025-09-18 11:21:26,895 - INFO - [knowledge_flow.py:276] - web 搜索完成，找到 10 条结果
+2025-09-18 11:21:26,985 - INFO - [knowledge_flow.py:276] - patent 搜索完成，找到 10 条结果
+2025-09-18 11:21:27,298 - INFO - [knowledge_flow.py:276] - google_scholar 搜索完成，找到 10 条结果
+2025-09-18 11:21:27,509 - INFO - [__init__.py:606] - Got first page: 100 of 13324 total results
+2025-09-18 11:21:27,516 - INFO - [improved_arxiv_search.py:179] - 搜索完成，找到 15 篇论文
+2025-09-18 11:21:27,517 - INFO - [knowledge_flow.py:276] - arxiv 搜索完成，找到 15 条结果
+2025-09-18 11:21:27,752 - INFO - [knowledge_flow.py:276] - news 搜索完成，找到 10 条结果
+2025-09-18 11:21:27,775 - INFO - [user_profile.py:1284] - 记录用户 d63757b61f5e97cee326873274ecb52e 的搜索: Natural Language Processing
+2025-09-18 11:21:27,776 - INFO - [app.py:310] - 搜索执行完成。查询: 自然语言处理 -> Natural Language Processing. 平台: ['google_scholar', 'arxiv', 'patent', 'web', 'news']
+2025-09-18 11:21:27,777 - INFO - [app.py:195] - SSE 进度 (standard): 第 5/6 步 - 整合结果并生成标准报告
+2025-09-18 11:21:27,779 - INFO - [knowledge_flow.py:326] - 流式生成报告类型: standard
+2025-09-18 11:21:27,780 - INFO - [generators.py:89] - 流式生成最终的搜索报告...
+2025-09-18 11:22:27,817 - ERROR - [llm_interface.py:123] - 流式调用LLM时出错: 
+2025-09-18 11:22:27,826 - INFO - [app.py:195] - SSE 进度 (standard): 第 6/6 步 - 处理完成
+2025-09-18 11:22:28,010 - INFO - [app.py:367] - 所有步骤完成。standard 流式输出完毕。
+2025-09-18 11:22:28,013 - INFO - [app.py:391] - 临时文件已删除: C:\Users\12595\AppData\Local\Temp\tmpqnlds6a0.pdf
+2025-09-18 11:25:42,158 - INFO - [app.py:1232] - 管理员数据库修复: 数据库修复完成，已修复: users.updated_at (修复1个NULL值)
+2025-09-18 11:26:10,564 - ERROR - [base_events.py:1758] - Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x00000212F1C90400>
