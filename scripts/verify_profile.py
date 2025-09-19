@@ -1,108 +1,118 @@
-# verify_profile.py
+#!/usr/bin/env python
+"""
+用户画像验证脚本
+验证用户画像系统的核心组件是否配置正确并包含预期数据
+"""
 import os
+import sys
 import sqlite3
 import json
 import logging
-from pathlib import Path
 
-# 配置日志
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# 添加项目根目录到Python路径
+current_path = os.path.dirname(os.path.abspath(__file__))
+parent_path = os.path.dirname(current_path)
+sys.path.append(parent_path)
+sys.path.append(os.path.join(parent_path, "src"))
+
+from src.config import Config
+
+# 设置日志
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# 系统配置
-CONFIG = {
-    "DATA_DIR": "./user_data",
-    "DB_PATH": "./user_data/user_profiles.db",
-}
 
 def get_db_connection():
     """获取数据库连接"""
-    if not os.path.exists(CONFIG["DB_PATH"]):
-        print(f"错误: 数据库文件不存在: {CONFIG['DB_PATH']}")
+    config = Config()
+    db_path = config.user_db_path
+    
+    if not os.path.exists(db_path):
+        print(f"错误: 数据库文件不存在: {db_path}")
         return None
     
-    conn = sqlite3.connect(CONFIG["DB_PATH"])
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
 def check_database_tables():
-    """检查数据库表是否存在并包含数据"""
+    """检查数据库表是否存在并显示用户数据"""
+    print("🔍 检查数据库表结构...")
     conn = get_db_connection()
     if not conn:
         return False
     
     try:
-        # 检查表是否存在（修正 user_searches -> search_history）
-        tables = ["users", "user_interests", "search_history", "user_interactions", "user_skills"]
-        all_tables_exist = True
+        cursor = conn.cursor()
         
-        for table in tables:
-            cursor = conn.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'")
-            if not cursor.fetchone():
-                print(f"表 '{table}' 不存在")
-                all_tables_exist = False
+        # 检查所有必要的表
+        required_tables = [
+            'users', 'user_profiles', 'search_history', 'user_interests', 
+            'user_skills', 'user_education', 'user_work_experience', 
+            'user_interactions', 'interest_categories', 'user_auth'
+        ]
         
-        if not all_tables_exist:
-            return False
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        existing_tables = [row[0] for row in cursor.fetchall()]
+        
+        print(f"现有表: {', '.join(existing_tables)}")
+        
+        missing_tables = [table for table in required_tables if table not in existing_tables]
+        if missing_tables:
+            print(f"⚠️ 缺少表: {', '.join(missing_tables)}")
+        else:
+            print("✅ 所有必要的表都存在")
         
         # 检查用户数据
-        user_count = conn.execute("SELECT COUNT(*) as count FROM users").fetchone()["count"]
-        print(f"数据库中有 {user_count} 个用户")
+        cursor.execute("SELECT COUNT(*) FROM users")
+        user_count = cursor.fetchone()[0]
+        print(f"\n📊 用户总数: {user_count}")
         
         if user_count > 0:
-            # 获取所有用户
-            users = conn.execute("SELECT id, name, occupation, email FROM users").fetchall()
-            for user in users:
-                print(f"\n用户ID: {user['id']}")
-                print(f"姓名: {user['name']}")
-                print(f"职业: {user['occupation']}")
-                print(f"邮箱: {user['email']}")
-                
-                # 检查用户兴趣
-                interests = conn.execute(
-                    "SELECT topic, category, weight FROM user_interests WHERE user_id = ? ORDER BY weight DESC LIMIT 5", 
-                    (user['id'],)
-                ).fetchall()
-                
-                print(f"\n用户兴趣 (前5项):")
-                if interests:
-                    for interest in interests:
-                        print(f"  - {interest['topic']} ({interest['category']}): {interest['weight']:.2f}")
-                else:
-                    print("  未找到兴趣数据")
-                
-                # 检查用户技能
-                skills = conn.execute(
-                    "SELECT skill, level, category FROM user_skills WHERE user_id = ? ORDER BY level DESC LIMIT 5", 
-                    (user['id'],)
-                ).fetchall()
-                
-                print(f"\n用户技能 (前5项):")
-                if skills:
-                    for skill in skills:
-                        print(f"  - {skill['skill']} ({skill['category']}): {skill['level']}")
-                else:
-                    print("  未找到技能数据")
-                
-                # 检查搜索历史（修正表名）
-                searches = conn.execute(
-                    "SELECT query, platform, timestamp FROM search_history WHERE user_id = ? ORDER BY timestamp DESC LIMIT 3", 
-                    (user['id'],)
-                ).fetchall()
-                
-                print(f"\n最近搜索 (前3项):")
-                if searches:
-                    for search in searches:
-                        print(f"  - {search['query']} ({search['platform']}): {search['timestamp']}")
-                else:
-                    print("  未找到搜索历史")
-                
-                print("-" * 50)
+            print("\n👥 用户信息:")
+            cursor.execute("SELECT id, name, occupation, email, created_at FROM users LIMIT 10")
+            users = cursor.fetchall()
             
-            return True
-        else:
-            print("数据库中没有用户数据")
-            return False
+            for user in users:
+                print(f"\n用户 ID: {user['id']}")
+                print(f"  姓名: {user['name']}")
+                print(f"  职业: {user['occupation']}")
+                print(f"  邮箱: {user['email']}")
+                print(f"  创建时间: {user['created_at']}")
+                
+                # 显示用户兴趣
+                cursor.execute(
+                    "SELECT topic, category, weight FROM user_interests WHERE user_id=? ORDER BY weight DESC LIMIT 5",
+                    (user['id'],)
+                )
+                interests = cursor.fetchall()
+                if interests:
+                    print("  前5项兴趣:")
+                    for interest in interests:
+                        print(f"    - {interest['topic']} ({interest['category']}) - 权重: {interest['weight']}")
+                
+                # 显示用户技能
+                cursor.execute(
+                    "SELECT skill, level, category FROM user_skills WHERE user_id=? LIMIT 5",
+                    (user['id'],)
+                )
+                skills = cursor.fetchall()
+                if skills:
+                    print("  前5项技能:")
+                    for skill in skills:
+                        print(f"    - {skill['skill']} ({skill['level']}) - 类别: {skill['category']}")
+                
+                # 显示最近搜索历史（修复表名）
+                cursor.execute(
+                    "SELECT query, platform, timestamp FROM search_history WHERE user_id=? ORDER BY timestamp DESC LIMIT 3",
+                    (user['id'],)
+                )
+                searches = cursor.fetchall()
+                if searches:
+                    print("  最近3次搜索:")
+                    for search in searches:
+                        print(f"    - {search['query']} ({search['platform']}) - {search['timestamp']}")
+        
+        return True
         
     except Exception as e:
         print(f"检查数据库时出错: {e}")
@@ -111,52 +121,73 @@ def check_database_tables():
         conn.close()
 
 def check_interest_categories():
-    """检查兴趣分类文件是否存在"""
-    categories_file = os.path.join(CONFIG["DATA_DIR"], "interest_categories.json")
+    """检查兴趣分类文件"""
+    print("\n🏷️ 检查兴趣分类文件...")
+    config = Config()
+    categories_file = os.path.join(config.data_dir, "interest_categories.json")
     
-    if os.path.exists(categories_file):
-        try:
-            with open(categories_file, 'r', encoding='utf-8') as f:
-                categories = json.load(f)
-            
-            print(f"\n兴趣分类系统:")
-            for category, topics in categories.items():
-                print(f"  - {category}: {len(topics)} 个主题")
-            
-            return True
-        except Exception as e:
-            print(f"读取兴趣分类文件时出错: {e}")
-            return False
-    else:
-        print(f"兴趣分类文件不存在: {categories_file}")
+    if not os.path.exists(categories_file):
+        print(f"⚠️ 兴趣分类文件不存在: {categories_file}")
+        return False
+    
+    try:
+        with open(categories_file, 'r', encoding='utf-8') as f:
+            categories = json.load(f)
+        
+        print("✅ 兴趣分类文件存在")
+        print("分类概览:")
+        for category, subcategories in categories.items():
+            print(f"  {category}: {len(subcategories)}个子主题")
+        
+        return True
+        
+    except Exception as e:
+        print(f"读取兴趣分类文件时出错: {e}")
         return False
 
-def main():
-    """验证用户画像系统"""
-    print("\n===== 用户画像系统验证 =====")
+def check_system_health():
+    """检查系统整体健康状况"""
+    print("\n🏥 系统健康检查...")
+    config = Config()
     
     # 检查数据目录
-    if not os.path.exists(CONFIG["DATA_DIR"]):
-        print(f"错误: 数据目录不存在: {CONFIG['DATA_DIR']}")
-        print("请先运行初始化脚本 init_system.py")
+    if not os.path.exists(config.data_dir):
+        print(f"❌ 数据目录不存在: {config.data_dir}")
         return False
+    
+    print(f"✅ 数据目录存在: {config.data_dir}")
+    
+    # 检查配置有效性
+    validation = config.validate_config()
+    if validation["valid"]:
+        print("✅ 基本配置有效")
+    else:
+        print(f"⚠️ 配置问题: 缺少 {', '.join(validation['missing_keys'])}")
+    
+    if validation["warnings"]["serper_api_key"]:
+        print("⚠️ SERPER_API_KEY 未设置，Google搜索功能将不可用")
+    
+    return True
+
+def main():
+    """主函数"""
+    print("🔍 KnowlEdge 系统验证")
+    print("=" * 50)
     
     # 检查数据库
-    print("\n检查数据库...")
-    db_result = check_database_tables()
+    db_ok = check_database_tables()
     
     # 检查兴趣分类
-    print("\n检查兴趣分类系统...")
-    categories_result = check_interest_categories()
+    categories_ok = check_interest_categories()
     
-    # 总结
-    print("\n===== 验证结果 =====")
-    if db_result and categories_result:
-        print("用户画像系统验证通过！系统已正确设置并包含用户数据。")
-        return True
+    # 系统健康检查
+    system_ok = check_system_health()
+    
+    print("\n" + "=" * 50)
+    if db_ok and categories_ok and system_ok:
+        print("✅ 系统验证通过！")
     else:
-        print("用户画像系统验证失败。请检查上述错误并修复问题。")
-        return False
+        print("⚠️ 系统存在问题，请检查上述输出")
 
 if __name__ == "__main__":
     main()

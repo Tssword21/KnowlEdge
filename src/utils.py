@@ -7,6 +7,8 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 import hashlib
 import uuid
+import asyncio
+from typing import Dict, List, Optional, Any
 
 from src.config import Config
 
@@ -135,3 +137,168 @@ def generate_temp_user_id(temp_name: str) -> str:
     import time
     temp_string = f"temp-{temp_name}-{int(time.time())}-{uuid.uuid4().hex[:6]}"
     return hashlib.md5(temp_string.encode()).hexdigest() 
+
+def check_system_health() -> Dict[str, Any]:
+    """
+    检查系统整体健康状况
+    
+    Returns:
+        包含系统状态信息的字典
+    """
+    health_status = {
+        "overall": "healthy",
+        "issues": [],
+        "warnings": [],
+        "components": {}
+    }
+    
+    try:
+        # 检查配置
+        config = Config()
+        validation = config.validate_config()
+        health_status["components"]["config"] = {
+            "status": "healthy" if validation["valid"] else "error",
+            "details": validation
+        }
+        
+        if not validation["valid"]:
+            health_status["issues"].extend([f"缺少配置: {key}" for key in validation["missing_keys"]])
+            health_status["overall"] = "error"
+        
+        # 检查警告
+        if validation["warnings"]["serper_api_key"]:
+            health_status["warnings"].append("SERPER_API_KEY未配置，Google搜索功能不可用")
+        
+        # 检查数据库
+        db_ok = verify_database()
+        health_status["components"]["database"] = {
+            "status": "healthy" if db_ok else "error",
+            "path": config.user_db_path
+        }
+        
+        if not db_ok:
+            health_status["issues"].append("数据库验证失败")
+            health_status["overall"] = "error"
+        
+        # 检查数据目录
+        data_dir_exists = os.path.exists(config.data_dir)
+        health_status["components"]["data_directory"] = {
+            "status": "healthy" if data_dir_exists else "error",
+            "path": config.data_dir
+        }
+        
+        if not data_dir_exists:
+            health_status["issues"].append(f"数据目录不存在: {config.data_dir}")
+            health_status["overall"] = "error"
+        
+        # 检查兴趣分类文件
+        interest_file = os.path.join(config.data_dir, "interest_categories.json")
+        interest_file_exists = os.path.exists(interest_file)
+        health_status["components"]["interest_categories"] = {
+            "status": "healthy" if interest_file_exists else "warning",
+            "path": interest_file
+        }
+        
+        if not interest_file_exists:
+            health_status["warnings"].append("兴趣分类文件不存在")
+        
+        # 如果有问题但不是错误，设置为警告状态
+        if health_status["overall"] == "healthy" and (health_status["warnings"] or health_status["issues"]):
+            health_status["overall"] = "warning" if not health_status["issues"] else "error"
+            
+    except Exception as e:
+        health_status["overall"] = "error"
+        health_status["issues"].append(f"系统检查异常: {str(e)}")
+        logging.error(f"系统健康检查失败: {e}", exc_info=True)
+    
+    return health_status
+
+async def safe_llm_call(llm_interface, prompt: str, system_message: str = None, max_retries: int = 3) -> str:
+    """
+    安全的LLM调用，带有重试机制
+    
+    Args:
+        llm_interface: LLM接口实例
+        prompt: 用户提示词
+        system_message: 系统消息
+        max_retries: 最大重试次数
+    
+    Returns:
+        LLM响应结果
+    """
+    last_error = None
+    
+    for attempt in range(max_retries):
+        try:
+            result = await llm_interface.call_llm(prompt, system_message)
+            if result and result.strip():
+                return result.strip()
+            else:
+                last_error = "LLM返回空结果"
+        except Exception as e:
+            last_error = str(e)
+            logging.warning(f"LLM调用失败 (尝试 {attempt + 1}/{max_retries}): {e}")
+            if attempt < max_retries - 1:
+                await asyncio.sleep(min(2 ** attempt, 10))  # 指数退避
+    
+    error_msg = f"LLM调用失败，已重试{max_retries}次，最后错误: {last_error}"
+    logging.error(error_msg)
+    raise Exception(error_msg)
+
+def format_error_response(error_type: str, message: str, details: str = None) -> Dict[str, Any]:
+    """
+    格式化错误响应
+    
+    Args:
+        error_type: 错误类型代码
+        message: 错误消息
+        details: 详细信息（可选）
+    
+    Returns:
+        格式化的错误响应字典
+    """
+    response = {
+        "error": message,
+        "code": error_type,
+        "timestamp": get_current_timestamp()
+    }
+    
+    if details:
+        response["details"] = details
+    
+    return response
+
+def get_current_timestamp() -> str:
+    """获取当前时间戳字符串"""
+    from datetime import datetime
+    return datetime.now().isoformat()
+
+def validate_search_params(query: str, platform: str, num_results: int) -> Optional[str]:
+    """
+    验证搜索参数
+    
+    Args:
+        query: 搜索查询
+        platform: 搜索平台
+        num_results: 结果数量
+    
+    Returns:
+        如果验证失败返回错误消息，否则返回None
+    """
+    if not query or not query.strip():
+        return "搜索查询不能为空"
+    
+    if len(query.strip()) < 2:
+        return "搜索查询至少需要2个字符"
+    
+    if len(query) > 500:
+        return "搜索查询过长，请限制在500字符以内"
+    
+    valid_platforms = ["arXiv论文", "谷歌学术", "混合搜索", "综合资讯", "全平台"]
+    if platform not in valid_platforms:
+        return f"不支持的搜索平台: {platform}"
+    
+    if not isinstance(num_results, int) or num_results < 1 or num_results > 50:
+        return "结果数量必须在1-50之间"
+    
+    return None 

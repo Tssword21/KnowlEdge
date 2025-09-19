@@ -303,8 +303,8 @@ JSON格式：
             report = await self.report_generator.generate_literature_review(
                 search_results, original_query
             )
-        elif report_type == "industry_research":
-            report = await self.report_generator.generate_industry_research_report(
+        elif report_type == "corporate_research":
+            report = await self.report_generator.generate_corporate_research_report(
                 search_results, user_input, original_query
             )
         elif report_type == "popular_science":
@@ -328,12 +328,13 @@ JSON格式：
         original_query = user_input.get("query", "")
         
         if report_type == "literature_review":
-            async for chunk in self.report_generator.generate_literature_review_stream(
+            # 使用增强版文献综述生成
+            async for chunk in self.report_generator.generate_enhanced_literature_review_stream(
                 search_results, original_query
             ):
                 yield chunk
-        elif report_type == "industry_research":
-            async for chunk in self.report_generator.generate_industry_research_report_stream(
+        elif report_type == "corporate_research":
+            async for chunk in self.report_generator.generate_corporate_research_report_stream(
                 search_results, user_input, original_query
             ):
                 yield chunk
@@ -343,9 +344,65 @@ JSON格式：
             ):
                 yield chunk
         else:  # 默认标准报告
-            async for chunk in self.report_generator.generate_report_stream(search_results, user_input):
+            async for chunk in self.report_generator.generate_enhanced_standard_report_stream(search_results, user_input):
                 yield chunk
-                
+    
+    async def generate_enhanced_literature_review(self, query: str, platform: str = "arxiv", 
+                                         num_results: int = 8) -> str:
+        """
+        使用多模型并行处理生成增强版文献综述
+        
+        Args:
+            query: 用户查询
+            platform: 搜索平台
+            num_results: 结果数量
+            
+        Returns:
+            生成的增强版文献综述
+        """
+        logging.info(f"使用多模型生成增强版文献综述: '{query}', 平台: {platform}, 结果数量: {num_results}")
+        
+        # 执行搜索，获取更多结果用于文献综述
+        search_results = await self.search_manager.search(query, platform, num_results)
+        
+        # 使用增强版文献综述生成器
+        report_chunks = []
+        async for chunk in self.report_generator.generate_enhanced_literature_review_stream(search_results, query):
+            report_chunks.append(chunk)
+        
+        return "".join(report_chunks)
+        
+    async def generate_enhanced_literature_review_stream(self, query: str, platform: str = "arxiv", 
+                                               num_results: int = 8) -> AsyncIterator[str]:
+        """
+        流式生成增强版文献综述
+        
+        Args:
+            query: 用户查询
+            platform: 搜索平台 
+            num_results: 结果数量
+            
+        Yields:
+            流式的文献综述内容
+        """
+        logging.info(f"流式生成增强版文献综述: '{query}', 平台: {platform}, 结果数量: {num_results}")
+        
+        # 执行搜索
+        search_results = await self.search_manager.search(query, platform, num_results)
+        
+        # 统计检索结果
+        found_count = 0
+        for source, data in search_results.items():
+            if isinstance(data, dict) and 'results' in data:
+                found_count += len(data['results'])
+        
+        yield f"🔍 **搜索完成**：在 {platform} 平台检索到 {found_count} 篇相关文献\n\n"
+        yield "📖 **开始生成增强版文献综述**：确保所有文献都被分析并保持内容一致性...\n\n"
+        
+        # 使用增强版生成器
+        async for chunk in self.report_generator.generate_enhanced_literature_review_stream(search_results, query):
+            yield chunk
+        
     async def personalized_search(
         self, 
         user_id: str, 
@@ -516,15 +573,15 @@ JSON格式：
         ):
             yield chunk
 
-    async def generate_industry_research_report_stream(
+    async def generate_corporate_research_report_stream(
         self, 
         search_results: Dict,
         user_input: Dict,
         original_query: str
     ) -> AsyncIterator[str]:
-        """流式生成行业研究报告"""
-        logging.info(f"流式生成行业研究报告: {original_query}")
-        async for chunk in self.report_generator.generate_industry_research_report_stream(
+        """流式生成企业调研报告"""
+        logging.info(f"流式生成企业调研报告: {original_query}")
+        async for chunk in self.report_generator.generate_corporate_research_report_stream(
             search_results, user_input, original_query
         ):
             yield chunk
@@ -556,8 +613,8 @@ JSON格式：
         
         if report_type == "literature_review":
             report = await self.report_generator.generate_literature_review(search_results, query)
-        elif report_type == "industry_research":
-            report = await self.report_generator.generate_industry_research_report(search_results, {"query": query}, query)
+        elif report_type == "corporate_research":
+            report = await self.report_generator.generate_corporate_research_report(search_results, {"query": query}, query)
         elif report_type == "popular_science":
             report = await self.report_generator.generate_popular_science_report(search_results, {"query": query}, query)
         else:
@@ -586,8 +643,8 @@ JSON格式：
         if report_type == "literature_review":
             async for chunk in self.report_generator.generate_literature_review_stream(search_results, query):
                 yield chunk
-        elif report_type == "industry_research":
-            async for chunk in self.report_generator.generate_industry_research_report_stream(search_results, user_input, query):
+        elif report_type == "corporate_research":
+            async for chunk in self.report_generator.generate_corporate_research_report_stream(search_results, user_input, query):
                 yield chunk
         elif report_type == "popular_science":
             async for chunk in self.report_generator.generate_popular_science_report_stream(search_results, user_input, query):
@@ -614,40 +671,40 @@ JSON格式：
         # 执行搜索，获取更多结果用于文献综述
         search_results = await self.search_manager.search(query, platform, num_results)
         
-        # 使用多模型并行处理生成文献综述
-        report = await self.report_generator.generate_literature_review(search_results, query)
+        # 使用增强版文献综述生成器
+        report_chunks = []
+        async for chunk in self.report_generator.generate_enhanced_literature_review_stream(search_results, query):
+            report_chunks.append(chunk)
         
-        return report
+        return "".join(report_chunks)
         
     async def generate_enhanced_literature_review_stream(self, query: str, platform: str = "arxiv", 
                                                num_results: int = 8) -> AsyncIterator[str]:
         """
-        使用多模型并行处理流式生成增强版文献综述
+        流式生成增强版文献综述
         
         Args:
             query: 用户查询
-            platform: 搜索平台
+            platform: 搜索平台 
             num_results: 结果数量
             
-        Returns:
-            生成的增强版文献综述流
+        Yields:
+            流式的文献综述内容
         """
-        logging.info(f"使用多模型流式生成增强版文献综述: '{query}', 平台: {platform}, 结果数量: {num_results}")
+        logging.info(f"流式生成增强版文献综述: '{query}', 平台: {platform}, 结果数量: {num_results}")
         
-        # 先输出一个状态消息
-        yield f"正在搜索 '{query}'，平台: {platform}，请稍候...\n\n"
-        
-        # 执行搜索，获取更多结果用于文献综述
+        # 执行搜索
         search_results = await self.search_manager.search(query, platform, num_results)
         
-        # 输出搜索完成消息
+        # 统计检索结果
         found_count = 0
         for source, data in search_results.items():
             if isinstance(data, dict) and 'results' in data:
                 found_count += len(data['results'])
         
-        yield f"已找到 {found_count} 条相关结果，正在使用多模型并行生成增强版文献综述...\n\n"
+        yield f"🔍 **搜索完成**：在 {platform} 平台检索到 {found_count} 篇相关文献\n\n"
+        yield "📖 **开始生成增强版文献综述**：确保所有文献都被分析并保持内容一致性...\n\n"
         
-        # 流式生成增强版文献综述
-        async for chunk in self.report_generator.generate_literature_review_stream(search_results, query):
+        # 使用增强版生成器
+        async for chunk in self.report_generator.generate_enhanced_literature_review_stream(search_results, query):
             yield chunk 

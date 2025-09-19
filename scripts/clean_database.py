@@ -1,20 +1,34 @@
-# clean_database.py
+#!/usr/bin/env python
+"""
+数据库清理脚本
+清理超过指定天数的旧数据
+"""
 import sqlite3
 import os
+import sys
 import datetime
 
-DB_PATH = "./user_data/user_profiles.db"
+# 添加项目根目录到Python路径
+current_path = os.path.dirname(os.path.abspath(__file__))
+parent_path = os.path.dirname(current_path)
+sys.path.append(parent_path)
+sys.path.append(os.path.join(parent_path, "src"))
+
+from src.config import Config
 
 def clean_old_data(days=90):
     """清理超过指定天数的旧数据"""
-    if not os.path.exists(DB_PATH):
-        print(f"错误: 数据库文件不存在: {DB_PATH}")
+    config = Config()
+    db_path = config.user_db_path
+    
+    if not os.path.exists(db_path):
+        print(f"错误: 数据库文件不存在: {db_path}")
         return False
     
     # 计算截止日期
     cutoff_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d %H:%M:%S")
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path)
     
     try:
         # 清理旧的搜索记录

@@ -149,7 +149,7 @@ class ReferenceFormatter:
         return datetime.now().year
     
     def format_references_markdown(self, references: List[Dict]) -> str:
-        """使用Markdown格式输出参考文献"""
+        """使用Markdown格式输出参考文献（优化版，减少过度换行但保持必要结构）"""
         if not references:
             return "\n\n## 参考文献\n\n未找到可引用的文献。"
             
@@ -178,23 +178,30 @@ class ReferenceFormatter:
             if not authors_str:
                 authors_str = "未知作者"
             
-            # 构建参考文献条目
+            # 构建参考文献条目 - 使用紧凑的嵌套列表格式
             references_section += f"{i+1}. **{title}**\n"
-            references_section += f"   - 作者: {authors_str}\n"
-            if journal:
-                references_section += f"   - 期刊/会议: {journal}\n"
-            if published:
-                references_section += f"   - 发表时间: {published}\n"
-            if updated and updated != published:
-                references_section += f"   - 更新时间: {updated}\n"
-            references_section += f"   - 来源: {source}\n"
-            if doi:
-                references_section += f"   - DOI: {doi}\n"
-            if citation_count:
-                references_section += f"   - 引用次数: {citation_count}\n"
-            references_section += f"   - 链接: [{link}]({link})\n"
             
-            # 每两篇论文之间空一行，最后一篇不加空行
+            # 使用单个嵌套列表，避免多层嵌套
+            info_items = []
+            info_items.append(f"作者: {authors_str}")
+            if journal:
+                info_items.append(f"期刊/会议: {journal}")
+            if published:
+                info_items.append(f"发表时间: {published}")
+            if updated and updated != published:
+                info_items.append(f"更新时间: {updated}")
+            info_items.append(f"来源: {source}")
+            if doi:
+                info_items.append(f"DOI: {doi}")
+            if citation_count:
+                info_items.append(f"引用次数: {citation_count}")
+            info_items.append(f"链接: [{link}]({link})")
+            
+            # 将所有信息放在一个嵌套列表中，减少层级
+            for item in info_items:
+                references_section += f"   - {item}\n"
+            
+            # 每篇论文之间只留一个空行
             if i < len(sorted_references) - 1:
                 references_section += "\n"
         

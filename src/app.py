@@ -17,12 +17,12 @@ try:
     # 当在项目根目录运行时
     from src.core.knowledge_flow import KnowledgeFlow
     from src.config import Config
-    from src.utils import setup_logging, verify_database, get_user_data_path, generate_temp_user_id
+    from src.utils import setup_logging, verify_database, get_user_data_path, generate_temp_user_id, get_current_timestamp
 except ImportError:
     # 当在src目录下运行时
     from core.knowledge_flow import KnowledgeFlow
     from config import Config
-    from utils import setup_logging, verify_database, get_user_data_path, generate_temp_user_id
+    from utils import setup_logging, verify_database, get_user_data_path, generate_temp_user_id, get_current_timestamp
 
 from fastapi import FastAPI, Request, Form, File, UploadFile, HTTPException, Response
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
@@ -141,8 +141,8 @@ STEP_DEFINITIONS = [
 REPORT_TYPE_MAP = {
     "standard": "standard",                    # 标准报告
     "literature_review": "literature_review",  # 文献综述
-    "industry_research_report": "industry_research",  # 行业研究报告
-    "popular_science_report": "popular_science"      # 科普知识报告
+    "corporate_research": "corporate_research",  # 企业调研报告
+    "popular_science": "popular_science"      # 科普知识报告
 }
 
 def get_step_name(step_id, report_type="standard"):
@@ -152,8 +152,8 @@ def get_step_name(step_id, report_type="standard"):
         normalized_type = REPORT_TYPE_MAP.get(report_type, "standard")
         if normalized_type == "literature_review":
             return "整合结果并生成文献综述"
-        elif normalized_type == "industry_research":
-            return "整合结果并生成行业研究报告"
+        elif normalized_type == "corporate_research":
+            return "整合结果并生成企业调研报告"
         elif normalized_type == "popular_science":
             return "整合结果并生成科普知识报告"
         else:
@@ -175,13 +175,23 @@ async def knowledge_flow_sse_generator(user_input_data: dict, request: Request, 
     # 规范化报告类型
     normalized_report_type = REPORT_TYPE_MAP.get(report_type, "standard")
     
-    # 轻量清洗SSE分片，避免非UTF字符
+    # 清洗SSE分片，平衡处理换行问题
     def _sanitize_chunk(text: Any) -> str:
         try:
             s = text if isinstance(text, str) else str(text)
         except Exception:
             s = ""
-        return s.replace("\x00", "").replace("\r\n", "\n")
+        # 基础安全清洗
+        s = s.replace("\x00", "")
+        # 统一换行符格式
+        s = s.replace("\r\n", "\n").replace("\r", "\n")
+        
+        import re
+        # 平衡方案：只将3个或更多连续换行符替换为2个
+        # 保持Markdown段落结构，但减少过多空行
+        s = re.sub(r'\n{3,}', '\n\n', s)
+        
+        return s
     
     try:
         # 初始化KnowledgeFlow
@@ -191,8 +201,8 @@ async def knowledge_flow_sse_generator(user_input_data: dict, request: Request, 
         async def yield_progress_dict(step_id_inner, message_override=None):
             nonlocal current_step_id
             current_step_id = step_id_inner
-            message = message_override if message_override else get_step_name(step_id_inner, report_type)
-            logging.info(f"SSE 进度 ({report_type}): 第 {step_id_inner}/{TOTAL_STEPS} 步 - {message}")
+            message = message_override if message_override else get_step_name(step_id_inner, normalized_report_type)
+            logging.info(f"SSE 进度 ({normalized_report_type}): 第 {step_id_inner}/{TOTAL_STEPS} 步 - {message}")
             yield {
                 "event": "progress",
                 "data": json.dumps({
@@ -310,7 +320,7 @@ async def knowledge_flow_sse_generator(user_input_data: dict, request: Request, 
         logging.info(f"搜索执行完成。查询: {query} -> {enhanced_query}. 平台: {platforms}")
 
         # 步骤 5: 开始生成报告（流式输出）
-        step5_message_override = get_step_name(5, report_type)
+        step5_message_override = get_step_name(5, normalized_report_type)
         async for sse_event in yield_progress_dict(5, step5_message_override):
             yield sse_event
 
@@ -331,6 +341,9 @@ async def knowledge_flow_sse_generator(user_input_data: dict, request: Request, 
             "email": user_input_data.get("email", ""),
         }
         
+        # 调试日志
+        logging.info(f"报告类型调试: original={report_type}, normalized={normalized_report_type}")
+        
         # 根据报告类型调用相应的流式生成方法
         if normalized_report_type == "literature_review":
             async for chunk in workflow.generate_literature_review_stream(search_results, original_query):
@@ -338,8 +351,9 @@ async def knowledge_flow_sse_generator(user_input_data: dict, request: Request, 
                     "event": "report_chunk",
                     "data": _sanitize_chunk(chunk)
                 }
-        elif normalized_report_type == "industry_research":
-            async for chunk in workflow.generate_industry_research_report_stream(search_results, user_report_input, original_query):
+        elif normalized_report_type == "corporate_research":
+            logging.info("进入企业调研报告分支")
+            async for chunk in workflow.generate_corporate_research_report_stream(search_results, user_report_input, original_query):
                 yield {
                     "event": "report_chunk",
                     "data": _sanitize_chunk(chunk)
@@ -352,7 +366,8 @@ async def knowledge_flow_sse_generator(user_input_data: dict, request: Request, 
                 }
         else:
             # 默认使用标准报告生成器
-            async for chunk in workflow.generate_report_stream(search_results, user_report_input):
+            logging.info(f"进入默认分支，报告类型: {normalized_report_type}")
+            async for chunk in workflow.generate_report_stream(search_results, user_report_input, normalized_report_type):
                 yield {
                     "event": "report_chunk",
                     "data": _sanitize_chunk(chunk)
@@ -371,8 +386,8 @@ async def knowledge_flow_sse_generator(user_input_data: dict, request: Request, 
         }
 
     except Exception as e:
-        error_step_name = get_step_name(current_step_id, report_type) if current_step_id > 0 else "初始化"
-        logging.error(f"SSE 流处理错误 ({report_type}, 步骤 {current_step_id} - {error_step_name}): {e}", exc_info=True)
+        error_step_name = get_step_name(current_step_id, normalized_report_type) if current_step_id > 0 else "初始化"
+        logging.error(f"SSE 流处理错误 ({normalized_report_type}, 步骤 {current_step_id} - {error_step_name}): {e}", exc_info=True)
         error_message = f"在步骤 '{error_step_name}' 处理时发生错误: {str(e)}"
         yield {
             "event": "error",
@@ -457,16 +472,34 @@ async def handle_process_submission(
             pass
         # 关键配置校验（早期失败更友好）
         cfg = Config()
-        missing_keys = []
-        if not (cfg.llm_api_key and cfg.llm_api_key.strip()):
-            missing_keys.append("DEEPSEEK_API_KEY")
-        if not (cfg.serper_api_key and cfg.serper_api_key.strip()):
-            # 仅当选择含 web/google_scholar/全平台/综合资讯/混合搜索时强制
-            needs_serper = platform in ["谷歌学术", "混合搜索", "综合资讯", "全平台"]
-            if needs_serper:
-                missing_keys.append("SERPER_API_KEY")
-        if missing_keys:
-            return JSONResponse(content={"error": f"缺少必要配置: {', '.join(missing_keys)}", "code": "MISSING_CONFIG"}, status_code=400)
+        validation = cfg.validate_config()
+        
+        if not validation["valid"]:
+            error_msg = f"缺少必要配置: {', '.join(validation['missing_keys'])}"
+            logging.error(error_msg)
+            return JSONResponse(
+                content={
+                    "error": error_msg, 
+                    "code": "MISSING_CONFIG",
+                    "details": "请检查环境变量配置，确保已正确设置API密钥"
+                }, 
+                status_code=400
+            )
+        
+        # 检查平台特定的API密钥需求
+        needs_serper = platform in ["谷歌学术", "混合搜索", "综合资讯", "全平台"]
+        if needs_serper and validation["warnings"]["serper_api_key"]:
+            warning_msg = f"所选平台 '{platform}' 需要SERPER_API_KEY，但未配置。将限制搜索功能。"
+            logging.warning(warning_msg)
+            # 可以选择返回错误或继续（这里选择返回错误以确保用户体验）
+            return JSONResponse(
+                content={
+                    "error": f"平台 '{platform}' 需要SERPER_API_KEY配置", 
+                    "code": "MISSING_SERPER_KEY",
+                    "details": "请设置SERPER_API_KEY环境变量以使用Google搜索功能"
+                }, 
+                status_code=400
+            )
         
         # 处理类别列表
         category_list = None
@@ -625,31 +658,57 @@ async def get_references(request: Request):
 
 @app.get("/api/health")
 async def health():
+    """系统健康检查端点"""
     try:
+        from src.utils import check_system_health
+        
+        # 获取系统健康状态
+        health_status = check_system_health()
+        
+        # 构建响应
         cfg = Config()
-        ok_llm = bool(cfg.llm_api_key and cfg.llm_api_key.strip())
-        ok_serper = bool(cfg.serper_api_key and cfg.serper_api_key.strip())
-        missing = []
-        if not ok_llm:
-            missing.append("DEEPSEEK_API_KEY")
-        if not ok_serper:
-            missing.append("SERPER_API_KEY")
-        return JSONResponse(content={
-            "ok": True,
-            "llm": ok_llm,
-            "serper": ok_serper,
-            "missing": missing,
+        validation = cfg.validate_config()
+        
+        response = {
+            "status": health_status["overall"],
+            "timestamp": health_status.get("timestamp", "unknown"),
+            "config": {
+                "valid": validation["valid"],
+                "missing_keys": validation["missing_keys"],
+                "warnings": validation["warnings"]
+            },
+            "components": health_status["components"],
             "platforms": {
-                "arxiv": True,
-                "google_scholar": ok_serper,
-                "web": ok_serper,
-                "news": ok_serper,
-                "patent": ok_serper
-            }
-        })
+                "arxiv": True,  # ArXiv总是可用
+                "google_scholar": not validation["warnings"]["serper_api_key"],
+                "web": not validation["warnings"]["serper_api_key"],
+                "news": not validation["warnings"]["serper_api_key"],
+                "patent": not validation["warnings"]["serper_api_key"]
+            },
+            "issues": health_status["issues"],
+            "warnings": health_status["warnings"]
+        }
+        
+        # 根据健康状态设置HTTP状态码
+        status_code = 200
+        if health_status["overall"] == "error":
+            status_code = 503  # Service Unavailable
+        elif health_status["overall"] == "warning":
+            status_code = 200  # OK但有警告
+            
+        return JSONResponse(content=response, status_code=status_code)
+        
     except Exception as e:
-        logging.error(f"健康检查失败: {e}")
-        return JSONResponse(content={"ok": False, "error": str(e)}, status_code=500)
+        logging.error(f"健康检查失败: {e}", exc_info=True)
+        return JSONResponse(
+            content={
+                "status": "error",
+                "error": "健康检查系统异常",
+                "details": str(e),
+                "timestamp": get_current_timestamp()
+            }, 
+            status_code=500
+        )
 
 # --- 认证相关接口 ---
 

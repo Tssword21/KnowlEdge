@@ -205,7 +205,7 @@
     
     .report-content {
       color: white;
-      line-height: 1.8;
+      line-height: 1.7;
       font-size: 16px;
     }
     
@@ -213,7 +213,8 @@
       font-size: 2.5rem;
       font-weight: 700;
       color: #f8fafc;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
+      margin-top: 0.5rem;
       padding-bottom: 0.75rem;
       border-bottom: 3px solid #667eea;
       background: linear-gradient(135deg, #667eea, #764ba2);
@@ -226,8 +227,8 @@
       font-size: 2rem;
       font-weight: 600;
       color: #e2e8f0;
-      margin-top: 2rem;
-      margin-bottom: 1rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.8rem;
       padding-left: 1rem;
       border-left: 4px solid #667eea;
     }
@@ -236,24 +237,325 @@
       font-size: 1.5rem;
       font-weight: 500;
       color: #cbd5e1;
-      margin-top: 1.5rem;
-      margin-bottom: 0.75rem;
+      margin-top: 1.2rem;
+      margin-bottom: 0.6rem;
     }
     
-    .report-content p {
+    .report-content h4 {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+        .report-content p {
       color: #e2e8f0;
-      margin-bottom: 1rem;
+      margin-bottom: 0.4rem;
+      margin-top: 0;
+      line-height: 1.6;
       text-align: justify;
     }
     
+    /* 隐藏空段落和只包含空白字符的段落 */
+    .report-content p:empty {
+      margin: 0;
+      padding: 0;
+      height: 0;
+      display: none;
+    }
+    
+    /* 处理多个连续的空段落 */
+    .report-content p:empty + p:empty {
+      display: none;
+    }
+    
+    /* 减少连续段落间的间距 */
+    .report-content p + p {
+      margin-top: 0;
+    }
+      
     .report-content ul, .report-content ol {
       margin-left: 1.5rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.8rem;
+      margin-top: 0.5rem;
     }
     
     .report-content li {
       color: #e2e8f0;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.3rem;
+      line-height: 1.6;
+    }
+    
+    /* 列表项内的链接样式优化，避免换行 */
+    .report-content li a {
+      display: inline;
+      word-break: break-all;
+    }
+    
+    /* 强标签在列表项中的样式 */
+    .report-content li strong {
+      display: inline;
+      margin-right: 0.5rem;
+    }
+    
+    /* 列表项内段落的换行问题修复 */
+    .report-content li p {
+      margin: 0;
+      padding: 0;
+      display: inline;
+      line-height: inherit;
+    }
+    
+    .report-content li > p:first-child {
+      display: inline;
+      margin: 0;
+    }
+    
+    .report-content li > p:not(:first-child) {
+      display: block;
+      margin-top: 0.2rem;
+      margin-bottom: 0;
+    }
+    
+    /* 处理列表项内的嵌套列表 */
+    .report-content li ul,
+    .report-content li ol {
+      margin-top: 0.2rem;
+      margin-bottom: 0.2rem;
+      margin-left: 1rem;
+    }
+    
+    /* 嵌套列表项的间距优化 - 参考文献中保持必要的分行 */
+    .report-content li li {
+      margin-bottom: 0.1rem;
+      display: list-item; /* 确保嵌套列表项正常显示 */
+    }
+    
+    /* 参考文献的主列表项间距 */
+    .report-content ol > li {
+      margin-bottom: 0.8rem;
+    }
+    
+    /* 参考文献的嵌套列表项保持紧凑但清晰的显示 */
+    .report-content ol > li ul li {
+      margin-bottom: 0.1rem;
+      line-height: 1.4;
+    }
+    
+    /* 解决ul/ol包裹li时的过度换行问题 - 但保持列表的基本功能 */
+    .report-content ul {
+      margin-top: 0.1rem;
+      margin-bottom: 0.1rem;
+      padding-left: 1.2rem;
+    }
+    
+    .report-content ol {
+      margin-top: 0.1rem;
+      margin-bottom: 0.1rem;
+      padding-left: 1.2rem;
+    }
+    
+    /* p标签后紧跟列表的间距控制 - 关键修复 */
+    .report-content p + ul,
+    .report-content p + ol {
+      margin-top: 0;
+    }
+    
+    /* 标题后紧跟列表的间距控制 */
+    .report-content h1 + ul,
+    .report-content h1 + ol,
+    .report-content h2 + ul,
+    .report-content h2 + ol,
+    .report-content h3 + ul,
+    .report-content h3 + ol,
+    .report-content h4 + ul,
+    .report-content h4 + ol,
+    .report-content h5 + ul,
+    .report-content h5 + ol {
+      margin-top: 0.5rem;
+    }
+    
+    /* 处理嵌套列表结束后的间距问题 */
+    .report-content li ul,
+    .report-content li ol {
+      margin-bottom: 0;
+    }
+    
+    /* hr分隔符的间距控制 */
+    .report-content hr {
+      margin-top: 0.3rem;
+      margin-bottom: 0.3rem;
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    /* hr后紧跟标题的间距控制 */
+    .report-content hr + h1,
+    .report-content hr + h2,
+    .report-content hr + h3,
+    .report-content hr + h4,
+    .report-content hr + h5 {
+      margin-top: 0.2rem;
+    }
+    
+    /* 列表项结束后紧跟hr的间距控制 */
+    .report-content li:last-child + hr,
+    .report-content ul + hr,
+    .report-content ol + hr {
+      margin-top: 0.2rem;
+    }
+    
+    /* 处理嵌套列表的间距优化 */
+    .report-content li:last-child {
+      margin-bottom: 0;
+    }
+    
+    /* 多层嵌套结束时的间距控制 */
+    .report-content ol ol,
+    .report-content ul ul,
+    .report-content ol ul,
+    .report-content ul ol {
+      margin-bottom: 0;
+    }
+    
+    /* 彻底解决嵌套列表结束标签的换行问题 */
+    .report-content li:has(ul),
+    .report-content li:has(ol) {
+      margin-bottom: 0;
+    }
+    
+    /* 最后一个嵌套列表项的处理 */
+    .report-content li ul li:last-child,
+    .report-content li ol li:last-child {
+      margin-bottom: 0;
+    }
+    
+    /* 嵌套列表的父li与后续li之间的间距 */
+    .report-content li:has(ul) + li,
+    .report-content li:has(ol) + li {
+      margin-top: 0.3rem;
+    }
+    
+    /* 强制压缩列表结束后的间距 */
+    .report-content ul + h1,
+    .report-content ul + h2,
+    .report-content ul + h3,
+    .report-content ul + h4,
+    .report-content ul + h5,
+    .report-content ol + h1,
+    .report-content ol + h2,
+    .report-content ol + h3,
+    .report-content ol + h4,
+    .report-content ol + h5 {
+      margin-top: 0.3rem;
+    }
+    
+    /* 防止连续空白元素累积 */
+    .report-content * + br + br {
+      display: none;
+    }
+    
+    .report-content br + hr {
+      margin-top: 0;
+    }
+    
+    /* 优化段落和分隔符之间的间距 */
+    .report-content p + hr {
+      margin-top: 0.4rem;
+    }
+    
+    /* 高权重强制规则：解决所有嵌套列表间距问题 */
+    .report-content li > ul,
+    .report-content li > ol {
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+    }
+    
+    .report-content li:last-child {
+      margin-bottom: 0 !important;
+    }
+    
+    .report-content ul:last-child,
+    .report-content ol:last-child {
+      margin-bottom: 0 !important;
+    }
+    
+    /* 强制压缩列表和后续元素间距 */
+    .report-content ol + *,
+    .report-content ul + * {
+      margin-top: 0.3rem !important;
+    }
+    
+    .report-content ol + h1,
+    .report-content ol + h2,
+    .report-content ol + h3,
+    .report-content ol + h4,
+    .report-content ol + h5,
+    .report-content ol + h6,
+    .report-content ul + h1,
+    .report-content ul + h2,
+    .report-content ul + h3,
+    .report-content ul + h4,
+    .report-content ul + h5,
+    .report-content ul + h6 {
+      margin-top: 0.4rem !important;
+    }
+    
+    /* 列表项的基本样式 - 保持列表功能 */
+    .report-content ul li {
+      display: list-item;
+      margin-bottom: 0.2rem;
+      line-height: 1.5;
+    }
+    
+    .report-content ol li {
+      display: list-item;
+      margin-bottom: 0.2rem;
+      line-height: 1.5;
+    }
+    
+    /* 第一个列表项的特殊处理 */
+    .report-content ul > li:first-child,
+    .report-content ol > li:first-child {
+      margin-top: 0;
+    }
+    
+    /* 列表后紧跟标题的间距控制 */
+    .report-content ul + h1,
+    .report-content ul + h2,
+    .report-content ul + h3,
+    .report-content ul + h4,
+    .report-content ul + h5,
+    .report-content ol + h1,
+    .report-content ol + h2,
+    .report-content ol + h3,
+    .report-content ol + h4,
+    .report-content ol + h5 {
+      margin-top: 0.5rem;
+    }
+    
+    /* 标题后的段落间距调整 */
+    .report-content h1 + p,
+    .report-content h2 + p,
+    .report-content h3 + p {
+      margin-top: 0.2rem;
+    }
+    
+    /* 简化p包裹strong的显示 - 针对简单的标题类文本 */
+    .report-content p:has(> strong:only-child) {
+      display: inline;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* 兼容性备选方案 - 针对只包含strong的短p标签 */
+    .report-content p > strong:only-child {
+      display: inline;
+    }
+    
+    .report-content p:has(> strong:only-child)::after {
+      content: " ";
     }
     
     .report-content blockquote {
@@ -261,8 +563,8 @@
       padding-left: 1rem;
       font-style: italic;
       background: rgba(102, 126, 234, 0.1);
-      padding: 1rem;
-      margin: 1rem 0;
+      padding: 0.8rem 1rem;
+      margin: 0.8rem 0;
       border-radius: 0 8px 8px 0;
       color: #cbd5e1;
     }
@@ -278,17 +580,18 @@
     .report-content pre {
       background: rgba(0, 0, 0, 0.6);
       color: #10b981;
-      padding: 1rem;
+      padding: 0.8rem;
       border-radius: 8px;
       overflow-x: auto;
-      margin: 1rem 0;
+      margin: 0.8rem 0;
       border: 1px solid rgba(255, 255, 255, 0.1);
+      line-height: 1.5;
     }
     
     .report-content table {
       width: 100%;
       border-collapse: collapse;
-      margin: 1rem 0;
+      margin: 0.8rem 0;
       background: rgba(255, 255, 255, 0.05);
       border-radius: 8px;
       overflow: hidden;
@@ -454,7 +757,7 @@
           <select name="report_type" class="glass-select">
             <option value="standard">标准行业报告</option>
             <option value="literature_review">文献综述报告</option>
-            <option value="industry_research">行业研究报告</option>
+            <option value="corporate_research">企业调研报告</option>
             <option value="popular_science">科普知识报告</option>
           </select>
         </div>
@@ -770,6 +1073,7 @@
           // 移除可能误注入的页面辅助函数与变量片段
           .replace(/function\s+getCurrentUser\s*\([^)]*\)\s*\{[\s\S]{0,2000}?\}/gi, '')
           .replace(/const\s+currentUser\s*=\s*getCurrentUser\(\);[\s\S]{0,2000}?$/gmi, '');
+        
         // 基于关键词行过滤，避免UI脚本片段渲染
         const blockedTokens = [
           'function getCurrentUser', 'const currentUser', 'current-user-json',
@@ -777,16 +1081,261 @@
           "form.querySelector('input[name=\"email\"]')",
           'getElementById(', 'logout', 'applyUserUI'
         ];
+        
         safeMarkdown = safeMarkdown
           .split('\n')
           .filter(line => !blockedTokens.some(t => line.includes(t)))
           .filter(line => !/getElementById\s*\(/.test(line))
           .filter(line => !/applyUserUI\s*\(/.test(line))
           .join('\n');
+        
+        // 后端已经处理了换行问题，这里不需要额外处理
+        
+        // 直接渲染
         reportEl.innerHTML = marked.parse(safeMarkdown);
         
-        // 运行代码块高亮和图表渲染
+        // 彻底清理空白段落
         setTimeout(() => {
+          // 完全移除空段落和只包含空白字符的段落
+          reportEl.querySelectorAll('p').forEach(p => {
+            const text = p.textContent.trim();
+            if (!text) {
+              p.remove(); // 完全移除而不是隐藏
+            }
+          });
+          
+          // 优化列表项内的段落显示，解决过度换行问题
+          reportEl.querySelectorAll('li').forEach(li => {
+            const paragraphs = li.querySelectorAll('p');
+            
+            // 只处理那些确实有过度换行问题的列表项
+            // 如果列表项内只有一个段落，不需要处理
+            if (paragraphs.length <= 1) {
+              return;
+            }
+            
+            // 检查是否是参考文献中的嵌套列表项（这些应该保持分行）
+            const parentList = li.closest('ol, ul');
+            const isNestedInReference = parentList && parentList.previousElementSibling && 
+              (parentList.previousElementSibling.textContent.includes('参考文献') || 
+               parentList.previousElementSibling.tagName === 'H2');
+            
+            // 如果是参考文献的嵌套列表项，保持原有格式
+            if (isNestedInReference && li.parentElement.tagName !== 'OL') {
+              return;
+            }
+            
+            // 对于主列表项（非嵌套），合并多个段落
+            if (paragraphs.length > 1 && li.parentElement.tagName === 'OL') {
+              const firstP = paragraphs[0];
+              let combinedText = '';
+              
+              paragraphs.forEach((p, index) => {
+                const text = p.textContent.trim();
+                if (text) {
+                  if (index === 0) {
+                    combinedText = text;
+                  } else {
+                    combinedText += ' | ' + text;
+                  }
+                }
+                
+                if (index > 0) {
+                  p.remove();
+                }
+              });
+              
+              if (firstP && combinedText) {
+                firstP.textContent = combinedText;
+              }
+            }
+          });
+          
+          // 处理简单的p包裹strong的情况
+          reportEl.querySelectorAll('p').forEach(p => {
+            // 检查p标签是否只包含一个strong标签和可能的少量文本
+            const children = Array.from(p.childNodes);
+            const strongElements = p.querySelectorAll('strong');
+            
+            // 情况1：p标签只包含一个strong元素
+            if (strongElements.length === 1 && children.length <= 2) {
+              const strong = strongElements[0];
+              const text = p.textContent.trim();
+              
+              // 如果是简短的标题类文本（以冒号结尾或很短）
+              if (text.length < 80 && (
+                text.endsWith('：') || 
+                text.endsWith(':') || 
+                text.endsWith('】') || 
+                text.endsWith('】：') ||
+                text.includes('**') ||
+                (text.length < 30 && !text.includes('。'))
+              )) {
+                // 将p标签的内容直接替换为strong内容
+                const newStrong = document.createElement('strong');
+                newStrong.innerHTML = strong.innerHTML;
+                
+                // 获取strong后面的文本（如冒号）
+                const afterText = p.textContent.replace(strong.textContent, '').trim();
+                if (afterText) {
+                  newStrong.textContent = strong.textContent + afterText;
+                }
+                
+                // 替换整个p标签
+                p.parentNode.replaceChild(newStrong, p);
+                
+                // 添加一个空格以保持间距
+                const space = document.createTextNode(' ');
+                newStrong.parentNode.insertBefore(space, newStrong.nextSibling);
+              }
+            }
+          });
+          
+          // 新增：专门处理参考文献部分的格式问题
+          reportEl.querySelectorAll('ul, ol').forEach(list => {
+            // 检查是否是参考文献列表（通常包含链接和作者信息）
+            const isReferenceList = Array.from(list.querySelectorAll('li')).some(li => 
+              li.innerHTML.includes('作者:') || li.innerHTML.includes('来源:') || li.innerHTML.includes('链接:')
+            );
+            
+            if (isReferenceList) {
+              // 处理参考文献列表的格式
+              list.querySelectorAll('li').forEach(li => {
+                // 检查是否有嵌套列表需要处理
+                const nestedLists = li.querySelectorAll('ul, ol');
+                if (nestedLists.length > 0) {
+                  // 获取主标题（通常在第一个段落或strong标签中）
+                  const mainTitle = li.querySelector('p strong') || li.querySelector('strong');
+                  let titleText = mainTitle ? mainTitle.textContent : '';
+                  
+                  // 收集嵌套列表的内容
+                  const nestedContent = [];
+                  nestedLists.forEach(nestedList => {
+                    nestedList.querySelectorAll('li').forEach(nestedLi => {
+                      nestedContent.push(nestedLi.innerHTML.trim());
+                    });
+                    nestedList.remove();
+                  });
+                  
+                  // 重构列表项内容
+                  if (titleText && nestedContent.length > 0) {
+                    li.innerHTML = `<strong>${titleText}</strong> (${nestedContent.join(' | ')})`;
+                  }
+                  
+                  // 设置紧凑样式
+                  li.style.marginBottom = '0.3em';
+                  li.style.lineHeight = '1.3';
+                }
+              });
+            }
+          });
+          
+          // 处理多层嵌套列表结束后的过度间距问题
+          reportEl.querySelectorAll('hr').forEach(hr => {
+            // 检查hr前面是否有多个连续的空元素或空白节点
+            let prevNode = hr.previousSibling;
+            let emptyNodesCount = 0;
+            
+            while (prevNode) {
+              if (prevNode.nodeType === Node.TEXT_NODE && prevNode.textContent.trim() === '') {
+                emptyNodesCount++;
+                const nodeToRemove = prevNode;
+                prevNode = prevNode.previousSibling;
+                nodeToRemove.remove();
+              } else if (prevNode.nodeType === Node.ELEMENT_NODE && 
+                        prevNode.tagName && 
+                        ['BR'].includes(prevNode.tagName) &&
+                        emptyNodesCount < 3) {
+                // 移除多余的br标签
+                const nodeToRemove = prevNode;
+                prevNode = prevNode.previousSibling;
+                nodeToRemove.remove();
+                emptyNodesCount++;
+              } else {
+                break;
+              }
+            }
+          });
+          
+          // 处理列表结束后的多余空白
+          reportEl.querySelectorAll('ul, ol').forEach(list => {
+            let nextNode = list.nextSibling;
+            let removedSpaces = 0;
+            
+            while (nextNode && removedSpaces < 3) {
+              if (nextNode.nodeType === Node.TEXT_NODE && 
+                  nextNode.textContent.trim() === '' &&
+                  nextNode.textContent.length > 1) {
+                const nodeToRemove = nextNode;
+                nextNode = nextNode.nextSibling;
+                nodeToRemove.remove();
+                removedSpaces++;
+              } else {
+                break;
+              }
+            }
+          });
+          
+          // 强力处理多层嵌套列表结束标签的换行问题
+          function compressNestedListEndings() {
+            // 查找所有嵌套列表结构
+            reportEl.querySelectorAll('li').forEach(li => {
+              const nestedList = li.querySelector('ul, ol');
+              if (nestedList) {
+                // 如果这个li包含嵌套列表，强制压缩其后的空白
+                let current = li;
+                let emptyTextNodes = [];
+                
+                // 收集li后面的所有空白文本节点
+                let sibling = current.nextSibling;
+                while (sibling) {
+                  if (sibling.nodeType === Node.TEXT_NODE && sibling.textContent.trim() === '') {
+                    emptyTextNodes.push(sibling);
+                    sibling = sibling.nextSibling;
+                  } else if (sibling.nodeType === Node.ELEMENT_NODE && 
+                            (sibling.tagName === 'LI' || sibling.tagName.match(/H[1-6]/))) {
+                    break;
+                  } else {
+                    sibling = sibling.nextSibling;
+                  }
+                }
+                
+                // 如果找到超过2个空白节点，只保留1个最小的
+                if (emptyTextNodes.length > 1) {
+                  emptyTextNodes.slice(1).forEach(node => node.remove());
+                  if (emptyTextNodes[0]) {
+                    emptyTextNodes[0].textContent = '\n';
+                  }
+                }
+              }
+            });
+            
+            // 处理列表结束后紧跟标题的情况
+            reportEl.querySelectorAll('ol, ul').forEach(list => {
+              let nextElement = list.nextElementSibling;
+              if (nextElement && nextElement.tagName && nextElement.tagName.match(/H[1-6]/)) {
+                // 移除列表和标题之间的多余空白
+                let node = list.nextSibling;
+                while (node && node !== nextElement) {
+                  if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() === '') {
+                    const nodeToRemove = node;
+                    node = node.nextSibling;
+                    nodeToRemove.remove();
+                  } else {
+                    node = node.nextSibling;
+                  }
+                }
+                
+                // 添加一个最小的间隔
+                const minSpace = document.createTextNode('\n');
+                list.parentNode.insertBefore(minSpace, nextElement);
+              }
+            });
+          }
+          
+          // 执行压缩处理
+          compressNestedListEndings();
+          
           // 检查当前DOM内是否有mermaid图表
           document.querySelectorAll('.mermaid').forEach(el => {
             if (!el.hasAttribute('data-processed')) {
